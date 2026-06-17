@@ -1,2 +1,0 @@
-[     446ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cdn.jsdelivr.net/npm/three@0.160.1/webgpu:0
-[    1893ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://cdn.jsdelivr.net/npm/three@0.160.1/tsl:0

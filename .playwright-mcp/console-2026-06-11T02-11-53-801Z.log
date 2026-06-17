@@ -1,5 +1,0 @@
-[     815ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:4321/logo-white.svg:0
-[    1118ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/three.mjs:3824
-[    1932ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:4321/logo-white.svg:0
-[    4234ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:4321/logo-white.svg:0
-[    8688ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:4321/logo-white.svg:0

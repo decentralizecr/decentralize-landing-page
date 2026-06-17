@@ -1,2 +1,0 @@
-[     112ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/webgpu.mjs:414
-[     119ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/tsl.mjs:414

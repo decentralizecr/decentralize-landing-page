@@ -1,2 +1,0 @@
-[     460ms] [ERROR] Access to script at 'https://unpkg.com/three-globe@2.31.0/dist/three-globe.module.js' from origin 'http://127.0.0.1:4321' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://127.0.0.1:4321/prototipo/hero-hibrido.html:0
-[     460ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://unpkg.com/three-globe@2.31.0/dist/three-globe.module.js:0

@@ -1,1 +1,13 @@
-node_modules
+# dependencias
+node_modules/
+
+# build / artefactos generados
+dist/
+.astro/
+
+# herramientas de debug
+.playwright-mcp/
+
+# screenshots de verificacion sueltos en la raiz
+# (los assets reales del sitio viven en /public y NO se ignoran)
+/*.png

@@ -1,3 +1,0 @@
-[     433ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/three.mjs:3824
-[ 8433191ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:4321/@vite/client:1598
-[ 8441018ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/three.mjs:3824
