@@ -1,0 +1,2 @@
+[    1935ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/three.mjs:3824
+[    8934ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:7777/favicon.ico:0

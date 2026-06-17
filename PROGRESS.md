@@ -36,22 +36,27 @@ Dirección visual Híbrido A+B aprobada por el cliente. Hero listo para implemen
 - Iter 9: atmosphere celeste #87CEEB built-in (suave, difuminado), retirado el Fresnel naranja
 - Iter 10 (polish final aprobado): pill opacity 0.18, texto blanco 600, VSL margin-top 1px móvil, nav móvil con "Empezá Ya" + hamburger + dropdown
 
-## Próximo paso — Fase 3
-1. Scaffold del proyecto Astro v6 (`npm create astro@latest`) con output `static`, Tailwind v4, TypeScript
-2. Portar el hero aprobado como componente Astro (`src/components/Hero.astro`)
-3. Crear la estructura de secciones del landing:
-   - Hero (portado del prototipo)
-   - Problema / Agitación
-   - Solución / Bitcoin Masterclass
-   - Módulos del curso (5 módulos, 7+ horas)
-   - Sobre Alberto (pérdida $100K, 9 000+ hs, +200 personas)
-   - Testimonios (screenshots testi-1 a testi-6)
-   - Calculadora DCA (CoinGecko + TradingView modal)
-   - Precio / CTA ($97, $147 tachado, garantía 7 días)
-   - Formulario (2 caminos: pago / llamada)
-   - Footer + links legales
-4. Lint + typecheck + pruebas unitarias en verde antes de cerrar cada sección
+## Secciones aprobadas — orden de construcción (una a la vez, sin avanzar sin confirmación)
+
+| # | Sección | Estado | Notas |
+|---|---------|--------|-------|
+| 1 | Hero | ✅ Aprobado | Globe.GL + nav + stats + copy final |
+| 2 | El Problema | 🔨 En construcción | Oscuro, tenso, sin planeta. Miedos + inflación/colón/bancos. |
+| 3 | Mi Historia (Alberto) | Pendiente | Íntimo, glass, foto alberto.png, $100K, +9 000 horas |
+| 4 | La Transformación | Pendiente | Antes/después con ❌ y ✅, caos gris a naranja al scroll |
+| 5 | Módulos | Pendiente | 5 módulos, habilidades adquiridas, limpio |
+| 6 | Todo lo que recibís | Pendiente | Inventario premium glass, prepara el precio |
+| 7 | Comunidad Discord | Pendiente | Servidor.png + canales colapsables + beneficios |
+| 8 | Testimonios | Pendiente | testi-1 a 6, sin cifras ROI, cerca del precio |
+| 9 | Precio | Pendiente | $147 tachado a $97, CTA principal |
+| 10 | Garantía | Pendiente | 7 días, limpio, escudo |
+| 11 | FAQ | Pendiente | Acordeón oscuro |
+| 12 | CTA Final | Pendiente | Vuelve el planeta, cierre del viaje |
+| 13 | Redes + Footer | Pendiente | Cierre limpio |
+
+## Próximos pasos inmediatos
+1. Aprobar sección 2 (El Problema) — en construcción ahora
+2. Continuar con sección 3 (Mi Historia — Alberto) al confirmar
 
 ## Pendientes / decisiones para Fase 3
 - Confirmar si el VSL tendrá video real o sigue como placeholder al arrancar
-- Definir si las secciones se construyen de arriba hacia abajo o se priorizan las de conversión primero (formulario / precio)

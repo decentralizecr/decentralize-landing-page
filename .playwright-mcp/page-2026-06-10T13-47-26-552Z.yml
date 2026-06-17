@@ -1,0 +1,53 @@
+- generic [ref=e1]:
+  - banner [ref=e7]:
+    - navigation [ref=e8]:
+      - generic [ref=e9]:
+        - generic [ref=e10]: ₿
+        - text: decentralize
+      - link "Empezá Ya" [ref=e11] [cursor=pointer]:
+        - /url: "#"
+        - generic [ref=e12]: Empezá Ya
+      - button "Abrir menú" [expanded] [active] [ref=e13] [cursor=pointer]:
+        - generic [ref=e14]: ✕
+  - navigation "Menú móvil" [ref=e24]:
+    - link "El Masterclass" [ref=e25] [cursor=pointer]:
+      - /url: "#masterclass"
+    - link "Comunidad" [ref=e26] [cursor=pointer]:
+      - /url: "#comunidad"
+    - link "Alberto" [ref=e27] [cursor=pointer]:
+      - /url: "#alberto"
+    - link "Testimonios" [ref=e28] [cursor=pointer]:
+      - /url: "#testimonios"
+  - main:
+    - generic:
+      - generic:
+        - generic:
+          - generic: Bitcoin Masterclass
+        - heading "Tu dinero pierde valor cada día. Bitcoin es la salida que nadie te explicó." [level=1]:
+          - generic:
+            - generic: Tu dinero pierde valor cada día.
+          - generic:
+            - generic: Bitcoin es la salida que nadie te explicó.
+        - paragraph: Trabajás duro. Ahorras. Y cada año alcanzás menos. No es casualidad. Es el sistema funcionando exactamente como fue diseñado. Nadie te enseñó cómo funciona el dinero de verdad. Acá lo aprendés en 7 horas.
+      - generic [ref=e15] [cursor=pointer]:
+        - img [ref=e17]
+        - generic [ref=e19]: VSL · 7 min
+        - generic [ref=e20]: Propuesta de ubicación
+      - link "Unirme al Bitcoin Masterclass" [ref=e21] [cursor=pointer]:
+        - /url: "#"
+        - generic [ref=e22]: Unirme al Bitcoin Masterclass
+      - generic:
+        - generic:
+          - generic: +9 000
+          - generic: horas estudiando Bitcoin
+        - generic:
+          - generic: "7"
+          - generic: horas de contenido claro
+        - generic:
+          - generic: "1"
+          - generic: solo pago, acceso de por vida
+  - generic:
+    - generic:
+      - img
+    - generic: scroll
+  - generic [ref=e23]: PROTOTIPO · Híbrido A+B · iter. 8

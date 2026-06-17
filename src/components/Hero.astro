@@ -246,6 +246,29 @@
   onScroll();
   addEventListener('scroll', onScroll, { passive: true });
 
+  /* Globo visible mientras hero O problema estén en el viewport */
+  const spaceEl  = document.getElementById('space');
+  const stageEl  = document.getElementById('globe-stage');
+  if (spaceEl && stageEl) {
+    const globeVisible = new Set();
+    const syncGlobe = () => {
+      stageEl.style.opacity = globeVisible.size > 0 ? '1' : '0';
+    };
+    const globeObs = new IntersectionObserver(entries => {
+      entries.forEach(e => e.isIntersecting
+        ? globeVisible.add(e.target)
+        : globeVisible.delete(e.target));
+      syncGlobe();
+    }, { threshold: 0 });
+    const heroMain = document.querySelector('main');
+    if (heroMain) globeObs.observe(heroMain);
+    // #problema se renderiza después de este script — esperar a que el DOM esté completo
+    document.addEventListener('DOMContentLoaded', () => {
+      const problemaEl = document.getElementById('problema');
+      if (problemaEl) globeObs.observe(problemaEl);
+    });
+  }
+
   /* Entrada con GSAP */
   if (!reduce && window.gsap) {
     gsap.set('.reveal > span', { y: '1.05em', opacity: 0 });

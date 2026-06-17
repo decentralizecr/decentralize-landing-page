@@ -1,0 +1,817 @@
+---
+// Sección 2 — El Problema
+// Translúcida con blur: globo borroso detrás. Tensa, oscura, sin planeta dominante.
+---
+
+<section id="problema" class="prob">
+  <div class="prob-noise" aria-hidden="true"></div>
+
+  <div class="prob-inner">
+
+    <p class="prob-eyebrow prob-reveal" style="--del:0s">El problema</p>
+
+    <h2 class="prob-h2 prob-reveal" style="--del:0.1s">
+      Tu dinero se <span class="erode">erosiona<canvas class="erode-canvas" aria-hidden="true"></canvas></span><br>
+      <span class="prob-h2-dim">todos los días.</span>
+    </h2>
+
+    <p class="prob-sub prob-reveal" style="--del:0.2s">
+      No es mala suerte. El sistema está diseñado para que tu dinero compre menos con el tiempo.
+    </p>
+
+    <!-- Stats strip -->
+    <div class="prob-stats prob-reveal" style="--del:0.1s" role="list">
+      <div class="prob-stat" role="listitem">
+        <span class="prob-stat-n">3–13<span class="prob-stat-unit">%</span></span>
+        <span class="prob-stat-l">Inflación anual en Costa Rica 🇨🇷. Tus ahorros pierden ese valor cada año.</span>
+      </div>
+      <div class="prob-stat-div" aria-hidden="true"></div>
+      <div class="prob-stat" role="listitem">
+        <span class="prob-stat-n"><span class="prob-stat-less">&lt;</span>1<span class="prob-stat-unit">%</span></span>
+        <span class="prob-stat-l">Te paga tu banco. Menos de lo que la inflación te quita.</span>
+      </div>
+      <div class="prob-stat-div" aria-hidden="true"></div>
+      <div class="prob-stat" role="listitem">
+        <span class="prob-stat-n"><span class="prob-count" data-to="50">0</span><span class="prob-stat-unit">+</span></span>
+        <span class="prob-stat-l">Años cotizando para una pensión que probablemente no aguante.</span>
+      </div>
+    </div>
+
+    <!-- Pain cards -->
+    <div class="prob-grid prob-reveal" style="--del:0.36s">
+
+      <article class="prob-card prob-reveal" style="--del:0.42s">
+        <div class="prob-card-top">
+          <div class="prob-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 7l-8.5 8.5-5-5L2 17"/>
+              <path d="M16 7h6v6"/>
+            </svg>
+          </div>
+          <h3 class="prob-card-title">La inflación te hace más pobre</h3>
+        </div>
+        <p class="prob-card-body">
+          Cada vez que el Banco Central emite más colones, los tuyos valen menos. Cada colón nuevo reduce el valor de los que ya tenías.
+        </p>
+        <button class="prob-card-toggle" aria-label="Expandir" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+      </article>
+
+      <article class="prob-card prob-reveal" style="--del:0.52s">
+        <div class="prob-card-top">
+          <div class="prob-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="3" y1="22" x2="21" y2="22"/>
+              <line x1="6" y1="18" x2="6" y2="11"/>
+              <line x1="10" y1="18" x2="10" y2="11"/>
+              <line x1="14" y1="18" x2="14" y2="11"/>
+              <line x1="18" y1="18" x2="18" y2="11"/>
+              <polygon points="12 2 20 7 4 7"/>
+            </svg>
+          </div>
+          <h3 class="prob-card-title">Los bancos ganan con tu dinero y vos no.</h3>
+        </div>
+        <p class="prob-card-body">
+          Comisiones, intereses que no cubren la inflación. Tu dinero trabaja para el banco mientras pierde valor para vos.
+        </p>
+        <button class="prob-card-toggle" aria-label="Expandir" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+      </article>
+
+      <article class="prob-card prob-reveal" style="--del:0.62s">
+        <div class="prob-card-top">
+          <div class="prob-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/>
+              <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/>
+              <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>
+            </svg>
+          </div>
+          <h3 class="prob-card-title">Ganás más. Comprás menos.</h3>
+        </div>
+        <p class="prob-card-body">
+          El salario sube, pero el costo de vida sube más rápido. Necesitás más dinero para mantener el mismo estilo de vida.
+        </p>
+        <button class="prob-card-toggle" aria-label="Expandir" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+      </article>
+
+      <article class="prob-card prob-reveal" style="--del:0.72s">
+        <div class="prob-card-top">
+          <div class="prob-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
+              <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
+              <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/>
+              <line x1="2" y1="2" x2="22" y2="22"/>
+            </svg>
+          </div>
+          <h3 class="prob-card-title">Nunca te enseñaron cómo funciona el dinero</h3>
+        </div>
+        <p class="prob-card-body">
+          La escuela no enseña finanzas. Los bancos no te educan. Llegaste sin herramientas para proteger lo que construiste. Y esa ignorancia se paga todos los meses.
+        </p>
+        <button class="prob-card-toggle" aria-label="Expandir" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+      </article>
+
+    </div>
+
+    <div class="prob-bridge prob-reveal" style="--del:0.82s">
+      <p class="prob-bridge-main">No es un problema de esfuerzo. Es un problema de sistema.</p>
+      <p class="prob-bridge-sub">Alguien ya encontró la salida. Y decidió enseñarla.</p>
+    </div>
+
+  </div>
+</section>
+
+<style>
+/* ---- Base section ---- */
+.prob {
+  position: relative;
+  z-index: 10;
+  background: rgba(7, 7, 8, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 48px 20px 40px;
+  overflow: hidden;
+}
+
+/* Tension overlay: calor rojizo sutil */
+.prob::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 100% 45% at 50% -5%, rgba(180, 28, 28, 0.055) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+/* Línea separadora superior */
+.prob::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: var(--maxw);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+}
+
+/* Grain noise */
+.prob-noise {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+/* Container */
+.prob-inner {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- Reveal animation ---- */
+.prob-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
+  transition-delay: var(--del, 0s);
+}
+.prob-reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .prob-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* ---- Stats strip reveal ---- */
+.prob-stats-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
+}
+.prob-stats-reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---- Eyebrow ---- */
+@keyframes eyebrowPulse {
+  0%, 100% { border-color: rgba(247,147,26,0.3); box-shadow: none; }
+  50%       { border-color: rgba(247,147,26,0.65); box-shadow: 0 0 14px -2px rgba(247,147,26,0.22); }
+}
+.prob-eyebrow {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border: 1px solid rgba(247,147,26,0.3);
+  background: rgba(247,147,26,0.07);
+  padding: 5px 16px;
+  border-radius: 999px;
+  margin: 0 0 16px;
+  cursor: default;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+  animation: eyebrowPulse 3.5s ease-in-out infinite;
+}
+.prob-eyebrow:hover {
+  border-color: rgba(247,147,26,0.7);
+  box-shadow: 0 0 16px rgba(247,147,26,0.3), 0 0 32px rgba(247,147,26,0.1);
+  background: rgba(247,147,26,0.12);
+}
+
+/* ---- Headline ---- */
+.prob-h2 {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-weight: 700;
+  color: var(--text-bright);
+  line-height: 1.12;
+  margin: 0 0 24px;
+  letter-spacing: -0.025em;
+}
+.prob-h2-dim { color: var(--muted); }
+
+/* ---- Sub ---- */
+.prob-sub {
+  font-family: var(--font-sans);
+  font-size: 1.1rem;
+  color: var(--muted);
+  max-width: 580px;
+  line-height: 1.7;
+  margin: 0 0 40px;
+}
+
+/* ---- Stats strip ---- */
+.prob-stats {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  width: 100%;
+  max-width: 860px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(247,147,26,0.25);
+  box-shadow: 0 0 12px rgba(247,147,26,0.08);
+  border-radius: 16px;
+  padding: 40px 16px;
+  margin-bottom: 64px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.prob-stats:hover {
+  border-color: rgba(247,147,26,0.55);
+  box-shadow: 0 0 20px rgba(247,147,26,0.25), 0 0 40px rgba(247,147,26,0.1);
+}
+.prob-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 0 20px;
+}
+.prob-stat-div {
+  width: 1px;
+  height: 56px;
+  background: rgba(247,147,26,0.35);
+  box-shadow: 0 0 8px rgba(247,147,26,0.4), 0 0 20px rgba(247,147,26,0.15);
+  align-self: center;
+  flex-shrink: 0;
+  transition: box-shadow 0.3s ease, background 0.3s ease;
+}
+.prob-stats:hover .prob-stat-div {
+  background: rgba(247,147,26,0.7);
+  box-shadow: 0 0 12px rgba(247,147,26,0.7), 0 0 30px rgba(247,147,26,0.3);
+}
+.prob-stat-n {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: -0.04em;
+  font-size: 3rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  text-shadow: 0 0 20px rgba(220, 60, 60, 0.8), 0 0 40px rgba(220, 60, 60, 0.4);
+  animation: dangerPulse 3s ease-in-out infinite;
+}
+.prob-stat-less {
+  font-size: 2rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  color: #FFFFFF;
+  text-shadow: 0 0 20px rgba(220, 60, 60, 0.8), 0 0 40px rgba(220, 60, 60, 0.4);
+}
+.prob-stat-unit {
+  font-size: 1.7rem;
+  color: rgba(255,255,255,0.7);
+  letter-spacing: 0;
+}
+@keyframes dangerPulse {
+  0%, 100% { text-shadow: 0 0 16px rgba(220,60,60,0.6), 0 0 32px rgba(220,60,60,0.3); }
+  50%       { text-shadow: 0 0 24px rgba(220,60,60,0.9), 0 0 50px rgba(220,60,60,0.5); }
+}
+.prob-stat-prefix {
+  font-size: 1.2rem;
+  color: var(--btc);
+  margin-left: 4px;
+  line-height: 1;
+}
+.prob-stat-l {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.5;
+  text-align: center;
+  max-width: 200px;
+}
+
+/* ---- Pain grid ---- */
+.prob-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  width: 100%;
+  max-width: 860px;
+  text-align: left;
+  margin-bottom: 40px;
+}
+.prob-card {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(247,147,26,0.25);
+  box-shadow: 0 0 12px rgba(247,147,26,0.08);
+  border-radius: 14px;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+}
+.prob-card:hover {
+  border-color: rgba(247,147,26,0.6);
+  box-shadow: 0 0 20px rgba(247,147,26,0.3), 0 0 40px rgba(247,147,26,0.1);
+  background: rgba(247,147,26,0.035);
+}
+.prob-card-icon {
+  width: 34px;
+  height: 34px;
+  color: var(--btc);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 0 6px rgba(247,147,26,0.5));
+  animation: iconGlow 2.5s ease-in-out infinite;
+}
+.prob-card-icon svg { width: 100%; height: 100%; }
+
+@keyframes iconGlow {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(247,147,26,0.4)); }
+  50%       { filter: drop-shadow(0 0 10px rgba(247,147,26,0.8)); }
+}
+.prob-card-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-bright);
+  margin: 0;
+  line-height: 1.3;
+}
+.prob-card-body {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  color: var(--muted);
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* ---- Bridge ---- */
+.prob-bridge {
+  text-align: center;
+  padding-top: 24px;
+  width: 100%;
+  max-width: 560px;
+  position: relative;
+}
+
+.prob-bridge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 1px;
+  background: rgba(247,147,26,0.4);
+  animation: bridgeGlow 3s ease-in-out infinite;
+}
+
+@keyframes bridgeGlow {
+  0%, 100% {
+    background: rgba(247,147,26,0.3);
+    box-shadow: 0 0 8px rgba(247,147,26,0.2);
+  }
+  50% {
+    background: rgba(247,147,26,0.7);
+    box-shadow: 0 0 20px rgba(247,147,26,0.5), 0 0 40px rgba(247,147,26,0.2);
+  }
+}
+.prob-bridge-main {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-bright);
+  margin: 0 0 10px;
+}
+.prob-bridge-sub {
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* ---- Mobile ---- */
+@media (max-width: 768px) {
+  .prob { padding: 36px 16px 32px; }
+  .prob-sub { margin: 0 0 24px; }
+  .prob-h2 { margin: 0 0 16px; }
+
+  /* Stats: mantener en fila horizontal compacta */
+  .prob-stats {
+    margin-bottom: 24px;
+    padding: 20px 8px;
+    align-items: center;
+  }
+  .prob-stat { padding: 0 6px; }
+  .prob-stat-n { font-size: clamp(1.8rem, 6vw, 2.4rem); }
+  .prob-stat-unit { font-size: clamp(1.1rem, 4vw, 1.5rem); }
+  .prob-stat-l {
+    font-size: clamp(0.6rem, 2vw, 0.72rem);
+    max-width: 100%;
+    line-height: 1.4;
+  }
+  .prob-stat-div { height: 40px; }
+
+  /* Grid 2x2 */
+  .prob-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    align-items: stretch;
+    margin-bottom: 24px;
+  }
+
+  .prob-card {
+    padding: 16px 12px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 160px;
+  }
+  .prob-card-top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    flex: 1;
+  }
+  .prob-card-body {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    margin: 0;
+    width: 100%;
+    text-align: left;
+    flex: 1;
+    transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s ease;
+  }
+  .prob-card.open .prob-card-body {
+    max-height: 300px;
+    opacity: 1;
+    margin-top: 10px;
+  }
+  .prob-card-toggle {
+    display: flex !important;
+    margin-top: 12px;
+    align-self: center;
+    flex-shrink: 0;
+  }
+
+}
+
+/* Tilt 3D — desktop only */
+@media (hover: hover) and (pointer: fine) {
+  .prob-card {
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+}
+
+/* Partículas erosiona */
+.erode {
+  position: relative;
+  display: inline-block;
+}
+.erode-canvas {
+  position: absolute;
+  left: -10%;
+  top: 100%;
+  width: 120%;
+  height: 40px;
+  pointer-events: none;
+  opacity: 1;
+}
+
+/* Acordeón móvil — card top row */
+.prob-card-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+.prob-card-top .prob-card-title {
+  flex: unset;
+  text-align: center;
+  width: 100%;
+}
+.prob-card-toggle {
+  display: none;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(247,147,26,0.5);
+  background: rgba(247,147,26,0.1);
+  color: var(--btc);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+  animation: toggleGlow 2.5s ease-in-out infinite;
+  flex-shrink: 0;
+}
+.prob-card-toggle svg {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.3s ease;
+}
+.prob-card-toggle[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+@keyframes toggleGlow {
+  0%, 100% { box-shadow: 0 0 6px rgba(247,147,26,0.4); }
+  50%       { box-shadow: 0 0 14px rgba(247,147,26,0.8), 0 0 28px rgba(247,147,26,0.3); }
+}
+
+/* Body colapsable en móvil */
+
+</style>
+
+<script is:inline>
+(function () {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Forzar que el stats strip empiece invisible */
+  const statsStrip = document.querySelector('.prob-stats');
+  if (statsStrip) {
+    statsStrip.style.opacity = '0';
+    statsStrip.style.transform = 'translateY(28px)';
+    statsStrip.style.transition = 'opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1)';
+  }
+
+  /* Scroll reveals: opacity + translateY */
+  document.addEventListener('DOMContentLoaded', () => {
+    const revealEls = document.querySelectorAll('.prob-reveal');
+    if (reduce) {
+      revealEls.forEach(el => el.classList.add('visible'));
+    } else {
+      const revealObs = new IntersectionObserver(
+        (entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              revealObs.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.08, rootMargin: '0px 0px -20px 0px' }
+      );
+      revealEls.forEach(el => revealObs.observe(el));
+    }
+  });
+
+  /* Counter: el "30" sube desde 0 al entrar al viewport */
+  const countEls = document.querySelectorAll('.prob-count');
+  if (countEls.length) {
+    const countObs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          const el = entry.target;
+          const target = +el.dataset.to;
+          countObs.unobserve(el);
+          if (reduce) { el.textContent = target; return; }
+          if (window.gsap) {
+            const o = { v: 0 };
+            gsap.to(o, {
+              v: target, duration: 1.8, ease: 'power2.out',
+              onUpdate: () => { el.textContent = Math.round(o.v); }
+            });
+          } else {
+            const dur = 1800, t0 = performance.now();
+            const tick = now => {
+              const p = Math.min((now - t0) / dur, 1);
+              el.textContent = Math.round((1 - Math.pow(1 - p, 3)) * target);
+              if (p < 1) requestAnimationFrame(tick);
+            };
+            requestAnimationFrame(tick);
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+    countEls.forEach(el => countObs.observe(el));
+  }
+
+  /* Tilt 3D en pain cards — solo desktop, off en reduced-motion */
+  if (!reduce && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    document.querySelectorAll('.prob-card').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const r = card.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width;
+        const py = (e.clientY - r.top) / r.height;
+        const rotX = (0.5 - py) * 6;
+        const rotY = (px - 0.5) * 6;
+        card.style.transform = `perspective(800px) rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+        card.style.transition = 'transform 0.15s ease-out';
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg)';
+        card.style.transition = 'transform 0.4s ease-out';
+      });
+    });
+  }
+
+  /* Partículas cayendo desde "erosiona" — solo desktop, off en reduced-motion */
+  if (!reduce && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    const erodeCanvas = document.querySelector('.erode-canvas');
+    if (erodeCanvas) {
+      const ctx = erodeCanvas.getContext('2d');
+      const W = erodeCanvas.offsetWidth || 200;
+      const H = 40;
+      const DPR = Math.min(devicePixelRatio || 1, 1.5);
+      erodeCanvas.width = W * DPR;
+      erodeCanvas.height = H * DPR;
+      ctx.scale(DPR, DPR);
+
+      const PARTICLE_COUNT = 8;
+      const particles = Array.from({ length: PARTICLE_COUNT }, () => ({
+        x: Math.random() * W,
+        y: 0,
+        size: 1 + Math.random(),
+        drift: (Math.random() - 0.5) * 0.2,
+        speed: 0.2 + Math.random() * 0.15,
+        life: Math.random() * 90,
+        maxLife: 90,
+      }));
+
+      let rafId = null;
+      let running = false;
+
+      function drawParticles() {
+        ctx.clearRect(0, 0, W, H);
+        particles.forEach(p => {
+          p.life++;
+          if (p.life >= p.maxLife) {
+            p.x = Math.random() * W;
+            p.y = 0;
+            p.life = 0;
+            p.drift = (Math.random() - 0.5) * 0.2;
+            p.speed = 0.2 + Math.random() * 0.15;
+            p.size = 1 + Math.random();
+          }
+          p.y += p.speed;
+          p.x += p.drift;
+          const alpha = 0.5 * (1 - p.life / p.maxLife);
+          ctx.fillStyle = `rgba(139,147,161,${alpha})`;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        rafId = requestAnimationFrame(drawParticles);
+      }
+
+      const erodeObs = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && !running) {
+            running = true;
+            drawParticles();
+          } else if (!entry.isIntersecting && running) {
+            running = false;
+            cancelAnimationFrame(rafId);
+            ctx.clearRect(0, 0, W, H);
+          }
+        });
+      }, { threshold: 0.3 });
+
+      erodeObs.observe(erodeCanvas);
+    }
+  }
+
+  /* Acordeón pain cards — solo móvil, todas abren/cierran juntas */
+  if (window.matchMedia('(max-width: 768px)').matches) {
+    const cards = document.querySelectorAll('.prob-card');
+    const toggles = document.querySelectorAll('.prob-card-toggle');
+    const tops = document.querySelectorAll('.prob-card-top');
+    let isOpen = false;
+
+    toggles.forEach(btn => {
+      btn.addEventListener('click', () => {
+        isOpen = !isOpen;
+        cards.forEach(card => card.classList.toggle('open', isOpen));
+        toggles.forEach(b => {
+          b.setAttribute('aria-expanded', String(isOpen));
+          b.setAttribute('aria-label', isOpen ? 'Colapsar' : 'Expandir');
+        });
+        /* Cuando abierto: quitar flex:1 del top para eliminar espacio vacío */
+        tops.forEach(top => {
+          top.style.flex = isOpen ? '0 0 auto' : '1';
+        });
+      });
+    });
+  }
+
+  /* Observer específico para stats strip */
+  if (statsStrip && !reduce) {
+    const so = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          setTimeout(() => {
+            statsStrip.style.opacity = '1';
+            statsStrip.style.transform = 'translateY(0)';
+          }, 100);
+          so.unobserve(statsStrip);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+    so.observe(statsStrip);
+  }
+
+  /* Observer para las 2 cards de abajo (índice 2 y 3) */
+  if (!reduce) {
+    const bottomCards = Array.from(document.querySelectorAll('.prob-card')).slice(2);
+    bottomCards.forEach(card => {
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(28px)';
+      card.style.transition = 'opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1)';
+    });
+    const cardObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          setTimeout(() => {
+            e.target.style.opacity = '1';
+            e.target.style.transform = 'translateY(0)';
+          }, 100);
+          cardObs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+    bottomCards.forEach(card => cardObs.observe(card));
+  }
+})();
+</script>

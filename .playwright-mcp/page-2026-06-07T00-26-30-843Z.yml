@@ -1,0 +1,63 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e4]:
+    - navigation [ref=e5]:
+      - generic [ref=e6]:
+        - generic [ref=e7]: ₿
+        - text: decentralize
+      - list [ref=e8]:
+        - listitem [ref=e9]:
+          - link "El Masterclass" [ref=e10] [cursor=pointer]:
+            - /url: "#"
+        - listitem [ref=e11]:
+          - link "Comunidad" [ref=e12] [cursor=pointer]:
+            - /url: "#"
+        - listitem [ref=e13]:
+          - link "Alberto" [ref=e14] [cursor=pointer]:
+            - /url: "#"
+        - listitem [ref=e15]:
+          - link "Testimonios" [ref=e16] [cursor=pointer]:
+            - /url: "#"
+      - link "Empezá ahora" [ref=e17] [cursor=pointer]:
+        - /url: "#"
+        - generic [ref=e18]: Empezá ahora
+  - main [ref=e19]:
+    - generic:
+      - generic: Bitcoin Masterclass
+      - heading "No es que ganés poco. Es que tu plata vale menos cada año." [level=1]:
+        - generic:
+          - generic: No es que ganés poco.
+        - generic:
+          - generic:
+            - text: Es que tu plata
+            - emphasis: vale
+        - generic:
+          - generic:
+            - emphasis: menos cada año.
+      - paragraph: Aprendé a proteger tu dinero con Bitcoin. De principiante a entender de verdad cómo funciona el sistema, en 7 horas, sin tecnicismos y sin miedo a estafas.
+      - generic [ref=e20] [cursor=pointer]:
+        - img [ref=e22]
+        - generic [ref=e24]: VSL · 7 min
+        - generic [ref=e25]: Propuesta de ubicación
+      - generic:
+        - link "Empezá ahora" [ref=e26] [cursor=pointer]:
+          - /url: "#"
+          - generic [ref=e27]: Empezá ahora
+        - link "Ver cómo funciona" [ref=e28] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e30]
+          - generic [ref=e32]: Ver cómo funciona
+      - generic:
+        - generic:
+          - generic: "+0"
+          - generic: horas estudiando Bitcoin
+        - generic:
+          - generic: "0"
+          - generic: horas de contenido claro
+        - generic:
+          - generic: "0"
+          - generic: solo pago, acceso de por vida
+  - generic:
+    - generic:
+      - img
+    - generic: scroll
+  - generic [ref=e33]: PROTOTIPO · Híbrido A+B · iter. 6

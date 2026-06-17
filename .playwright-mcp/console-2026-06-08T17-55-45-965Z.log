@@ -1,0 +1,36 @@
+[     381ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/webgpu.mjs:414
+[     390ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/tsl.mjs:414
+[  217315ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/webgpu.mjs:414
+[  217324ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/tsl.mjs:414
+[  318498ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/webgpu.mjs:414
+[  318512ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/tsl.mjs:414
+[  364373ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/webgpu.mjs:414
+[  364378ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/tsl.mjs:414
+[ 4606909ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/webgpu.mjs:414
+[ 4606939ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/tsl.mjs:414
+[ 4710355ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/webgpu.mjs:414
+[ 4710378ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/tsl.mjs:414
+[ 4808167ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/webgpu.mjs:414
+[ 4808171ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/tsl.mjs:414
+[ 5098708ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/webgpu.mjs:414
+[ 5098715ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/tsl.mjs:414
+[ 5119476ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/webgpu.mjs:414
+[ 5119485ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/tsl.mjs:414
+[ 5126296ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/webgpu.mjs:414
+[ 5126301ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/tsl.mjs:414
+[ 5312178ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/webgpu.mjs:414
+[ 5312188ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/tsl.mjs:414
+[ 5406373ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/webgpu.mjs:414
+[ 5406379ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/tsl.mjs:414
+[ 5454270ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/webgpu.mjs:414
+[ 5454275ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/tsl.mjs:414
+[ 5459823ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/webgpu.mjs:414
+[ 5459831ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/tsl.mjs:414
+[ 5671214ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/webgpu.mjs:414
+[ 5671222ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/tsl.mjs:414
+[ 9089415ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/webgpu.mjs:414
+[ 9089423ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/tsl.mjs:414
+[ 9437419ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/webgpu.mjs:414
+[ 9437427ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/tsl.mjs:414
+[10078940ms] [WARNING] WebGL: CONTEXT_LOST_WEBGL: loseContext: context lost @ http://127.0.0.1:4321/prototipo/hero-hibrido.html:0
+[10078943ms] [LOG] THREE.WebGLRenderer: Context Lost. @ https://esm.sh/three@0.170.0/es2022/three.mjs:3824

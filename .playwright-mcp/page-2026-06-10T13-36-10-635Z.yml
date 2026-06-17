@@ -1,0 +1,42 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e7]:
+    - navigation [ref=e8]:
+      - generic [ref=e9]:
+        - generic [ref=e10]: ₿
+        - text: decentralize
+      - link "Empezá ahora" [ref=e11] [cursor=pointer]:
+        - /url: "#"
+        - generic [ref=e12]: Empezá ahora
+  - main:
+    - generic:
+      - generic:
+        - generic:
+          - generic: Bitcoin Masterclass
+        - heading "Tu dinero pierde valor cada día. Bitcoin es la salida que nadie te explicó." [level=1]:
+          - generic:
+            - generic: Tu dinero pierde valor cada día.
+          - generic:
+            - generic: Bitcoin es la salida que nadie te explicó.
+        - paragraph: Trabajás duro. Ahorras. Y cada año alcanzás menos. No es casualidad. Es el sistema funcionando exactamente como fue diseñado. Nadie te enseñó cómo funciona el dinero de verdad. Acá lo aprendés en 7 horas.
+      - generic [ref=e13] [cursor=pointer]:
+        - img [ref=e15]
+        - generic [ref=e17]: VSL · 7 min
+        - generic [ref=e18]: Propuesta de ubicación
+      - link "Unirme al Bitcoin Masterclass" [ref=e19] [cursor=pointer]:
+        - /url: "#"
+        - generic [ref=e20]: Unirme al Bitcoin Masterclass
+      - generic:
+        - generic:
+          - generic: "+0"
+          - generic: horas estudiando Bitcoin
+        - generic:
+          - generic: "0"
+          - generic: horas de contenido claro
+        - generic:
+          - generic: "0"
+          - generic: solo pago, acceso de por vida
+  - generic:
+    - generic:
+      - img
+    - generic: scroll
+  - generic [ref=e21]: PROTOTIPO · Híbrido A+B · iter. 8

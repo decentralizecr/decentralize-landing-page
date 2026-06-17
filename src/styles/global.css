@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 :root {
+  /* === Legacy tokens (kept for backward compat) === */
   --gold:        #F7931A;
   --gold-soft:   #FFB347;
   --ember:       #E8720C;
@@ -11,9 +12,66 @@
   --border:      rgba(255, 255, 255, 0.10);
   --border-warm: rgba(247, 147, 26, 0.35);
   --maxw:        1200px;
-  --font-display: 'Space Grotesk', system-ui, sans-serif;
   --font-sans:    'Inter', system-ui, sans-serif;
+
+  /* === Tokens Fable — Decentralize Landing === */
+
+  /* Backgrounds */
+  --bg-deep:       #040405;
+  --bg-base:       #060607;
+  --bg-section:    #070708;
+  --bg-tech:       #08080a;
+  --bg-card:       rgba(255,255,255,0.03);
+  --bg-card-hover: rgba(255,255,255,0.05);
+  --bg-glass:      rgba(255,255,255,0.04);
+
+  /* Bitcoin accent */
+  --btc:              #F7931A;
+  --btc-light:        #FFB347;
+  --btc-deep:         #CC7A00;
+  --btc-glow-soft:    rgba(247,147,26,0.08);
+  --btc-glow-mid:     rgba(247,147,26,0.3);
+  --btc-glow-strong:  rgba(247,147,26,0.6);
+  --btc-border:       rgba(247,147,26,0.25);
+  --btc-border-hover: rgba(247,147,26,0.6);
+
+  /* Text scale */
+  --txt-hi:    #FFFFFF;
+  --txt-body:  #B8BFC9;
+  --txt-mid:   #A8B0BC;
+  --txt-low:   #7A828E;
+  --txt-ghost: #5A6270;
+  --steel:     #8B93A1;
+
+  /* Status colors */
+  --red-muted:  #8B4444;
+  --green-live: #34D399;
+  --sky-glow:   #29B6F6;
+
+  /* Borders */
+  --border-ghost: 1px solid rgba(255,255,255,0.07);
+  --border-soft:  1px solid rgba(255,255,255,0.1);
+
+  /* Radii */
+  --r-card: 18px;
+  --r-big:  24px;
+  --r-pill: 999px;
+
+  /* Shadows & glows */
+  --shadow-card: 0 20px 50px rgba(0,0,0,0.5);
+  --shadow-deep: 0 30px 80px rgba(0,0,0,0.6);
+  --glow-card:   0 0 20px rgba(247,147,26,0.3), 0 0 40px rgba(247,147,26,0.1);
+
+  /* Typography */
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body:    'Inter', sans-serif;
   --font-mono:    'JetBrains Mono', monospace;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --t-fast:   0.3s;
+  --t-med:    0.6s;
+  --t-reveal: 0.7s;
 }
 
 html {
@@ -31,6 +89,33 @@ body {
 
 *, *::before, *::after {
   box-sizing: border-box;
+}
+
+/* Shared eyebrow pill */
+.eyebrow {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border: 1px solid rgba(247,147,26,0.3);
+  background: rgba(247,147,26,0.07);
+  padding: 5px 16px;
+  border-radius: 999px;
+  cursor: default;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+  animation: eyebrowPulse 3.5s ease-in-out infinite;
+}
+.eyebrow:hover {
+  border-color: rgba(247,147,26,0.7);
+  box-shadow: 0 0 16px rgba(247,147,26,0.3), 0 0 32px rgba(247,147,26,0.1);
+  background: rgba(247,147,26,0.12);
+}
+@keyframes eyebrowPulse {
+  0%, 100% { border-color: rgba(247,147,26,0.3); box-shadow: none; }
+  50%       { border-color: rgba(247,147,26,0.65); box-shadow: 0 0 14px -2px rgba(247,147,26,0.22); }
 }
 
 @media (prefers-reduced-motion: reduce) {

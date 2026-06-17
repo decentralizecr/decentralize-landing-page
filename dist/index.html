@@ -1,0 +1,1094 @@
+<!DOCTYPE html><html lang="es"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="generator" content="Astro v6.4.5"><title>Bitcoin Masterclass — Decentralize</title><meta name="description" content="Aprendé cómo funciona el dinero de verdad. 7 horas, un solo pago, acceso de por vida."><link rel="icon" type="image/png" href="/favicons/favicon.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;550;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"><link rel="stylesheet" href="/_astro/index.DNa0QG0t.css"></head> <body>  <!-- Capas de fondo --><canvas id="space"></canvas> <div id="globe-stage"></div> <!-- Filtro SVG liquid glass (referenciado por backdrop-filter url()) --> <svg class="defs" aria-hidden="true" width="0" height="0"> <filter id="liquidGlass" x="-25%" y="-25%" width="150%" height="150%"> <feTurbulence type="fractalNoise" baseFrequency="0.011 0.015" numOctaves="2" seed="7" result="n"> <animate attributeName="baseFrequency" dur="16s" values="0.011 0.015;0.017 0.009;0.011 0.015" repeatCount="indefinite"></animate> </feTurbulence> <feDisplacementMap in="SourceGraphic" in2="n" scale="16" xChannelSelector="R" yChannelSelector="G"></feDisplacementMap> </filter> </svg> <!-- Nav --> <header id="hdr"> <nav class="nav"> <div class="brand"><a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;"><img src="/logo-white.svg" alt="Decentralize" class="brand-logo"></a></div> <ul class="nav-links"> <li><a href="#masterclass">El Masterclass</a></li> <li><a href="#comunidad">Comunidad</a></li> <li><a href="#alberto">Alberto</a></li> <li><a href="#testimonios">Testimonios</a></li> </ul> <a href="#form" class="btn btn-glass btn-primary btn-sm btn-hero"> <span class="liquid"></span> <span class="t"><span class="txt-desktop">Empezá ahora</span><span class="txt-mobile">Empezá Ya</span></span> </a> <button id="hamburger" class="btn btn-glass btn-primary btn-sm btn-hamburger" aria-label="Abrir menú" aria-expanded="false" aria-controls="nav-menu"> <span class="liquid"></span><span class="t">☰</span> </button> </nav> </header> <nav id="nav-menu" aria-label="Menú móvil"> <a href="#masterclass">El Masterclass</a> <a href="#comunidad">Comunidad</a> <a href="#alberto">Alberto</a> <a href="#testimonios">Testimonios</a> </nav> <!-- Hero --> <main> <section class="hero"> <div class="text-block"> <h1> <span class="reveal"><span>Tu dinero pierde valor cada día.</span></span> <span class="reveal line-orange"><span>Bitcoin es la salida que nadie te explicó.</span></span> </h1> <p class="sub">Trabajás duro, ahorrás y cada año alcanza menos. No es casualidad, es el sistema funcionando como fue diseñado. Nadie te enseñó cómo funciona el dinero de verdad. Acá lo aprendés en 7 horas.</p> </div> <div class="vsl" id="vsl"> <div class="pp"> <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 3v18l15-9z"></path></svg> </div> <span class="vlabel">VSL · 7 min</span> </div> <div class="cta-row"> <a href="#form" class="btn btn-glass btn-primary btn-hero"> <span class="liquid"></span> <span class="t">Unirme al Bitcoin Masterclass</span> </a> </div> <div class="stats"> <div class="stat"> <span class="corner tl"></span><span class="corner br"></span><span class="sat-led"></span> <div class="num"><span class="pre">+</span><span data-count="9000">0</span></div> <div class="lbl">horas de estudio condensadas</div> </div> <div class="stat"> <span class="corner tl"></span><span class="corner br"></span><span class="sat-led"></span> <div class="num"><span data-count="7">0</span></div> <div class="lbl">horas de contenido claro</div> </div> <div class="stat"> <span class="corner tl"></span><span class="corner br"></span><span class="sat-led"></span> <div class="num"><span data-count="1">0</span></div> <div class="lbl">solo pago, acceso de por vida</div> </div> </div> </section> </main> <!-- Indicador de scroll --> <div class="scroll-ind" id="scrollInd"> <div class="mouse"><span class="wheel"></span></div> <span class="arrow"> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"> <path d="M6 9l6 6 6-6"></path> </svg> </span> <span class="lbl">scroll</span> </div>  <!-- CDN: Globe.GL + GSAP (is:inline = Astro no los procesa, el browser los ejecuta) --> <script src="//cdn.jsdelivr.net/npm/globe.gl"></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script> <!-- Animaciones GSAP + contadores + liquid glass + estrellas/cometas --> <script>
+(function () {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const hdr = document.getElementById('hdr');
+  const scrollInd = document.getElementById('scrollInd');
+
+  /* Scroll header + scroll indicator */
+  const onScroll = () => {
+    hdr.classList.toggle('scrolled', window.scrollY > 12);
+    scrollInd.classList.toggle('hide', window.scrollY > 40);
+  };
+  onScroll();
+  addEventListener('scroll', onScroll, { passive: true });
+
+  /* Globo visible mientras hero O problema estén en el viewport */
+  const spaceEl  = document.getElementById('space');
+  const stageEl  = document.getElementById('globe-stage');
+  if (spaceEl && stageEl) {
+    const globeVisible = new Set();
+    const syncGlobe = () => {
+      stageEl.style.opacity = globeVisible.size > 0 ? '1' : '0';
+    };
+    const globeObs = new IntersectionObserver(entries => {
+      entries.forEach(e => e.isIntersecting
+        ? globeVisible.add(e.target)
+        : globeVisible.delete(e.target));
+      syncGlobe();
+    }, { threshold: 0 });
+    const heroMain = document.querySelector('main');
+    if (heroMain) globeObs.observe(heroMain);
+    // #problema se renderiza después de este script — esperar a que el DOM esté completo
+    document.addEventListener('DOMContentLoaded', () => {
+      const problemaEl = document.getElementById('problema');
+      if (problemaEl) globeObs.observe(problemaEl);
+    });
+  }
+
+  /* Entrada con GSAP */
+  if (!reduce && window.gsap) {
+    gsap.set('.reveal > span', { y: '1.05em', opacity: 0 });
+    gsap.timeline({ defaults: { ease: 'power3.out' } })
+      .to('.reveal > span', { y: 0, opacity: 1, duration: .9, stagger: .12 }, .15)
+      .from('.sub',        { y: 16, opacity: 0, duration: .7 }, .55)
+      .from('.vsl',        { y: 24, opacity: 0, duration: .9, ease: 'power2.out' }, .7)
+      .from('.cta-row',    { y: 16, opacity: 0, duration: .7 }, .9)
+      .from('.stat',       { y: 18, opacity: 0, duration: .7, stagger: .1 }, 1.0)
+      .from('.scroll-ind', { opacity: 0, duration: .8 }, 1.3);
+  }
+
+  /* Contadores animados */
+  const fmt = n => n.toLocaleString('es-CR');
+  document.querySelectorAll('[data-count]').forEach(el => {
+    const target = +el.dataset.count;
+    if (reduce || !window.gsap) { el.textContent = fmt(target); return; }
+    const o = { v: 0 };
+    gsap.to(o, { v: target, duration: 1.8, delay: 1.1, ease: 'power2.out',
+      onUpdate: () => el.textContent = fmt(Math.round(o.v)) });
+  });
+
+  /* Liquid glass: efecto blob al mover el puntero */
+  document.querySelectorAll('.btn-glass').forEach(btn => {
+    btn.addEventListener('pointermove', e => {
+      const r = btn.getBoundingClientRect();
+      btn.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      btn.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    });
+  });
+
+  /* Estrellas pulsantes + cometas */
+  (function () {
+    const cv = document.getElementById('space');
+    const x  = cv.getContext('2d');
+    let W, H, DPR, stars, shoots, nextShoot = 0;
+
+    function init() {
+      DPR = Math.min(devicePixelRatio || 1, 2);
+      W = innerWidth; H = innerHeight;
+      cv.width  = W * DPR; cv.height = H * DPR;
+      cv.style.width = W + 'px'; cv.style.height = H + 'px';
+      x.setTransform(DPR, 0, 0, DPR, 0, 0);
+      stars = [];
+      const n = Math.round(W * H / 8000);
+      for (let i = 0; i < n; i++)
+        stars.push({ x: Math.random() * W, y: Math.random() * H,
+          r: Math.random() * 1.3 + 0.3,
+          base: 0.15 + Math.random() * 0.35,
+          amp:  0.35 + Math.random() * 0.5,
+          sp:   0.4  + Math.random() * 1.4,
+          ph:   Math.random() * 6.28 });
+      shoots = [];
+    }
+
+    function spawnShoot() {
+      const fromLeft = Math.random() < 0.5;
+      const ang = (22 + Math.random() * 16) * Math.PI / 180;
+      const sp  = 8 + Math.random() * 5;
+      shoots.push({ x: fromLeft ? -40 : W + 40, y: Math.random() * H * 0.5,
+        vx: (fromLeft ? 1 : -1) * sp * Math.cos(ang), vy: sp * Math.sin(ang),
+        len: 90 + Math.random() * 80 });
+    }
+
+    function draw(t) {
+      x.clearRect(0, 0, W, H);
+      for (const s of stars) {
+        const a = reduce ? 0.55 : s.base + s.amp * (0.5 + 0.5 * Math.sin(t * 0.001 * s.sp + s.ph));
+        x.globalAlpha = Math.max(0, Math.min(1, a)) * 0.9;
+        x.fillStyle = '#dfe6f2';
+        x.beginPath(); x.arc(s.x, s.y, s.r, 0, 6.2832); x.fill();
+      }
+      x.globalAlpha = 1;
+      if (!reduce) {
+        if (t > nextShoot) { spawnShoot(); nextShoot = t + 4000 + Math.random() * 4000; }
+        for (let i = shoots.length - 1; i >= 0; i--) {
+          const s = shoots[i]; s.x += s.vx; s.y += s.vy;
+          const m = Math.hypot(s.vx, s.vy);
+          const tx = s.x - s.vx / m * s.len, ty = s.y - s.vy / m * s.len;
+          const g = x.createLinearGradient(s.x, s.y, tx, ty);
+          g.addColorStop(0, 'rgba(255,255,255,0.95)');
+          g.addColorStop(0.3, 'rgba(214,226,245,0.5)');
+          g.addColorStop(1, 'rgba(214,226,245,0)');
+          x.strokeStyle = g; x.lineWidth = 1.6;
+          x.beginPath(); x.moveTo(s.x, s.y); x.lineTo(tx, ty); x.stroke();
+          x.globalAlpha = 0.9; x.fillStyle = '#fff';
+          x.beginPath(); x.arc(s.x, s.y, 1.5, 0, 6.2832); x.fill();
+          x.globalAlpha = 1;
+          if (s.x < -60 || s.x > W + 60 || s.y > H + 60) shoots.splice(i, 1);
+        }
+      }
+      if (!reduce) requestAnimationFrame(draw);
+    }
+
+    init();
+    addEventListener('resize', init);
+    requestAnimationFrame(draw);
+  })();
+})();
+</script> <!-- Globe.GL + Three.js: planeta, nodos Bitcoin, arcos, ₿ viajando --> <script type="module">
+  import * as THREE from 'https://esm.sh/three@0.170.0';
+
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const stage  = document.getElementById('globe-stage');
+
+  /* Nodos Bitcoin */
+  const hubs = [
+    {lat:40.7,lng:-74.0},{lat:34.0,lng:-118.2,pac:1},{lat:19.4,lng:-99.1},{lat:37.8,lng:-122.4,pac:1},
+    {lat:9.9,lng:-84.1},{lat:-12.0,lng:-77.0,pac:1},{lat:-23.5,lng:-46.6},{lat:-34.6,lng:-58.4},
+    {lat:51.5,lng:-0.1},{lat:48.9,lng:2.35},{lat:40.4,lng:-3.7},{lat:55.75,lng:37.6},
+    {lat:6.5,lng:3.4},{lat:30.0,lng:31.2},{lat:-26.2,lng:28.0},{lat:-1.3,lng:36.8},
+    {lat:25.2,lng:55.3},{lat:41.0,lng:28.98},{lat:43.2,lng:76.9},
+    {lat:19.1,lng:72.9},{lat:1.35,lng:103.8,pac:1},
+    {lat:22.3,lng:114.2,pac:1},{lat:31.2,lng:121.5,pac:1},{lat:35.7,lng:139.7,pac:1},
+    {lat:-6.2,lng:106.8,pac:1},{lat:21.3,lng:-157.8,pac:1},{lat:-33.9,lng:151.2,pac:1},{lat:-36.8,lng:174.7,pac:1},
+    {lat:-27.5,lng:153.0,pac:1},{lat:-37.8,lng:145.0,pac:1},
+    {lat:-6.8,lng:39.3},{lat:5.6,lng:-0.2},{lat:41.3,lng:69.2},
+    {lat:59.9,lng:10.75},{lat:59.3,lng:18.1},{lat:23.1,lng:-82.4},{lat:18.5,lng:-69.9},
+    {lat:-31.95,lng:115.86,pac:1},
+    {lat:-4.3,lng:15.3},{lat:9.0,lng:38.7},{lat:33.6,lng:-7.6},
+    {lat:51.1,lng:71.4},{lat:6.9,lng:79.9},{lat:31.5,lng:74.3},
+    {lat:60.2,lng:24.9},{lat:55.7,lng:12.6},
+    {lat:18.0,lng:-76.8},{lat:10.7,lng:-61.5}
+  ];
+
+  /* Arcos */
+  const pac = hubs.map((h, i) => h.pac ? i : -1).filter(i => i >= 0);
+  const arcs = [];
+  const mkArc = (a, b) => arcs.push({ startLat: hubs[a].lat, startLng: hubs[a].lng, endLat: hubs[b].lat, endLng: hubs[b].lng });
+  const ri = () => (Math.random() * hubs.length) | 0;
+  for (let i = 0; i < 8; i++) { let a = ri(), b = ri(); if (b === a) b = (b + 1) % hubs.length; mkArc(a, b); }
+
+  const afr = [12,13,14,15,30,31,38,39,40];
+  const eur = [8,9,10,11,17,33,34,44,45];
+  const asi = [16,18,19,32,41,42,43];
+  const addRegion = (pool, n) => {
+    for (let i = 0; i < n; i++) {
+      let a = pool[(Math.random() * pool.length) | 0], b = pool[(Math.random() * pool.length) | 0];
+      if (b === a) b = pool[(pool.indexOf(a) + 1) % pool.length];
+      mkArc(a, b);
+    }
+  };
+  addRegion(afr, 3); addRegion(eur, 3); addRegion(asi, 3);
+
+  const pacArcStart = arcs.length;
+  const rp = () => pac[(Math.random() * pac.length) | 0];
+  for (let i = 0; i < 4; i++) { let a = rp(), b = rp(); if (b === a) b = pac[(pac.indexOf(a) + 1) % pac.length]; mkArc(a, b); }
+  const pacArcIdx = [];
+  for (let i = pacArcStart; i < arcs.length; i++) pacArcIdx.push(i);
+
+  /* Textura glow nodos */
+  function makeGlowTex() {
+    const c = document.createElement('canvas'); c.width = c.height = 64;
+    const g = c.getContext('2d');
+    const rg = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    rg.addColorStop(0,    'rgba(255,220,120,0.9)');
+    rg.addColorStop(0.35, 'rgba(247,147,26,0.55)');
+    rg.addColorStop(1,    'rgba(247,147,26,0)');
+    g.fillStyle = rg; g.fillRect(0, 0, 64, 64);
+    return new THREE.CanvasTexture(c);
+  }
+  const glowTex = makeGlowTex();
+
+  /* Globe.GL */
+  const world = new Globe(stage, { animateIn: false })
+    .backgroundColor('rgba(0,0,0,0)')
+    .globeImageUrl('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-blue-marble.jpg')
+    .bumpImageUrl('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-topology.png')
+    .showAtmosphere(true)
+    .atmosphereColor('#00E5FF')
+    .atmosphereAltitude(0.162)
+    .customLayerData(hubs)
+    .customThreeObject(() => {
+      const group = new THREE.Group();
+      const glow = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: glowTex, transparent: true,
+        blending: THREE.AdditiveBlending, depthWrite: false, depthTest: true
+      }));
+      glow.scale.set(6, 6, 1); glow.renderOrder = 1;
+      group.add(glow);
+      const core = new THREE.Mesh(
+        new THREE.SphereGeometry(0.9, 12, 12),
+        new THREE.MeshBasicMaterial({ color: 0xF7931A, depthWrite: true, depthTest: true })
+      );
+      core.renderOrder = 2; group.add(core);
+      return group;
+    })
+    .customThreeObjectUpdate((obj, d) => {
+      Object.assign(obj.position, world.getCoords(d.lat, d.lng, 0.02));
+    })
+    .arcsData(arcs)
+    .arcColor(() => ['rgba(247,147,26,0)', 'rgba(247,175,80,0.92)'])
+    .arcStroke(0.42)
+    .arcAltitudeAutoScale(0.5)
+    .arcDashLength(0.4)
+    .arcDashGap(1.6)
+    .arcDashInitialGap(() => Math.random() * 5)
+    .arcDashAnimateTime(2600);
+
+  function updateGlobeView() {
+    world.pointOfView({ altitude: window.innerWidth <= 768 ? 2.8 : 1.8 });
+  }
+  updateGlobeView();
+  world.renderer().setClearAlpha(0);
+  world.controls().autoRotate      = !reduce;
+  world.controls().autoRotateSpeed = 0.35;
+  world.controls().enableZoom      = false;
+  world.controls().noZoom          = true;
+
+  window.addEventListener('resize', () => {
+    world.width(window.innerWidth).height(window.innerHeight);
+    updateGlobeView();
+  });
+
+  /* Nubes */
+  const CLOUDS_URL = 'https://raw.githubusercontent.com/vasturiano/globe.gl/master/example/clouds/clouds.png';
+  new THREE.TextureLoader().load(CLOUDS_URL, tex => {
+    const clouds = new THREE.Mesh(
+      new THREE.SphereGeometry(world.getGlobeRadius() * 1.004, 75, 75),
+      new THREE.MeshPhongMaterial({ map: tex, transparent: true })
+    );
+    world.scene().add(clouds);
+    (function rotateClouds() {
+      clouds.rotation.y -= 0.006 * Math.PI / 180;
+      requestAnimationFrame(rotateClouds);
+    })();
+  });
+
+  /* ₿ viajando por arcos */
+  function btcSprite() {
+    const c = document.createElement('canvas'); c.width = c.height = 64;
+    const g = c.getContext('2d');
+    g.shadowColor = '#F7931A'; g.shadowBlur = 20; g.fillStyle = '#F7931A';
+    g.font = '700 46px Inter,sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText('₿', 32, 35);
+    g.shadowBlur = 0; g.strokeStyle = '#F7931A'; g.lineWidth = 1.5; g.strokeText('₿', 32, 35);
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false,
+      blending: THREE.AdditiveBlending
+    }));
+    s.scale.set(8, 8, 1); return s;
+  }
+
+  const flyers = [];
+  const TOTAL_FLY = 12, PAC_FLY = 3;
+  for (let i = 0; i < TOTAL_FLY; i++) {
+    const sp = btcSprite(); world.scene().add(sp);
+    const arcIdx = i < PAC_FLY
+      ? pacArcIdx[(Math.random() * pacArcIdx.length) | 0]
+      : (Math.random() * arcs.length) | 0;
+    flyers.push({ sp, arc: arcs[arcIdx], pacBias: i < PAC_FLY, t: Math.random(), speed: 0.0016 + Math.random() * 0.0014 });
+  }
+
+  function pickArc(pb) {
+    return pb ? arcs[pacArcIdx[(Math.random() * pacArcIdx.length) | 0]] : arcs[(Math.random() * arcs.length) | 0];
+  }
+  function lerpAng(a, b, t) {
+    let d = b - a;
+    if (d > 180) d -= 360;
+    if (d < -180) d += 360;
+    return a + d * t;
+  }
+
+  (function flyLoop() {
+    for (const f of flyers) {
+      if (!reduce) f.t += f.speed;
+      if (f.t > 1) { f.t = 0; f.arc = pickArc(f.pacBias); }
+      const A = f.arc;
+      const lat = A.startLat + (A.endLat - A.startLat) * f.t;
+      const lng = lerpAng(A.startLng, A.endLng, f.t);
+      const alt = 0.02 + Math.sin(f.t * Math.PI) * 0.24;
+      const p = world.getCoords(lat, lng, alt);
+      f.sp.position.set(p.x, p.y, p.z);
+    }
+    requestAnimationFrame(flyLoop);
+  })();
+</script> <!-- Hamburger móvil --> <script>
+(function () {
+  const hamburger = document.getElementById('hamburger');
+  const navMenu   = document.getElementById('nav-menu');
+
+  hamburger.addEventListener('click', function (e) {
+    e.stopPropagation();
+    const open = navMenu.classList.toggle('open');
+    hamburger.setAttribute('aria-expanded', String(open));
+    hamburger.querySelector('.t').textContent = open ? '✕' : '☰';
+  });
+
+  document.addEventListener('click', function (e) {
+    if (!navMenu.contains(e.target) && e.target !== hamburger && !hamburger.contains(e.target)) {
+      navMenu.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', 'false');
+      hamburger.querySelector('.t').textContent = '☰';
+    }
+  });
+
+  navMenu.querySelectorAll('a').forEach(function (link) {
+    link.addEventListener('click', function () {
+      navMenu.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', 'false');
+      hamburger.querySelector('.t').textContent = '☰';
+    });
+  });
+})();
+</script> <section id="problema" class="prob" data-astro-cid-tiacidct> <div class="prob-noise" aria-hidden="true" data-astro-cid-tiacidct></div> <div class="prob-inner" data-astro-cid-tiacidct> <p class="prob-eyebrow prob-reveal" style="--del:0s" data-astro-cid-tiacidct>El problema</p> <h2 class="prob-h2 prob-reveal" style="--del:0.1s" data-astro-cid-tiacidct>
+Tu dinero se <span class="erode" data-astro-cid-tiacidct>erosiona<canvas class="erode-canvas" aria-hidden="true" data-astro-cid-tiacidct></canvas></span><br data-astro-cid-tiacidct> <span class="prob-h2-dim" data-astro-cid-tiacidct>todos los días.</span> </h2> <p class="prob-sub prob-reveal" style="--del:0.2s" data-astro-cid-tiacidct>
+No es mala suerte. El sistema está diseñado para que tu dinero compre menos con el tiempo.
+</p> <!-- Stats strip --> <div class="prob-stats prob-reveal" style="--del:0.1s" role="list" data-astro-cid-tiacidct> <div class="prob-stat" role="listitem" data-astro-cid-tiacidct> <span class="prob-stat-n" data-astro-cid-tiacidct>3–13<span class="prob-stat-unit" data-astro-cid-tiacidct>%</span></span> <span class="prob-stat-l" data-astro-cid-tiacidct>Inflación anual en Costa Rica 🇨🇷. Tus ahorros pierden ese valor cada año.</span> </div> <div class="prob-stat-div" aria-hidden="true" data-astro-cid-tiacidct></div> <div class="prob-stat" role="listitem" data-astro-cid-tiacidct> <span class="prob-stat-n" data-astro-cid-tiacidct><span class="prob-stat-less" data-astro-cid-tiacidct>&lt;</span>1<span class="prob-stat-unit" data-astro-cid-tiacidct>%</span></span> <span class="prob-stat-l" data-astro-cid-tiacidct>Te paga tu banco. Menos de lo que la inflación te quita.</span> </div> <div class="prob-stat-div" aria-hidden="true" data-astro-cid-tiacidct></div> <div class="prob-stat" role="listitem" data-astro-cid-tiacidct> <span class="prob-stat-n" data-astro-cid-tiacidct><span class="prob-count" data-to="50" data-astro-cid-tiacidct>0</span><span class="prob-stat-unit" data-astro-cid-tiacidct>+</span></span> <span class="prob-stat-l" data-astro-cid-tiacidct>Años cotizando para una pensión que probablemente no aguante.</span> </div> </div> <!-- Pain cards --> <div class="prob-grid prob-reveal" style="--del:0.36s" data-astro-cid-tiacidct> <article class="prob-card prob-reveal" style="--del:0.42s" data-astro-cid-tiacidct> <div class="prob-card-top" data-astro-cid-tiacidct> <div class="prob-card-icon" aria-hidden="true" data-astro-cid-tiacidct> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-astro-cid-tiacidct> <path d="M22 7l-8.5 8.5-5-5L2 17" data-astro-cid-tiacidct></path> <path d="M16 7h6v6" data-astro-cid-tiacidct></path> </svg> </div> <h3 class="prob-card-title" data-astro-cid-tiacidct>La inflación te hace más pobre</h3> </div> <p class="prob-card-body" data-astro-cid-tiacidct>
+Cada vez que el Banco Central emite más colones, los tuyos valen menos. Cada colón nuevo reduce el valor de los que ya tenías.
+</p> <button class="prob-card-toggle" aria-label="Expandir" aria-expanded="false" data-astro-cid-tiacidct> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" data-astro-cid-tiacidct> <polyline points="6 9 12 15 18 9" data-astro-cid-tiacidct></polyline> </svg> </button> </article> <article class="prob-card prob-reveal" style="--del:0.52s" data-astro-cid-tiacidct> <div class="prob-card-top" data-astro-cid-tiacidct> <div class="prob-card-icon" aria-hidden="true" data-astro-cid-tiacidct> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-astro-cid-tiacidct> <line x1="3" y1="22" x2="21" y2="22" data-astro-cid-tiacidct></line> <line x1="6" y1="18" x2="6" y2="11" data-astro-cid-tiacidct></line> <line x1="10" y1="18" x2="10" y2="11" data-astro-cid-tiacidct></line> <line x1="14" y1="18" x2="14" y2="11" data-astro-cid-tiacidct></line> <line x1="18" y1="18" x2="18" y2="11" data-astro-cid-tiacidct></line> <polygon points="12 2 20 7 4 7" data-astro-cid-tiacidct></polygon> </svg> </div> <h3 class="prob-card-title" data-astro-cid-tiacidct>Los bancos ganan con tu dinero y vos no.</h3> </div> <p class="prob-card-body" data-astro-cid-tiacidct>
+Comisiones, intereses que no cubren la inflación. Tu dinero trabaja para el banco mientras pierde valor para vos.
+</p> <button class="prob-card-toggle" aria-label="Expandir" aria-expanded="false" data-astro-cid-tiacidct> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" data-astro-cid-tiacidct> <polyline points="6 9 12 15 18 9" data-astro-cid-tiacidct></polyline> </svg> </button> </article> <article class="prob-card prob-reveal" style="--del:0.62s" data-astro-cid-tiacidct> <div class="prob-card-top" data-astro-cid-tiacidct> <div class="prob-card-icon" aria-hidden="true" data-astro-cid-tiacidct> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-astro-cid-tiacidct> <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" data-astro-cid-tiacidct></path> <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" data-astro-cid-tiacidct></path> <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" data-astro-cid-tiacidct></path> </svg> </div> <h3 class="prob-card-title" data-astro-cid-tiacidct>Ganás más. Comprás menos.</h3> </div> <p class="prob-card-body" data-astro-cid-tiacidct>
+El salario sube, pero el costo de vida sube más rápido. Necesitás más dinero para mantener el mismo estilo de vida.
+</p> <button class="prob-card-toggle" aria-label="Expandir" aria-expanded="false" data-astro-cid-tiacidct> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" data-astro-cid-tiacidct> <polyline points="6 9 12 15 18 9" data-astro-cid-tiacidct></polyline> </svg> </button> </article> <article class="prob-card prob-reveal" style="--del:0.72s" data-astro-cid-tiacidct> <div class="prob-card-top" data-astro-cid-tiacidct> <div class="prob-card-icon" aria-hidden="true" data-astro-cid-tiacidct> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-astro-cid-tiacidct> <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" data-astro-cid-tiacidct></path> <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" data-astro-cid-tiacidct></path> <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" data-astro-cid-tiacidct></path> <line x1="2" y1="2" x2="22" y2="22" data-astro-cid-tiacidct></line> </svg> </div> <h3 class="prob-card-title" data-astro-cid-tiacidct>Nunca te enseñaron cómo funciona el dinero</h3> </div> <p class="prob-card-body" data-astro-cid-tiacidct>
+La escuela no enseña finanzas. Los bancos no te educan. Llegaste sin herramientas para proteger lo que construiste. Y esa ignorancia se paga todos los meses.
+</p> <button class="prob-card-toggle" aria-label="Expandir" aria-expanded="false" data-astro-cid-tiacidct> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" data-astro-cid-tiacidct> <polyline points="6 9 12 15 18 9" data-astro-cid-tiacidct></polyline> </svg> </button> </article> </div> <div class="prob-bridge prob-reveal" style="--del:0.82s" data-astro-cid-tiacidct> <p class="prob-bridge-main" data-astro-cid-tiacidct>No es un problema de esfuerzo. Es un problema de sistema.</p> <p class="prob-bridge-sub" data-astro-cid-tiacidct>Alguien ya encontró la salida. Y decidió enseñarla.</p> </div> </div> </section>  <script>
+(function () {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Forzar que el stats strip empiece invisible */
+  const statsStrip = document.querySelector('.prob-stats');
+  if (statsStrip) {
+    statsStrip.style.opacity = '0';
+    statsStrip.style.transform = 'translateY(28px)';
+    statsStrip.style.transition = 'opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1)';
+  }
+
+  /* Scroll reveals: opacity + translateY */
+  document.addEventListener('DOMContentLoaded', () => {
+    const revealEls = document.querySelectorAll('.prob-reveal');
+    if (reduce) {
+      revealEls.forEach(el => el.classList.add('visible'));
+    } else {
+      const revealObs = new IntersectionObserver(
+        (entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              revealObs.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.08, rootMargin: '0px 0px -20px 0px' }
+      );
+      revealEls.forEach(el => revealObs.observe(el));
+    }
+  });
+
+  /* Counter: el "30" sube desde 0 al entrar al viewport */
+  const countEls = document.querySelectorAll('.prob-count');
+  if (countEls.length) {
+    const countObs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          const el = entry.target;
+          const target = +el.dataset.to;
+          countObs.unobserve(el);
+          if (reduce) { el.textContent = target; return; }
+          if (window.gsap) {
+            const o = { v: 0 };
+            gsap.to(o, {
+              v: target, duration: 1.8, ease: 'power2.out',
+              onUpdate: () => { el.textContent = Math.round(o.v); }
+            });
+          } else {
+            const dur = 1800, t0 = performance.now();
+            const tick = now => {
+              const p = Math.min((now - t0) / dur, 1);
+              el.textContent = Math.round((1 - Math.pow(1 - p, 3)) * target);
+              if (p < 1) requestAnimationFrame(tick);
+            };
+            requestAnimationFrame(tick);
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+    countEls.forEach(el => countObs.observe(el));
+  }
+
+  /* Tilt 3D en pain cards — solo desktop, off en reduced-motion */
+  if (!reduce && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    document.querySelectorAll('.prob-card').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const r = card.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width;
+        const py = (e.clientY - r.top) / r.height;
+        const rotX = (0.5 - py) * 6;
+        const rotY = (px - 0.5) * 6;
+        card.style.transform = `perspective(800px) rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+        card.style.transition = 'transform 0.15s ease-out';
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg)';
+        card.style.transition = 'transform 0.4s ease-out';
+      });
+    });
+  }
+
+  /* Partículas cayendo desde "erosiona" — solo desktop, off en reduced-motion */
+  if (!reduce && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    const erodeCanvas = document.querySelector('.erode-canvas');
+    if (erodeCanvas) {
+      const ctx = erodeCanvas.getContext('2d');
+      const W = erodeCanvas.offsetWidth || 200;
+      const H = 40;
+      const DPR = Math.min(devicePixelRatio || 1, 1.5);
+      erodeCanvas.width = W * DPR;
+      erodeCanvas.height = H * DPR;
+      ctx.scale(DPR, DPR);
+
+      const PARTICLE_COUNT = 8;
+      const particles = Array.from({ length: PARTICLE_COUNT }, () => ({
+        x: Math.random() * W,
+        y: 0,
+        size: 1 + Math.random(),
+        drift: (Math.random() - 0.5) * 0.2,
+        speed: 0.2 + Math.random() * 0.15,
+        life: Math.random() * 90,
+        maxLife: 90,
+      }));
+
+      let rafId = null;
+      let running = false;
+
+      function drawParticles() {
+        ctx.clearRect(0, 0, W, H);
+        particles.forEach(p => {
+          p.life++;
+          if (p.life >= p.maxLife) {
+            p.x = Math.random() * W;
+            p.y = 0;
+            p.life = 0;
+            p.drift = (Math.random() - 0.5) * 0.2;
+            p.speed = 0.2 + Math.random() * 0.15;
+            p.size = 1 + Math.random();
+          }
+          p.y += p.speed;
+          p.x += p.drift;
+          const alpha = 0.5 * (1 - p.life / p.maxLife);
+          ctx.fillStyle = `rgba(139,147,161,${alpha})`;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        rafId = requestAnimationFrame(drawParticles);
+      }
+
+      const erodeObs = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && !running) {
+            running = true;
+            drawParticles();
+          } else if (!entry.isIntersecting && running) {
+            running = false;
+            cancelAnimationFrame(rafId);
+            ctx.clearRect(0, 0, W, H);
+          }
+        });
+      }, { threshold: 0.3 });
+
+      erodeObs.observe(erodeCanvas);
+    }
+  }
+
+  /* Acordeón pain cards — solo móvil, todas abren/cierran juntas */
+  if (window.matchMedia('(max-width: 768px)').matches) {
+    const cards = document.querySelectorAll('.prob-card');
+    const toggles = document.querySelectorAll('.prob-card-toggle');
+    const tops = document.querySelectorAll('.prob-card-top');
+    let isOpen = false;
+
+    toggles.forEach(btn => {
+      btn.addEventListener('click', () => {
+        isOpen = !isOpen;
+        cards.forEach(card => card.classList.toggle('open', isOpen));
+        toggles.forEach(b => {
+          b.setAttribute('aria-expanded', String(isOpen));
+          b.setAttribute('aria-label', isOpen ? 'Colapsar' : 'Expandir');
+        });
+        /* Cuando abierto: quitar flex:1 del top para eliminar espacio vacío */
+        tops.forEach(top => {
+          top.style.flex = isOpen ? '0 0 auto' : '1';
+        });
+      });
+    });
+  }
+
+  /* Observer específico para stats strip */
+  if (statsStrip && !reduce) {
+    const so = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          setTimeout(() => {
+            statsStrip.style.opacity = '1';
+            statsStrip.style.transform = 'translateY(0)';
+          }, 100);
+          so.unobserve(statsStrip);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+    so.observe(statsStrip);
+  }
+
+  /* Observer para las 2 cards de abajo (índice 2 y 3) */
+  if (!reduce) {
+    const bottomCards = Array.from(document.querySelectorAll('.prob-card')).slice(2);
+    bottomCards.forEach(card => {
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(28px)';
+      card.style.transition = 'opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1)';
+    });
+    const cardObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          setTimeout(() => {
+            e.target.style.opacity = '1';
+            e.target.style.transform = 'translateY(0)';
+          }, 100);
+          cardObs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+    bottomCards.forEach(card => cardObs.observe(card));
+  }
+})();
+</script> <section id="alberto" class="hist sec" data-astro-cid-lrjdwd73> <div class="wrap" data-astro-cid-lrjdwd73> <div class="hist-grid" data-astro-cid-lrjdwd73> <p class="eyebrow hist-eyebrow hist-reveal" style="--del:0.1s" data-astro-cid-lrjdwd73>Mi Historia</p> <!-- Columna izquierda: foto --> <div class="hist-photo-col hist-reveal" style="--del:0s" data-astro-cid-lrjdwd73> <div class="hist-glow" aria-hidden="true" data-astro-cid-lrjdwd73></div> <div class="alberto-frame" data-astro-cid-lrjdwd73> <img src="/alberto.webp" alt="Alberto Cedeño, fundador de Decentralize CR" loading="lazy" decoding="async" width="800" data-astro-cid-lrjdwd73> </div> </div> <!-- Columna derecha: texto --> <div class="hist-text-col" data-astro-cid-lrjdwd73> <h2 class="hist-h2 hist-reveal" style="--del:0.2s" data-astro-cid-lrjdwd73>
+Perdí casi <span class="accent" data-astro-cid-lrjdwd73>$100,000</span> aprendiendo<br data-astro-cid-lrjdwd73>
+lo que hoy te enseño en 7 horas.
+</h2> <div class="hist-timeline" data-astro-cid-lrjdwd73> <div class="hist-progress-line" data-astro-cid-lrjdwd73> <div class="hist-progress-fill" id="histProgressFill" data-astro-cid-lrjdwd73></div> </div> <div class="hist-node" style="--pos:8%" data-astro-cid-lrjdwd73><span class="hist-node-label" data-astro-cid-lrjdwd73>2021 · El descubrimiento</span></div> <div class="hist-node" style="--pos:48%" data-astro-cid-lrjdwd73><span class="hist-node-label" data-astro-cid-lrjdwd73>Las pérdidas · $100K</span></div> <div class="hist-node" style="--pos:88%" data-astro-cid-lrjdwd73><span class="hist-node-label" data-astro-cid-lrjdwd73>Hoy · +200 personas</span></div> <div class="hist-paras" data-astro-cid-lrjdwd73> <p class="hist-p hist-reveal" style="--del:0.3s" data-astro-cid-lrjdwd73>
+Soy Alberto Cedeño, ingeniero industrial y costarricense. Descubrí Bitcoin en febrero del 2021 y no volví a ser el mismo. Me obsesioné con entenderlo todo: más de <span class="hl" data-astro-cid-lrjdwd73>9,000 horas</span> de estudio profundo en Bitcoin y el sistema financiero global.
+</p> <p class="hist-p hist-reveal" style="--del:0.4s" data-astro-cid-lrjdwd73>
+Pero antes de llegar acá, perdí casi <span class="hl" data-astro-cid-lrjdwd73>$100,000</span> por falta de educación. Estafas, malas decisiones, y el costo de aprender sin guía. Ese dolor fue mi mejor enseñanza y también el origen de este curso.
+</p> <p class="hist-p hist-reveal" style="--del:0.5s" data-astro-cid-lrjdwd73>
+Gracias a ese camino, logré generar mucho más capital del que había conseguido en <span class="hl" data-astro-cid-lrjdwd73>12 años</span> de trabajo corporativo. Y desde entonces he ayudado a más de <span class="hl" data-astro-cid-lrjdwd73>200 personas</span> a entender Bitcoin, comprar con criterio y construir soberanía financiera.
+</p> <p class="hist-p hist-highlight hist-reveal" style="--del:0.6s" data-astro-cid-lrjdwd73>
+Si hubiera tenido este curso en 2021, me habría ahorrado los $100,000 y los años de errores. Lo creé porque nadie debería pagar lo que yo pagué para aprender lo que te voy a enseñar.
+</p> <p class="hist-p hist-close hist-reveal" style="--del:0.7s" data-astro-cid-lrjdwd73>
+No soy trader. No vendo humo. No prometo hacerte rico. Enseño el camino seguro, el mismo que yo recorrí a las malas.
+</p> </div> </div> <!-- Mini stats --> <div class="hist-stats hist-reveal" style="--del:0.8s" data-astro-cid-lrjdwd73> <span class="hist-stat" data-astro-cid-lrjdwd73>+9,000 horas estudiando Bitcoin</span> <span class="hist-stat-div" aria-hidden="true" data-astro-cid-lrjdwd73></span> <span class="hist-stat" data-astro-cid-lrjdwd73>+5 años invirtiendo y enseñando</span> <span class="hist-stat-div" aria-hidden="true" data-astro-cid-lrjdwd73></span> <span class="hist-stat" data-astro-cid-lrjdwd73>+200 personas ayudadas</span> </div> <!-- CTA --> <a href="/form?opcion=llamada" class="hist-cta hist-reveal" style="--del:0.9s" id="histCta" data-astro-cid-lrjdwd73>
+Agendá una llamada gratis con Alberto →
+</a> </div> </div> </div> </section>  <script>
+(function () {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Reveals */
+  const revEls = document.querySelectorAll('.hist-reveal');
+  if (reduce) {
+    revEls.forEach(el => el.classList.add('visible'));
+  } else {
+    const revObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          revObs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    revEls.forEach(el => revObs.observe(el));
+  }
+
+  /* Highlight sweep — dispara al entrar cada párrafo */
+  if (!reduce) {
+    const paraObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        const hls = e.target.querySelectorAll('.hl');
+        hls.forEach((hl, i) => {
+          setTimeout(() => hl.classList.add('swept'), i * 300);
+        });
+        paraObs.unobserve(e.target);
+      });
+    }, { threshold: 0.6 });
+    document.querySelectorAll('.hist-p').forEach(p => paraObs.observe(p));
+  }
+
+  /* Timeline progress con scroll */
+  if (!reduce) {
+    const section = document.getElementById('alberto');
+    const fill = document.getElementById('histProgressFill');
+    const nodes = document.querySelectorAll('.hist-node');
+    if (section && fill) {
+      const stats = document.querySelector('.hist-stats');
+      const cta = document.getElementById('histCta');
+
+      const isDesktop = window.matchMedia('(min-width: 769px)').matches;
+
+      const onScroll = () => {
+        const rect = section.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        let prog;
+
+        if (isDesktop) {
+          // Desktop: progreso 0 al entrar, 1 cuando el bottom de la sección
+          // se acerca al bottom del viewport
+          const start = viewportHeight;
+          const total = rect.height + start - viewportHeight * 1.05;
+          const scrolled = start - rect.top;
+          prog = Math.max(0, Math.min(1, scrolled / total));
+        } else {
+          // Móvil: comportamiento original
+          const total = rect.height - viewportHeight;
+          prog = Math.max(0, Math.min(1, -rect.top / total));
+        }
+
+        fill.style.height = (prog * 100) + '%';
+        nodes.forEach(node => {
+          const pos = parseFloat(node.style.getPropertyValue('--pos')) / 100;
+          node.classList.toggle('active', prog >= pos);
+        });
+        const activated = prog >= (isDesktop ? 0.9 : 0.92);
+        if (stats) stats.classList.toggle('activated', activated);
+        if (cta) cta.classList.toggle('activated', activated);
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    }
+  }
+
+  /* Pixel CTA */
+  const cta = document.getElementById('histCta');
+  if (cta) {
+    cta.addEventListener('click', () => {
+      if (window.fbq) fbq('track', 'Lead', { origen: 'historia' });
+    });
+  }
+})();
+</script> <section id="transformacion" class="trf sec" data-astro-cid-rrtw4lux> <canvas class="trf-canvas" aria-hidden="true" data-astro-cid-rrtw4lux></canvas> <div class="wrap" data-astro-cid-rrtw4lux> <p class="eyebrow trf-eyebrow trf-reveal" style="--del:0s" data-astro-cid-rrtw4lux>La Transformación</p> <h2 class="trf-h2 trf-reveal" style="--del:0.1s" data-astro-cid-rrtw4lux>
+De la confusión <span class="accent" data-astro-cid-rrtw4lux>a la claridad.</span> </h2> <p class="trf-sub trf-reveal" style="--del:0.2s" data-astro-cid-rrtw4lux>
+Así cambia tu vida cuando entendés cómo funciona el dinero.
+</p> <div class="trf-grid" data-astro-cid-rrtw4lux> <!-- Card ANTES --> <div class="trf-card card-antes" data-astro-cid-rrtw4lux> <p class="trf-card-header" data-astro-cid-rrtw4lux>ANTES</p> <ul class="trf-list" data-astro-cid-rrtw4lux> <li class="trf-item" data-astro-cid-rrtw4lux> <svg class="trf-icon icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-astro-cid-rrtw4lux> <circle cx="12" cy="12" r="10" data-astro-cid-rrtw4lux></circle> <path d="m15 9-6 6" data-astro-cid-rrtw4lux></path> <path d="m9 9 6 6" data-astro-cid-rrtw4lux></path> </svg> <span data-astro-cid-rrtw4lux>Confusión y ruido constante</span> </li> <li class="trf-item" data-astro-cid-rrtw4lux> <svg class="trf-icon icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-astro-cid-rrtw4lux> <circle cx="12" cy="12" r="10" data-astro-cid-rrtw4lux></circle> <path d="m15 9-6 6" data-astro-cid-rrtw4lux></path> <path d="m9 9 6 6" data-astro-cid-rrtw4lux></path> </svg> <span data-astro-cid-rrtw4lux>Miedo a cometer errores</span> </li> <li class="trf-item" data-astro-cid-rrtw4lux> <svg class="trf-icon icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-astro-cid-rrtw4lux> <circle cx="12" cy="12" r="10" data-astro-cid-rrtw4lux></circle> <path d="m15 9-6 6" data-astro-cid-rrtw4lux></path> <path d="m9 9 6 6" data-astro-cid-rrtw4lux></path> </svg> <span data-astro-cid-rrtw4lux>Esperando el momento perfecto</span> </li> <li class="trf-item" data-astro-cid-rrtw4lux> <svg class="trf-icon icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-astro-cid-rrtw4lux> <circle cx="12" cy="12" r="10" data-astro-cid-rrtw4lux></circle> <path d="m15 9-6 6" data-astro-cid-rrtw4lux></path> <path d="m9 9 6 6" data-astro-cid-rrtw4lux></path> </svg> <span data-astro-cid-rrtw4lux>Riesgo de estafas</span> </li> <li class="trf-item" data-astro-cid-rrtw4lux> <svg class="trf-icon icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-astro-cid-rrtw4lux> <circle cx="12" cy="12" r="10" data-astro-cid-rrtw4lux></circle> <path d="m15 9-6 6" data-astro-cid-rrtw4lux></path> <path d="m9 9 6 6" data-astro-cid-rrtw4lux></path> </svg> <span data-astro-cid-rrtw4lux>Sin saber por dónde empezar</span> </li> </ul> </div> <!-- Línea de energía --> <div class="trf-energy" aria-hidden="true" data-astro-cid-rrtw4lux> <div class="trf-energy-line" data-astro-cid-rrtw4lux> <div class="trf-energy-dot" data-astro-cid-rrtw4lux></div> </div> </div> <!-- Card DESPUÉS --> <div class="trf-card card-despues" data-astro-cid-rrtw4lux> <p class="trf-card-header" data-astro-cid-rrtw4lux>DESPUÉS</p> <ul class="trf-list" data-astro-cid-rrtw4lux> <li class="trf-item" data-astro-cid-rrtw4lux> <svg class="trf-icon icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-astro-cid-rrtw4lux> <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" data-astro-cid-rrtw4lux></path> <polyline points="22 4 12 14.01 9 11.01" data-astro-cid-rrtw4lux></polyline> </svg> <span data-astro-cid-rrtw4lux>Entendés cómo funciona Bitcoin</span> </li> <li class="trf-item" data-astro-cid-rrtw4lux> <svg class="trf-icon icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-astro-cid-rrtw4lux> <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" data-astro-cid-rrtw4lux></path> <polyline points="22 4 12 14.01 9 11.01" data-astro-cid-rrtw4lux></polyline> </svg> <span data-astro-cid-rrtw4lux>Comprás y custodiás con seguridad</span> </li> <li class="trf-item" data-astro-cid-rrtw4lux> <svg class="trf-icon icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-astro-cid-rrtw4lux> <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" data-astro-cid-rrtw4lux></path> <polyline points="22 4 12 14.01 9 11.01" data-astro-cid-rrtw4lux></polyline> </svg> <span data-astro-cid-rrtw4lux>Actuás con un plan, no con ansiedad</span> </li> <li class="trf-item" data-astro-cid-rrtw4lux> <svg class="trf-icon icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-astro-cid-rrtw4lux> <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" data-astro-cid-rrtw4lux></path> <polyline points="22 4 12 14.01 9 11.01" data-astro-cid-rrtw4lux></polyline> </svg> <span data-astro-cid-rrtw4lux>Sabés proteger tu dinero</span> </li> <li class="trf-item" data-astro-cid-rrtw4lux> <svg class="trf-icon icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-astro-cid-rrtw4lux> <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" data-astro-cid-rrtw4lux></path> <polyline points="22 4 12 14.01 9 11.01" data-astro-cid-rrtw4lux></polyline> </svg> <span data-astro-cid-rrtw4lux>No recorrés el camino solo</span> </li> </ul> </div> </div> </div> </section>  <script>
+(function () {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Reveals */
+  const revEls = document.querySelectorAll('.trf-reveal');
+  if (reduce) {
+    revEls.forEach(el => el.classList.add('visible'));
+  } else {
+    const revObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          revObs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -20px 0px' });
+    revEls.forEach(el => revObs.observe(el));
+  }
+
+  /* Encendido secuencial items DESPUÉS */
+  if (!reduce) {
+    const despues = document.querySelector('.card-despues');
+    if (despues) {
+      const items = despues.querySelectorAll('.trf-item');
+      const itemObs = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (!e.isIntersecting) return;
+          items.forEach((item, i) => {
+            setTimeout(() => {
+              item.classList.add('lit');
+              item.classList.add('flash');
+              setTimeout(() => item.classList.remove('flash'), 500);
+            }, i * 250);
+          });
+          itemObs.unobserve(despues);
+        });
+      }, { threshold: 0.3 });
+      itemObs.observe(despues);
+    }
+  }
+
+  /* Canvas warp */
+  if (!reduce) {
+    const canvas = document.querySelector('.trf-canvas');
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      const isMobile = window.innerWidth < 768;
+      const N = isMobile ? 80 : 180;
+      let w, h, parts = [];
+
+      function spawn() {
+        const angle = Math.random() * Math.PI * 2;
+        return { angle, dist: 10 + Math.random() * 40, base: 0.8 + Math.random() * 2.2 };
+      }
+
+      function resize() {
+        w = canvas.offsetWidth;
+        h = canvas.offsetHeight;
+        canvas.width = w * Math.min(devicePixelRatio, 1.5);
+        canvas.height = h * Math.min(devicePixelRatio, 1.5);
+        ctx.scale(Math.min(devicePixelRatio, 1.5), Math.min(devicePixelRatio, 1.5));
+        parts = Array.from({ length: N }, spawn);
+      }
+
+      let rafId = null;
+      let running = false;
+
+      function frame() {
+        const cx = w * 0.5, cy = h * 0.42;
+        ctx.clearRect(0, 0, w, h);
+        for (const p of parts) {
+          const right = Math.cos(p.angle) > 0;
+          const speed = p.base * (right ? 1.8 : 0.7);
+          p.dist += speed;
+          const len = speed * 18;
+          const x1 = cx + Math.cos(p.angle) * p.dist;
+          const y1 = cy + Math.sin(p.angle) * p.dist;
+          const x2 = cx + Math.cos(p.angle) * (p.dist + len);
+          const y2 = cy + Math.sin(p.angle) * (p.dist + len);
+          const a = Math.min(0.75, p.dist / 200);
+          ctx.strokeStyle = right
+            ? `rgba(247,147,26,${a})`
+            : `rgba(200,80,80,${a * 0.9})`;
+          ctx.lineWidth = right ? 1.8 : 1.4;
+          ctx.beginPath();
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(x2, y2);
+          ctx.stroke();
+          if (p.dist > Math.max(w, h) * 0.65) Object.assign(p, spawn());
+        }
+        rafId = requestAnimationFrame(frame);
+      }
+
+      resize();
+      window.addEventListener('resize', resize, { passive: true });
+
+      const canvasObs = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting && !running) {
+            running = true;
+            frame();
+          } else if (!e.isIntersecting && running) {
+            running = false;
+            cancelAnimationFrame(rafId);
+          }
+        });
+      }, { rootMargin: '200px' });
+      canvasObs.observe(canvas);
+    }
+  }
+
+})();
+</script> <section id="masterclass" class="mods sec" data-astro-cid-d5vbwvfw> <!-- Fondo galaxia --> <div class="mods-galaxy" aria-hidden="true" data-astro-cid-d5vbwvfw> <div class="mods-blueprint" data-astro-cid-d5vbwvfw></div> <canvas class="mods-stars-canvas" data-astro-cid-d5vbwvfw></canvas> <div class="mods-nebula mods-nebula-1" data-astro-cid-d5vbwvfw></div> <div class="mods-nebula mods-nebula-2" data-astro-cid-d5vbwvfw></div> </div> <div class="wrap" data-astro-cid-d5vbwvfw> <p class="eyebrow mods-eyebrow mods-reveal" style="--del:0s" data-astro-cid-d5vbwvfw>El Programa</p> <h2 class="mods-h2 mods-reveal" style="--del:0.1s" data-astro-cid-d5vbwvfw>
+Bitcoin <span class="accent" data-astro-cid-d5vbwvfw>Masterclass</span> </h2> <p class="mods-sub mods-reveal" style="--del:0.2s" data-astro-cid-d5vbwvfw>
+7 horas de contenido estructurado en 5 módulos. De principiante absoluto a Bitcoiner con criterio.
+</p> <!-- Contenedor de cards en zigzag --> <div class="mods-track" data-astro-cid-d5vbwvfw> <svg class="mods-laser" aria-hidden="true" data-astro-cid-d5vbwvfw></svg> <article class="mod-card mods-reveal" data-index="1" data-astro-cid-d5vbwvfw> <span class="mod-num" data-astro-cid-d5vbwvfw>01</span> <p class="mod-label" data-astro-cid-d5vbwvfw>Fundamentos</p> <h3 class="mod-title" data-astro-cid-d5vbwvfw>Historia de la Moneda y Evolución</h3> <p class="mod-result" data-astro-cid-d5vbwvfw><span data-astro-cid-d5vbwvfw>Vas a entender qué hace fuerte o débil al dinero, y por qué esa historia anticipa lo que viene.</span></p> <div class="mod-bullets" data-astro-cid-d5vbwvfw> <div data-astro-cid-d5vbwvfw> <ul data-astro-cid-d5vbwvfw> <li data-astro-cid-d5vbwvfw>¿Qué es el dinero realmente?</li> <li data-astro-cid-d5vbwvfw>Del patrón oro al dinero sin respaldo</li> <li data-astro-cid-d5vbwvfw>La evolución hacia el dinero digital</li> <li data-astro-cid-d5vbwvfw>Las propiedades que debe tener el dinero</li> </ul> </div> </div> <div class="mod-tap-hint" aria-hidden="true" data-astro-cid-d5vbwvfw> <span class="mod-tap-dot" data-astro-cid-d5vbwvfw></span> <span class="mod-tap-arrow" data-astro-cid-d5vbwvfw>▼</span> </div> </article> <article class="mod-card mods-reveal" data-index="2" data-astro-cid-d5vbwvfw> <span class="mod-num" data-astro-cid-d5vbwvfw>02</span> <p class="mod-label" data-astro-cid-d5vbwvfw>Sistema</p> <h3 class="mod-title" data-astro-cid-d5vbwvfw>Sistema Financiero Actual</h3> <p class="mod-result" data-astro-cid-d5vbwvfw><span data-astro-cid-d5vbwvfw>Vas a saber quién controla el dinero, cómo se crea de la nada, y por qué cada colón vale menos cada año.</span></p> <div class="mod-bullets" data-astro-cid-d5vbwvfw> <div data-astro-cid-d5vbwvfw> <ul data-astro-cid-d5vbwvfw> <li data-astro-cid-d5vbwvfw>Cómo los bancos crean dinero de la nada</li> <li data-astro-cid-d5vbwvfw>Inflación, reserva fraccionaria y deuda global</li> <li data-astro-cid-d5vbwvfw>Bancos centrales y tasas de interés</li> <li data-astro-cid-d5vbwvfw>CBDCs: el control total del dinero</li> </ul> </div> </div> <div class="mod-tap-hint" aria-hidden="true" data-astro-cid-d5vbwvfw> <span class="mod-tap-dot" data-astro-cid-d5vbwvfw></span> <span class="mod-tap-arrow" data-astro-cid-d5vbwvfw>▼</span> </div> </article> <article class="mod-card mods-reveal" data-index="3" data-astro-cid-d5vbwvfw> <span class="mod-num" data-astro-cid-d5vbwvfw>03</span> <p class="mod-label" data-astro-cid-d5vbwvfw>Bitcoin</p> <h3 class="mod-title" data-astro-cid-d5vbwvfw>Bitcoin y Tecnología Blockchain</h3> <p class="mod-result" data-astro-cid-d5vbwvfw><span data-astro-cid-d5vbwvfw>Vas a poder usar Bitcoin con seguridad y convicción. Deja de ser complicado y se vuelve lógico.</span></p> <div class="mod-bullets" data-astro-cid-d5vbwvfw> <div data-astro-cid-d5vbwvfw> <ul data-astro-cid-d5vbwvfw> <li data-astro-cid-d5vbwvfw>Satoshi Nakamoto y el origen de Bitcoin</li> <li data-astro-cid-d5vbwvfw>Blockchain, halving y política monetaria</li> <li data-astro-cid-d5vbwvfw>Minería y nodos: por qué existen</li> <li data-astro-cid-d5vbwvfw>Wallets: comprar, vender, custodiar, enviar, recibir</li> </ul> </div> </div> <div class="mod-tap-hint" aria-hidden="true" data-astro-cid-d5vbwvfw> <span class="mod-tap-dot" data-astro-cid-d5vbwvfw></span> <span class="mod-tap-arrow" data-astro-cid-d5vbwvfw>▼</span> </div> </article> <article class="mod-card mods-reveal" data-index="4" data-astro-cid-d5vbwvfw> <span class="mod-num" data-astro-cid-d5vbwvfw>04</span> <p class="mod-label" data-astro-cid-d5vbwvfw>Contexto Global</p> <h3 class="mod-title" data-astro-cid-d5vbwvfw>Mercado Global vs Bitcoin</h3> <p class="mod-result" data-astro-cid-d5vbwvfw><span data-astro-cid-d5vbwvfw>Vas a saber, con datos reales, por qué Bitcoin supera al oro, acciones, bienes raíces y al dólar.</span></p> <div class="mod-bullets" data-astro-cid-d5vbwvfw> <div data-astro-cid-d5vbwvfw> <ul data-astro-cid-d5vbwvfw> <li data-astro-cid-d5vbwvfw>Oro vs Bitcoin: ¿quién gana?</li> <li data-astro-cid-d5vbwvfw>Bienes raíces vs Bitcoin: análisis real</li> <li data-astro-cid-d5vbwvfw>Dólares y altcoins vs Bitcoin: la verdad</li> <li data-astro-cid-d5vbwvfw>Acciones vs Bitcoin: los números no mienten</li> </ul> </div> </div> <div class="mod-tap-hint" aria-hidden="true" data-astro-cid-d5vbwvfw> <span class="mod-tap-dot" data-astro-cid-d5vbwvfw></span> <span class="mod-tap-arrow" data-astro-cid-d5vbwvfw>▼</span> </div> </article> <article class="mod-card mods-reveal" data-index="5" data-astro-cid-d5vbwvfw> <span class="mod-num" data-astro-cid-d5vbwvfw>05</span> <p class="mod-label" data-astro-cid-d5vbwvfw>Acción</p> <h3 class="mod-title" data-astro-cid-d5vbwvfw>De la Información a la Acción</h3> <p class="mod-result" data-astro-cid-d5vbwvfw><span data-astro-cid-d5vbwvfw>Vas a pasar de la teoría a la práctica y dar tus primeros pasos como Bitcoiner con visión de largo plazo.</span></p> <div class="mod-bullets" data-astro-cid-d5vbwvfw> <div data-astro-cid-d5vbwvfw> <ul data-astro-cid-d5vbwvfw> <li data-astro-cid-d5vbwvfw>Tu primera compra de Bitcoin: paso a paso</li> <li data-astro-cid-d5vbwvfw>Dollar Cost Averaging (DCA): la estrategia simple</li> <li data-astro-cid-d5vbwvfw>Cómo NO perder tu Bitcoin</li> <li data-astro-cid-d5vbwvfw>Mentalidad a largo plazo vs especulación</li> </ul> </div> </div> <div class="mod-tap-hint" aria-hidden="true" data-astro-cid-d5vbwvfw> <span class="mod-tap-dot" data-astro-cid-d5vbwvfw></span> <span class="mod-tap-arrow" data-astro-cid-d5vbwvfw>▼</span> </div> </article> </div> <!-- Strip al pie --> <div class="mods-strip mods-reveal" data-astro-cid-d5vbwvfw> <span class="mods-strip-item" data-astro-cid-d5vbwvfw>7h de contenido en video</span> <span class="mods-strip-div" aria-hidden="true" data-astro-cid-d5vbwvfw></span> <span class="mods-strip-item" data-astro-cid-d5vbwvfw>5 módulos completos</span> <span class="mods-strip-div" aria-hidden="true" data-astro-cid-d5vbwvfw></span> <span class="mods-strip-item" data-astro-cid-d5vbwvfw>Acceso de por vida</span> <span class="mods-strip-div" aria-hidden="true" data-astro-cid-d5vbwvfw></span> <span class="mods-strip-item" data-astro-cid-d5vbwvfw>Garantía de 7 días</span> </div> </div> </section>   <script>
+(function () {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Reveals */
+  const revEls = document.querySelectorAll('.mods-reveal');
+  if (reduce) {
+    revEls.forEach(el => el.classList.add('visible'));
+  } else {
+    const revObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          revObs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+    revEls.forEach(el => revObs.observe(el));
+  }
+
+  /* Estrellas de fondo */
+  if (!reduce) {
+    const canvas = document.querySelector('.mods-stars-canvas');
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      let w, h, DPR, stars = [], shooting = [];
+
+      function resize() {
+        DPR = Math.min(devicePixelRatio, 1.5);
+        w = canvas.offsetWidth;
+        h = canvas.offsetHeight;
+        canvas.width = w * DPR;
+        canvas.height = h * DPR;
+        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+        const count = Math.floor((w * h) / 9000);
+        stars = Array.from({ length: count }, () => ({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          r: Math.random() * 1.2 + 0.3,
+          base: Math.random() * 0.5 + 0.2,
+          tw: Math.random() * Math.PI * 2,
+          twSpeed: Math.random() * 0.02 + 0.005,
+        }));
+      }
+      resize();
+      window.addEventListener('resize', resize, { passive: true });
+
+      function spawnShooting() {
+        shooting.push({
+          x: Math.random() * w,
+          y: Math.random() * h * 0.4,
+          len: 80 + Math.random() * 60,
+          speed: 6 + Math.random() * 4,
+          angle: Math.PI * 0.25 + (Math.random() - 0.5) * 0.3,
+          life: 0,
+          maxLife: 60,
+        });
+      }
+
+      let rafId = null, running = false, frameCount = 0;
+
+      function draw() {
+        ctx.clearRect(0, 0, w, h);
+        frameCount++;
+
+        stars.forEach(s => {
+          s.tw += s.twSpeed;
+          const op = s.base + Math.sin(s.tw) * 0.2;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255,255,255,${Math.max(0, op)})`;
+          ctx.fill();
+        });
+
+        if (frameCount % 90 === 0 && Math.random() > 0.3) spawnShooting();
+
+        shooting = shooting.filter(sh => sh.life < sh.maxLife);
+        shooting.forEach(sh => {
+          sh.life++;
+          sh.x += Math.cos(sh.angle) * sh.speed;
+          sh.y += Math.sin(sh.angle) * sh.speed;
+          const x2 = sh.x - Math.cos(sh.angle) * sh.len;
+          const y2 = sh.y - Math.sin(sh.angle) * sh.len;
+          const grad = ctx.createLinearGradient(sh.x, sh.y, x2, y2);
+          const fade = 1 - sh.life / sh.maxLife;
+          grad.addColorStop(0, `rgba(255,255,255,${fade * 0.8})`);
+          grad.addColorStop(1, 'rgba(255,255,255,0)');
+          ctx.beginPath();
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = 1.5;
+          ctx.moveTo(sh.x, sh.y);
+          ctx.lineTo(x2, y2);
+          ctx.stroke();
+        });
+
+        rafId = requestAnimationFrame(draw);
+      }
+
+      const obs = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting && !running) {
+            running = true;
+            draw();
+          } else if (!e.isIntersecting && running) {
+            running = false;
+            cancelAnimationFrame(rafId);
+          }
+        });
+      }, { rootMargin: '200px' });
+      obs.observe(canvas);
+    }
+  }
+
+  /* Laser zigzag entre cards */
+  if (!reduce) {
+    const laserSvg = document.querySelector('.mods-laser');
+    const laserCards = Array.from(document.querySelectorAll('.mod-card'));
+
+    if (laserSvg && laserCards.length) {
+      let lines = [];
+      let impacts = [];
+      let btcSymbol = null;
+      let cracks = [];
+      let built = false;
+
+      function buildLaser() {
+        const track = document.querySelector('.mods-track');
+        if (!track) return;
+
+        /* Reset común (también limpia al volver de un resize). */
+        laserSvg.innerHTML = '';
+        lines = [];
+        impacts = [];
+        cracks = [];
+        btcSymbol = null;
+
+        /* Sincronizar el viewBox con el tamaño renderizado real del SVG:
+           1 unidad de viewBox = 1 píxel, sin escalado. Esto evita que los
+           Y se compriman hacia arriba. */
+        const svgRect = laserSvg.getBoundingClientRect();
+        laserSvg.setAttribute('viewBox', `0 0 ${svgRect.width} ${svgRect.height}`);
+
+        /* Centro real de cada card (sin offset), medido contra el SVG. */
+        const rawCenters = laserCards.map(card => {
+          const r = card.getBoundingClientRect();
+          return {
+            x: r.left + r.width / 2 - svgRect.left,
+            y: r.top + r.height / 2 - svgRect.top,
+            w: r.width,
+          };
+        });
+
+        /* El vértice se mete ~18% del ancho hacia el lado interno de la
+           card: las del lado derecho (01, 03, 05) hacia la izquierda, las
+           del izquierdo (02, 04) hacia la derecha. Mismo zigzag en desktop
+           y mobile (las cards alternan de lado en ambos). Y queda igual. */
+        const midX = svgRect.width / 2;
+        const centers = rawCenters.map(c => ({
+          x: c.x > midX ? c.x - c.w * 0.18 : c.x + c.w * 0.18,
+          y: c.y,
+        }));
+        /* Crear una línea por cada segmento */
+        for (let i = 0; i < centers.length - 1; i++) {
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', centers[i].x);
+          line.setAttribute('y1', centers[i].y);
+          line.setAttribute('x2', centers[i+1].x);
+          line.setAttribute('y2', centers[i+1].y);
+          line.setAttribute('class', 'mods-laser-line');
+          laserSvg.appendChild(line);
+          lines.push(line);
+
+          /* Impacto en el punto de destino */
+          const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          circle.setAttribute('cx', centers[i+1].x);
+          circle.setAttribute('cy', centers[i+1].y);
+          circle.setAttribute('r', 6);
+          circle.setAttribute('class', 'mods-laser-impact');
+          laserSvg.appendChild(circle);
+          impacts.push(circle);
+        }
+
+        /* El laser termina en el centro de la card 05 (sin ₿ ni grietas). */
+
+        built = true;
+      }
+
+      function fireLasers() {
+        if (!built) return;
+        lines.forEach(l => l.classList.remove('firing'));
+        impacts.forEach(c => c.classList.remove('firing'));
+        cracks.forEach(c => c.classList.remove('firing'));
+        if (btcSymbol) btcSymbol.classList.remove('firing');
+
+        void laserSvg.getBoundingClientRect();
+
+        requestAnimationFrame(() => {
+          lines.forEach(l => l.classList.add('firing'));
+          impacts.forEach(c => c.classList.add('firing'));
+          cracks.forEach(c => c.classList.add('firing'));
+          if (btcSymbol) btcSymbol.classList.add('firing');
+        });
+      }
+
+      const laserInit = () => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              buildLaser();
+              setTimeout(() => {
+                buildLaser(); /* segunda medición tras estabilizar layout */
+                fireLasers();
+                setInterval(fireLasers, 1500);
+              }, 800);
+            });
+          });
+        });
+      };
+
+      /* Esperar a que todo esté listo: load + fuentes cargadas, para medir
+         las cards ya en su posición final (reveal terminado). */
+      const startLaser = () => {
+        const fontsReady = document.fonts ? document.fonts.ready : Promise.resolve();
+        fontsReady.then(() => setTimeout(laserInit, 500));
+      };
+      if (document.readyState === 'complete') {
+        startLaser();
+      } else {
+        window.addEventListener('load', startLaser);
+      }
+
+      /* Recalcular en resize */
+      let laserResizeT;
+      window.addEventListener('resize', () => {
+        clearTimeout(laserResizeT);
+        laserResizeT = setTimeout(() => {
+          buildLaser();
+        }, 200);
+      }, { passive: true });
+
+      /* Rebuild robusto: cada card revela con transform: translateY(22px)
+         que se asienta en 0.7s. Si medimos durante la animación, los
+         vértices quedan 22px arriba. Reconstruimos cuando el transform de
+         cada card termina (ya con translateY en 0). Debounce para que tras
+         la última card haya una sola medición final correcta. */
+      let rebuildT;
+      const scheduleRebuild = () => {
+        clearTimeout(rebuildT);
+        rebuildT = setTimeout(() => {
+          buildLaser();
+          fireLasers();
+        }, 60);
+      };
+
+      laserCards.forEach(card => {
+        const onRevealEnd = (ev) => {
+          if (ev.propertyName !== 'transform') return;
+          card.removeEventListener('transitionend', onRevealEnd);
+          scheduleRebuild();
+        };
+        card.addEventListener('transitionend', onRevealEnd);
+      });
+
+      /* Fallback por si no llega el transitionend: reconstruir al entrar la
+         sección al viewport, con margen para que el reveal haya terminado. */
+      const track = document.querySelector('.mods-track');
+      if (track && 'IntersectionObserver' in window) {
+        const vpObs = new IntersectionObserver(entries => {
+          entries.forEach(e => {
+            if (e.isIntersecting) {
+              setTimeout(scheduleRebuild, 900);
+              vpObs.unobserve(track);
+            }
+          });
+        }, { threshold: 0.1 });
+        vpObs.observe(track);
+      }
+
+      /* Solo mobile: al abrir o cerrar un acordeón, la card crece o se
+         encoge y las de abajo se desplazan en el flujo. El laser debe
+         reconstruirse para seguir conectando los centros reales. Medimos
+         DESPUÉS de que terminen las transiciones de altura, reusando el
+         mismo debounce post transitionend: así la última medición es la
+         final, ya con las cards en su posición definitiva. La altura final
+         la marcan max-height de la card (0.5s) y grid-template-rows de los
+         bullets (con delay, termina más tarde), por eso escuchamos ambas. */
+      if (window.matchMedia('(max-width: 768px)').matches) {
+        laserCards.forEach(card => {
+          card.addEventListener('transitionend', (ev) => {
+            if (ev.propertyName !== 'max-height' && ev.propertyName !== 'grid-template-rows') return;
+            scheduleRebuild();
+          });
+        });
+      }
+    }
+  }
+
+  /* Cards expandibles en móvil: tap togglea, cierra el anterior */
+  if (window.matchMedia('(max-width: 768px)').matches) {
+    const cards = document.querySelectorAll('.mod-card');
+    cards.forEach(card => {
+      card.addEventListener('click', () => {
+        const wasOpen = card.classList.contains('open');
+        cards.forEach(c => c.classList.remove('open'));
+        if (!wasOpen) card.classList.add('open');
+      });
+    });
+  }
+})();
+</script>  </body></html>

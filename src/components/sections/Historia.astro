@@ -1,0 +1,508 @@
+---
+// Sección 3 — Mi Historia (Alberto)
+---
+
+<section id="alberto" class="hist sec">
+  <div class="wrap">
+
+    <div class="hist-grid">
+
+      <p class="eyebrow hist-eyebrow hist-reveal" style="--del:0.1s">Mi Historia</p>
+
+      <!-- Columna izquierda: foto -->
+      <div class="hist-photo-col hist-reveal" style="--del:0s">
+        <div class="hist-glow" aria-hidden="true"></div>
+        <div class="alberto-frame">
+          <img
+            src="/alberto.webp"
+            alt="Alberto Cedeño, fundador de Decentralize CR"
+            loading="lazy"
+            decoding="async"
+            width="800"
+          />
+        </div>
+      </div>
+
+      <!-- Columna derecha: texto -->
+      <div class="hist-text-col">
+
+        <h2 class="hist-h2 hist-reveal" style="--del:0.2s">
+          Perdí casi <span class="accent">$100,000</span> aprendiendo<br>
+          lo que hoy te enseño en 7 horas.
+        </h2>
+
+        <div class="hist-timeline">
+          <div class="hist-progress-line">
+            <div class="hist-progress-fill" id="histProgressFill"></div>
+          </div>
+          <div class="hist-node" style="--pos:8%"><span class="hist-node-label">2021 · El descubrimiento</span></div>
+          <div class="hist-node" style="--pos:48%"><span class="hist-node-label">Las pérdidas · $100K</span></div>
+          <div class="hist-node" style="--pos:88%"><span class="hist-node-label">Hoy · +200 personas</span></div>
+
+          <div class="hist-paras">
+            <p class="hist-p hist-reveal" style="--del:0.3s">
+              Soy Alberto Cedeño, ingeniero industrial y costarricense. Descubrí Bitcoin en febrero del 2021 y no volví a ser el mismo. Me obsesioné con entenderlo todo: más de <span class="hl">9,000 horas</span> de estudio profundo en Bitcoin y el sistema financiero global.
+            </p>
+            <p class="hist-p hist-reveal" style="--del:0.4s">
+              Pero antes de llegar acá, perdí casi <span class="hl">$100,000</span> por falta de educación. Estafas, malas decisiones, y el costo de aprender sin guía. Ese dolor fue mi mejor enseñanza y también el origen de este curso.
+            </p>
+            <p class="hist-p hist-reveal" style="--del:0.5s">
+              Gracias a ese camino, logré generar mucho más capital del que había conseguido en <span class="hl">12 años</span> de trabajo corporativo. Y desde entonces he ayudado a más de <span class="hl">200 personas</span> a entender Bitcoin, comprar con criterio y construir soberanía financiera.
+            </p>
+            <p class="hist-p hist-highlight hist-reveal" style="--del:0.6s">
+              Si hubiera tenido este curso en 2021, me habría ahorrado los $100,000 y los años de errores. Lo creé porque nadie debería pagar lo que yo pagué para aprender lo que te voy a enseñar.
+            </p>
+            <p class="hist-p hist-close hist-reveal" style="--del:0.7s">
+              No soy trader. No vendo humo. No prometo hacerte rico. Enseño el camino seguro, el mismo que yo recorrí a las malas.
+            </p>
+          </div>
+        </div>
+
+        <!-- Mini stats -->
+        <div class="hist-stats hist-reveal" style="--del:0.8s">
+          <span class="hist-stat">+9,000 horas estudiando Bitcoin</span>
+          <span class="hist-stat-div" aria-hidden="true"></span>
+          <span class="hist-stat">+5 años invirtiendo y enseñando</span>
+          <span class="hist-stat-div" aria-hidden="true"></span>
+          <span class="hist-stat">+200 personas ayudadas</span>
+        </div>
+
+        <!-- CTA -->
+        <a href="/form?opcion=llamada" class="hist-cta hist-reveal" style="--del:0.9s" id="histCta">
+          Agendá una llamada gratis con Alberto →
+        </a>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+.hist {
+  background: #0a0a0b;
+  padding: clamp(24px, 4vh, 48px) 24px 48px;
+  position: relative;
+  z-index: 10;
+  overflow: hidden;
+}
+
+/* Grid desktop */
+.hist-grid {
+  display: grid;
+  grid-template-columns: 5fr 7fr;
+  gap: 40px;
+  align-items: center;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+/* ---- Foto ---- */
+.hist-photo-col {
+  position: relative;
+}
+.hist-glow {
+  position: absolute;
+  width: 520px;
+  height: 520px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(247,147,26,0.12), transparent 68%);
+  filter: blur(40px);
+  pointer-events: none;
+  animation: glowBreath 6s ease-in-out infinite alternate;
+  z-index: 0;
+  transition: opacity 0.4s ease, filter 0.4s ease;
+}
+.hist-photo-col:hover .hist-glow {
+  opacity: 1;
+  background: radial-gradient(circle, rgba(247,147,26,0.35), transparent 68%);
+  filter: blur(30px);
+  animation-play-state: paused;
+}
+@keyframes glowBreath {
+  from { opacity: 0.7; }
+  to   { opacity: 1; }
+}
+.alberto-frame {
+  position: relative;
+  z-index: 1;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(247,147,26,0.25);
+  box-shadow: 0 0 40px rgba(247,147,26,0.2), 0 0 100px rgba(247,147,26,0.1), var(--shadow-deep);
+  aspect-ratio: 4/5;
+  cursor: default;
+  transition: border-color 0.4s ease, border-width 0.4s ease, box-shadow 0.4s ease, transform 0.4s ease;
+  animation: frameGlow 4s ease-in-out infinite alternate;
+}
+.alberto-frame:hover {
+  transform: scale(1.025);
+  border: 2px solid rgba(247,147,26,0.9);
+  box-shadow:
+    0 0 30px rgba(247,147,26,0.35),
+    0 0 70px rgba(247,147,26,0.15),
+    0 0 120px rgba(247,147,26,0.08),
+    var(--shadow-deep);
+  animation: none;
+}
+.alberto-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+@keyframes frameGlow {
+  from {
+    box-shadow: 0 0 30px rgba(247,147,26,0.15), 0 0 80px rgba(247,147,26,0.08), var(--shadow-deep);
+    border-color: rgba(247,147,26,0.2);
+  }
+  to {
+    box-shadow: 0 0 50px rgba(247,147,26,0.28), 0 0 120px rgba(247,147,26,0.14), var(--shadow-deep);
+    border-color: rgba(247,147,26,0.4);
+  }
+}
+
+/* ---- Texto ---- */
+.hist-text-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+/* Eyebrow */
+.hist-eyebrow {
+  grid-column: 1 / -1;
+  justify-self: center;
+}
+.hist-h2 {
+  font: 700 clamp(1.5rem, 2.8vw, 2.3rem)/1.15 var(--font-display);
+  letter-spacing: -0.02em;
+  color: var(--txt-hi);
+  text-align: left;
+  margin: 0;
+  width: 100%;
+}
+.accent { color: var(--btc); }
+
+/* Timeline vertical */
+.hist-timeline {
+  position: relative;
+  padding-left: 28px;
+  border-left: 2px solid rgba(247,147,26,0.15);
+  width: 100%;
+}
+.hist-progress-line {
+  position: absolute;
+  left: -2px;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  overflow: hidden;
+}
+.hist-progress-fill {
+  width: 100%;
+  height: 0%;
+  background: var(--btc);
+  transition: height 0.1s linear;
+}
+.hist-node {
+  position: absolute;
+  left: -7px;
+  top: var(--pos);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--btc);
+  background: #0a0a0b;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+  z-index: 2;
+}
+.hist-node.active {
+  background: var(--btc);
+  box-shadow: 0 0 10px rgba(247,147,26,0.6);
+}
+.hist-node-label {
+  display: none;
+}
+
+/* Párrafos */
+.hist-paras {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 8px;
+  text-align: left;
+}
+.hist-p {
+  font: 400 0.95rem/1.75 var(--font-body);
+  color: var(--txt-body);
+  margin: 0;
+}
+.hist-highlight {
+  font-weight: 500;
+  color: var(--txt-hi);
+}
+.hist-close {
+  font-style: italic;
+  color: var(--txt-low);
+}
+
+/* Highlight sweep */
+.hl {
+  color: var(--btc);
+  font-weight: 600;
+  display: inline;
+  vertical-align: baseline;
+  background: linear-gradient(105deg, var(--btc) 0%, #FFB347 50%, var(--btc) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-position: 100% center;
+  transition: background-position 0.8s ease-out;
+}
+.hl.swept {
+  background-position: 0% center;
+}
+
+/* Mini stats */
+.hist-stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-top: 8px;
+  width: 100%;
+}
+.hist-stat {
+  font: 400 0.78rem/1 var(--font-mono);
+  color: var(--btc);
+  letter-spacing: 0.04em;
+}
+.hist-stat-div {
+  width: 1px;
+  height: 14px;
+  background: rgba(247,147,26,0.4);
+  box-shadow: 0 0 6px rgba(247,147,26,0.5), 0 0 14px rgba(247,147,26,0.2);
+  flex-shrink: 0;
+  animation: statDivGlow 2.5s ease-in-out infinite;
+}
+@keyframes statDivGlow {
+  0%, 100% { box-shadow: 0 0 4px rgba(247,147,26,0.4); background: rgba(247,147,26,0.4); }
+  50%       { box-shadow: 0 0 10px rgba(247,147,26,0.8), 0 0 20px rgba(247,147,26,0.3); background: rgba(247,147,26,0.7); }
+}
+
+/* CTA glass pill */
+.hist-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: var(--bg-glass);
+  border: var(--border-soft);
+  border-radius: var(--r-pill);
+  font: 500 14px/1 var(--font-body);
+  color: var(--txt-hi);
+  text-decoration: none;
+  transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+.hist-cta:hover {
+  border-color: rgba(247,147,26,0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(247,147,26,0.15);
+}
+
+/* Stats y CTA: estado inicial gris, naranja al activar */
+.hist-stat {
+  font: 400 0.78rem/1 var(--font-mono);
+  color: var(--txt-ghost);
+  letter-spacing: 0.04em;
+  transition: color 0.4s ease;
+}
+.hist-stats.activated .hist-stat {
+  color: var(--btc);
+}
+.hist-stat-div {
+  width: 1px;
+  height: 14px;
+  background: rgba(255,255,255,0.15);
+  flex-shrink: 0;
+  transition: background 0.4s ease, box-shadow 0.4s ease;
+}
+.hist-stats.activated .hist-stat-div {
+  background: rgba(247,147,26,0.5);
+  box-shadow: 0 0 8px rgba(247,147,26,0.6), 0 0 16px rgba(247,147,26,0.2);
+  animation: statDivGlow 2.5s ease-in-out infinite;
+}
+.hist-cta {
+  transition: border-color 0.4s ease, transform 0.3s ease, box-shadow 0.4s ease, color 0.4s ease;
+  border-color: rgba(255,255,255,0.1);
+  color: var(--txt-ghost);
+}
+.hist-cta.activated {
+  border-color: rgba(247,147,26,0.5);
+  color: var(--txt-hi);
+  box-shadow: 0 0 16px rgba(247,147,26,0.2), 0 0 32px rgba(247,147,26,0.08);
+  animation: ctaGlow 2.5s ease-in-out infinite;
+}
+.hist-cta.activated:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(247,147,26,0.25);
+}
+@keyframes ctaGlow {
+  0%, 100% { box-shadow: 0 0 10px rgba(247,147,26,0.15); }
+  50%       { box-shadow: 0 0 20px rgba(247,147,26,0.35), 0 0 40px rgba(247,147,26,0.1); }
+}
+
+/* Reveal */
+.hist-reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
+  transition-delay: var(--del, 0s);
+}
+.hist-reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+.hist-photo-col.hist-reveal {
+  transform: scale(0.95);
+}
+.hist-photo-col.hist-reveal.visible {
+  transform: scale(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hist-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .hist-glow { animation: none; }
+  .hl::after { display: none; }
+}
+
+/* Móvil */
+@media (max-width: 768px) {
+  .hist-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .hist-photo-col {
+    order: -1;
+    display: flex;
+    justify-content: center;
+  }
+  .alberto-frame {
+    max-width: 340px;
+    width: 100%;
+  }
+  .hist-glow {
+    width: 340px;
+    height: 340px;
+  }
+  .hist-eyebrow {
+    order: -2;
+  }
+  .hist-photo-col {
+    order: -1;
+  }
+  .hist-text-col {
+    order: 0;
+  }
+  .hist-h2 { font-size: clamp(1.3rem, 4.5vw, 1.7rem); }
+  .hist-stats {
+    justify-content: center;
+    gap: 10px;
+  }
+  .hist-stat { font-size: 0.7rem; text-align: center; }
+  .hist-paras { text-align: left; }
+  .hist-p { text-align: left; }
+}
+</style>
+
+<script is:inline>
+(function () {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Reveals */
+  const revEls = document.querySelectorAll('.hist-reveal');
+  if (reduce) {
+    revEls.forEach(el => el.classList.add('visible'));
+  } else {
+    const revObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          revObs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    revEls.forEach(el => revObs.observe(el));
+  }
+
+  /* Highlight sweep — dispara al entrar cada párrafo */
+  if (!reduce) {
+    const paraObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        const hls = e.target.querySelectorAll('.hl');
+        hls.forEach((hl, i) => {
+          setTimeout(() => hl.classList.add('swept'), i * 300);
+        });
+        paraObs.unobserve(e.target);
+      });
+    }, { threshold: 0.6 });
+    document.querySelectorAll('.hist-p').forEach(p => paraObs.observe(p));
+  }
+
+  /* Timeline progress con scroll */
+  if (!reduce) {
+    const section = document.getElementById('alberto');
+    const fill = document.getElementById('histProgressFill');
+    const nodes = document.querySelectorAll('.hist-node');
+    if (section && fill) {
+      const stats = document.querySelector('.hist-stats');
+      const cta = document.getElementById('histCta');
+
+      const isDesktop = window.matchMedia('(min-width: 769px)').matches;
+
+      const onScroll = () => {
+        const rect = section.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        let prog;
+
+        if (isDesktop) {
+          // Desktop: progreso 0 al entrar, 1 cuando el bottom de la sección
+          // se acerca al bottom del viewport
+          const start = viewportHeight;
+          const total = rect.height + start - viewportHeight * 1.05;
+          const scrolled = start - rect.top;
+          prog = Math.max(0, Math.min(1, scrolled / total));
+        } else {
+          // Móvil: comportamiento original
+          const total = rect.height - viewportHeight;
+          prog = Math.max(0, Math.min(1, -rect.top / total));
+        }
+
+        fill.style.height = (prog * 100) + '%';
+        nodes.forEach(node => {
+          const pos = parseFloat(node.style.getPropertyValue('--pos')) / 100;
+          node.classList.toggle('active', prog >= pos);
+        });
+        const activated = prog >= (isDesktop ? 0.9 : 0.92);
+        if (stats) stats.classList.toggle('activated', activated);
+        if (cta) cta.classList.toggle('activated', activated);
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    }
+  }
+
+  /* Pixel CTA */
+  const cta = document.getElementById('histCta');
+  if (cta) {
+    cta.addEventListener('click', () => {
+      if (window.fbq) fbq('track', 'Lead', { origen: 'historia' });
+    });
+  }
+})();
+</script>

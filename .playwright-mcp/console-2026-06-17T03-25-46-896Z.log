@@ -1,0 +1,7 @@
+[     330ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/three.mjs:3824
+[    1359ms] [LOG] Laser built: 4 lines centers: [Object, Object, Object, Object, Object] @ http://localhost:4321/:1567
+[  211469ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/three.mjs:3824
+[  212331ms] [LOG] Laser built: 4 lines centers: [Object, Object, Object, Object, Object] @ http://localhost:4321/:1623
+[  217853ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/three.mjs:3824
+[  218868ms] [LOG] Laser built: 4 lines centers: [Object, Object, Object, Object, Object] @ http://localhost:4321/:1622
+[  225897ms] [WARNING] WARNING: Multiple instances of Three.js being imported. @ https://esm.sh/three@0.170.0/es2022/three.mjs:3824

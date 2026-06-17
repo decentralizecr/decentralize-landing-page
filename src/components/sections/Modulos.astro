@@ -1,0 +1,1003 @@
+---
+// Sección 5 — Módulos (Bitcoin Masterclass) · constelación galaxia
+---
+
+<section id="masterclass" class="mods sec">
+  <!-- Fondo galaxia -->
+  <div class="mods-galaxy" aria-hidden="true">
+    <div class="mods-blueprint"></div>
+    <canvas class="mods-stars-canvas"></canvas>
+    <div class="mods-nebula mods-nebula-1"></div>
+    <div class="mods-nebula mods-nebula-2"></div>
+  </div>
+
+  <div class="wrap">
+    <p class="eyebrow mods-eyebrow mods-reveal" style="--del:0s">El Programa</p>
+
+    <h2 class="mods-h2 mods-reveal" style="--del:0.1s">
+      Bitcoin <span class="accent">Masterclass</span>
+    </h2>
+
+    <p class="mods-sub mods-reveal" style="--del:0.2s">
+      7 horas de contenido estructurado en 5 módulos. De principiante absoluto a Bitcoiner con criterio.
+    </p>
+
+    <!-- Contenedor de cards en zigzag -->
+    <div class="mods-track">
+      <svg class="mods-laser" aria-hidden="true"></svg>
+
+      <article class="mod-card mods-reveal" data-index="1">
+        <span class="mod-num">01</span>
+        <p class="mod-label">Fundamentos</p>
+        <h3 class="mod-title">Historia de la Moneda y Evolución</h3>
+        <p class="mod-result"><span>Vas a entender qué hace fuerte o débil al dinero, y por qué esa historia anticipa lo que viene.</span></p>
+        <div class="mod-bullets">
+          <div>
+            <ul>
+              <li>¿Qué es el dinero realmente?</li>
+              <li>Del patrón oro al dinero sin respaldo</li>
+              <li>La evolución hacia el dinero digital</li>
+              <li>Las propiedades que debe tener el dinero</li>
+            </ul>
+          </div>
+        </div>
+        <div class="mod-tap-hint" aria-hidden="true">
+          <span class="mod-tap-dot"></span>
+          <span class="mod-tap-arrow">▼</span>
+        </div>
+      </article>
+
+      <article class="mod-card mods-reveal" data-index="2">
+        <span class="mod-num">02</span>
+        <p class="mod-label">Sistema</p>
+        <h3 class="mod-title">Sistema Financiero Actual</h3>
+        <p class="mod-result"><span>Vas a saber quién controla el dinero, cómo se crea de la nada, y por qué cada colón vale menos cada año.</span></p>
+        <div class="mod-bullets">
+          <div>
+            <ul>
+              <li>Cómo los bancos crean dinero de la nada</li>
+              <li>Inflación, reserva fraccionaria y deuda global</li>
+              <li>Bancos centrales y tasas de interés</li>
+              <li>CBDCs: el control total del dinero</li>
+            </ul>
+          </div>
+        </div>
+        <div class="mod-tap-hint" aria-hidden="true">
+          <span class="mod-tap-dot"></span>
+          <span class="mod-tap-arrow">▼</span>
+        </div>
+      </article>
+
+      <article class="mod-card mods-reveal" data-index="3">
+        <span class="mod-num">03</span>
+        <p class="mod-label">Bitcoin</p>
+        <h3 class="mod-title">Bitcoin y Tecnología Blockchain</h3>
+        <p class="mod-result"><span>Vas a poder usar Bitcoin con seguridad y convicción. Deja de ser complicado y se vuelve lógico.</span></p>
+        <div class="mod-bullets">
+          <div>
+            <ul>
+              <li>Satoshi Nakamoto y el origen de Bitcoin</li>
+              <li>Blockchain, halving y política monetaria</li>
+              <li>Minería y nodos: por qué existen</li>
+              <li>Wallets: comprar, vender, custodiar, enviar, recibir</li>
+            </ul>
+          </div>
+        </div>
+        <div class="mod-tap-hint" aria-hidden="true">
+          <span class="mod-tap-dot"></span>
+          <span class="mod-tap-arrow">▼</span>
+        </div>
+      </article>
+
+      <article class="mod-card mods-reveal" data-index="4">
+        <span class="mod-num">04</span>
+        <p class="mod-label">Contexto Global</p>
+        <h3 class="mod-title">Mercado Global vs Bitcoin</h3>
+        <p class="mod-result"><span>Vas a saber, con datos reales, por qué Bitcoin supera al oro, acciones, bienes raíces y al dólar.</span></p>
+        <div class="mod-bullets">
+          <div>
+            <ul>
+              <li>Oro vs Bitcoin: ¿quién gana?</li>
+              <li>Bienes raíces vs Bitcoin: análisis real</li>
+              <li>Dólares y altcoins vs Bitcoin: la verdad</li>
+              <li>Acciones vs Bitcoin: los números no mienten</li>
+            </ul>
+          </div>
+        </div>
+        <div class="mod-tap-hint" aria-hidden="true">
+          <span class="mod-tap-dot"></span>
+          <span class="mod-tap-arrow">▼</span>
+        </div>
+      </article>
+
+      <article class="mod-card mods-reveal" data-index="5">
+        <span class="mod-num">05</span>
+        <p class="mod-label">Acción</p>
+        <h3 class="mod-title">De la Información a la Acción</h3>
+        <p class="mod-result"><span>Vas a pasar de la teoría a la práctica y dar tus primeros pasos como Bitcoiner con visión de largo plazo.</span></p>
+        <div class="mod-bullets">
+          <div>
+            <ul>
+              <li>Tu primera compra de Bitcoin: paso a paso</li>
+              <li>Dollar Cost Averaging (DCA): la estrategia simple</li>
+              <li>Cómo NO perder tu Bitcoin</li>
+              <li>Mentalidad a largo plazo vs especulación</li>
+            </ul>
+          </div>
+        </div>
+        <div class="mod-tap-hint" aria-hidden="true">
+          <span class="mod-tap-dot"></span>
+          <span class="mod-tap-arrow">▼</span>
+        </div>
+      </article>
+
+    </div>
+
+    <!-- Strip al pie -->
+    <div class="mods-strip mods-reveal">
+      <span class="mods-strip-item">7h de contenido en video</span>
+      <span class="mods-strip-div" aria-hidden="true"></span>
+      <span class="mods-strip-item">5 módulos completos</span>
+      <span class="mods-strip-div" aria-hidden="true"></span>
+      <span class="mods-strip-item">Acceso de por vida</span>
+      <span class="mods-strip-div" aria-hidden="true"></span>
+      <span class="mods-strip-item">Garantía de 7 días</span>
+    </div>
+
+  </div>
+</section>
+
+<style>
+.mods {
+  background: var(--bg-tech);
+  position: relative;
+  z-index: 10;
+  overflow: hidden;
+}
+
+/* ---- Fondo galaxia ---- */
+.mods-galaxy {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.mods-stars-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.mods-blueprint {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 80px 80px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 30%, transparent 80%);
+}
+.mods-nebula {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.5;
+}
+.mods-nebula-1 {
+  width: 500px;
+  height: 500px;
+  top: 10%;
+  left: -10%;
+  background: radial-gradient(circle, rgba(247,147,26,0.1), transparent 70%);
+}
+.mods-nebula-2 {
+  width: 600px;
+  height: 600px;
+  bottom: 5%;
+  right: -15%;
+  background: radial-gradient(circle, rgba(41,182,246,0.08), transparent 70%);
+}
+
+.mods .wrap {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Eyebrow */
+.mods-eyebrow { margin-bottom: 16px; }
+
+/* H2 */
+.mods-h2 {
+  font: 700 clamp(2rem, 4.5vw, 3.2rem)/1.15 var(--font-display);
+  letter-spacing: -0.02em;
+  color: var(--txt-hi);
+  margin: 0 0 16px;
+}
+.accent { color: var(--btc); }
+
+/* Sub */
+.mods-sub {
+  font: 400 1.05rem/1.7 var(--font-body);
+  color: var(--txt-body);
+  max-width: 560px;
+  margin: 0 0 72px;
+}
+
+/* ---- Track zigzag ---- */
+.mods-track {
+  position: relative;
+  max-width: 1000px;
+  width: 100%;
+  margin: 0 auto;
+  /* Espacio para la ₿ (a la altura de la card 05) y sus grietas. */
+  padding-bottom: 64px;
+}
+
+/* Card */
+.mod-card {
+  position: relative;
+  max-width: 460px;
+  background: var(--bg-card);
+  border: var(--border-soft);
+  border-radius: 20px;
+  padding: 28px;
+  text-align: left;
+  transition: border-color 0.4s ease, box-shadow 0.4s ease, transform 0.4s ease;
+  cursor: pointer;
+  z-index: 2;
+}
+.mod-card:nth-child(odd) { margin-right: auto; }
+.mod-card:nth-child(even) { margin-left: auto; }
+.mod-card:not(:first-child) { margin-top: 32px; }
+
+.mod-card:hover {
+  border-color: rgba(247,147,26,0.5);
+  box-shadow: 0 0 30px rgba(247,147,26,0.15), var(--shadow-card);
+  transform: translateY(-4px);
+}
+
+/* Desktop: hover abre bullets */
+@media (hover: hover) and (pointer: fine) {
+  .mod-card:hover .mod-bullets {
+    grid-template-rows: 1fr;
+  }
+}
+
+/* Estado abierto (móvil tap, o forzado) */
+.mod-card.open {
+  border-color: rgba(247,147,26,0.5);
+}
+.mod-card.open .mod-bullets {
+  grid-template-rows: 1fr;
+}
+
+/* Número */
+.mod-num {
+  position: absolute;
+  top: 18px;
+  right: 24px;
+  font: 700 48px/1 var(--font-mono);
+  color: rgba(247,147,26,0.25);
+  pointer-events: none;
+}
+
+/* Label */
+.mod-label {
+  font: 600 11px/1 var(--font-mono);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--txt-ghost);
+  margin: 0 0 10px;
+}
+
+/* Título */
+.mod-title {
+  font: 600 18px/1.3 var(--font-body);
+  color: var(--txt-hi);
+  margin: 0 0 12px;
+  max-width: 85%;
+}
+
+/* Resultado */
+.mod-result {
+  font: 400 14px/1.6 var(--font-body);
+  color: var(--btc);
+  margin: 0;
+  position: relative;
+  padding-left: 18px;
+}
+.mod-result::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--btc);
+}
+
+/* Bullets (placeholder, expandible viene en el paso 2) */
+.mod-bullets {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s var(--ease-out);
+  margin-top: 0;
+}
+.mod-bullets > div {
+  overflow: hidden;
+}
+.mod-bullets ul {
+  list-style: none;
+  padding: 16px 0 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.mod-bullets li {
+  font: 400 13px/1.5 var(--font-body);
+  color: var(--txt-mid);
+  padding-left: 18px;
+  position: relative;
+}
+.mod-bullets li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(247,147,26,0.6);
+}
+
+/* Strip */
+.mods-strip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 64px;
+}
+.mods-strip-item {
+  font: 400 0.78rem/1 var(--font-mono);
+  color: var(--txt-low);
+  letter-spacing: 0.04em;
+}
+.mods-strip-div {
+  width: 1px;
+  height: 14px;
+  background: rgba(247,147,26,0.4);
+  box-shadow: 0 0 6px rgba(247,147,26,0.4);
+  flex-shrink: 0;
+}
+
+.mod-tap-hint {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mod-tap-hint {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    position: absolute;
+    bottom: 12px;
+    right: 14px;
+    transition: opacity 0.3s ease;
+  }
+  .mod-card.open .mod-tap-hint {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .mod-tap-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(247,147,26,0.6);
+    background: rgba(247,147,26,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: tapGlow 2s ease-in-out infinite;
+  }
+  .mod-tap-arrow {
+    font-size: 8px;
+    color: rgba(247,147,26,0.7);
+    line-height: 1;
+    animation: tapBounce 2s ease-in-out infinite;
+  }
+  @keyframes tapGlow {
+    0%, 100% {
+      border-color: rgba(247,147,26,0.4);
+      box-shadow: 0 0 6px rgba(247,147,26,0.2);
+    }
+    50% {
+      border-color: rgba(247,147,26,0.9);
+      box-shadow: 0 0 12px rgba(247,147,26,0.6), 0 0 24px rgba(247,147,26,0.2);
+    }
+  }
+  @keyframes tapBounce {
+    0%, 100% { transform: translateY(0); opacity: 0.7; }
+    50% { transform: translateY(3px); opacity: 1; }
+  }
+}
+
+/* Reveal */
+.mods-reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
+  transition-delay: var(--del, 0s);
+}
+.mods-reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mods-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .mods-stars-canvas { display: none; }
+}
+
+/* Móvil */
+@media (max-width: 768px) {
+  .mods-sub { margin-bottom: 40px; }
+
+  .mods-track { max-width: 100%; }
+
+  .mod-card {
+    max-width: unset;
+    padding: 14px;
+    min-height: unset;
+    max-height: 150px;
+    width: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    position: relative;
+    overflow: hidden;
+    /* Vidrio esmerilado: fondo oscuro translúcido + blur suave. El laser
+       (mandado detrás en mobile, ver z-index abajo) y el cuadriculado se
+       siguen viendo pero difuminados, sin competir con el texto. */
+    background: rgba(8,8,12,0.62);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: max-height 0.5s ease, width 0.5s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .mod-card:nth-child(odd) {
+    margin-right: auto !important;
+    margin-left: 10% !important;
+  }
+  .mod-card:nth-child(even) {
+    margin-left: auto !important;
+    margin-right: 10% !important;
+  }
+  .mod-card:not(:first-child) { margin-top: 20px; }
+  .mod-card.open {
+    max-height: 600px;
+    width: 80vw;
+    overflow: hidden;
+  }
+
+  /* Ocultar todo el contenido textual hasta que esté completamente abierto */
+  .mod-label {
+    font-size: 9px;
+    margin-bottom: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .mod-title {
+    font-size: 11px;
+    line-height: 1.25;
+    max-width: 75%;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  .mod-num { font-size: 26px; top: 10px; right: 12px; }
+
+  /* Resultado y bullets: invisibles durante la animación, visibles al terminar */
+  .mod-result {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    margin-top: 0;
+    transition: max-height 0.01s ease 0.5s, opacity 0.3s ease 0.5s, margin 0.3s ease 0.5s;
+    display: block;
+    font-size: 13px;
+  }
+  .mod-result span { display: block; }
+  .mod-card.open .mod-result {
+    max-height: 200px;
+    opacity: 1;
+    margin-top: 10px;
+    transition: max-height 0.01s ease 0.45s, opacity 0.3s ease 0.45s, margin 0.3s ease 0.45s;
+  }
+  .mod-bullets {
+    grid-template-rows: 0fr !important;
+    transition: grid-template-rows 0.3s ease 0.5s !important;
+  }
+  .mod-card.open .mod-bullets {
+    grid-template-rows: 1fr !important;
+    transition: grid-template-rows 0.3s ease 0.45s !important;
+  }
+
+  .mod-card.open .mod-title {
+    display: block;
+    -webkit-line-clamp: unset;
+    font-size: 15px;
+    max-width: 100%;
+  }
+  .mod-card.open .mod-label {
+    font-size: 10px;
+    white-space: normal;
+  }
+  .mod-card.open .mod-num { font-size: 28px; }
+
+  /* Indicador tap */
+  .mod-tap-hint {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    position: absolute;
+    bottom: 10px;
+    right: 12px;
+    transition: opacity 0.3s ease;
+  }
+  .mod-card.open .mod-tap-hint {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .mod-tap-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(247,147,26,0.6);
+    background: rgba(247,147,26,0.1);
+    animation: tapGlow 2s ease-in-out infinite;
+  }
+  .mod-tap-arrow {
+    font-size: 7px;
+    color: rgba(247,147,26,0.7);
+    line-height: 1;
+    animation: tapBounce 2s ease-in-out infinite;
+  }
+
+  .mods-strip { gap: 10px; margin-top: 40px; }
+  .mods-strip-item { font-size: 0.7rem; }
+}
+</style>
+
+<style is:global>
+.mods-laser {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  pointer-events: none;
+  overflow: visible;
+}
+/* Mobile: el laser pasa por encima del centro de las cards. Lo mandamos
+   detrás (debajo de las cards, z-index 2) para que el vidrio esmerilado lo
+   difumine y el texto quede legible. Desktop queda igual (laser al frente). */
+@media (max-width: 768px) {
+  .mods-laser { z-index: 1; }
+}
+.mods-laser-line {
+  fill: none;
+  stroke: #F7931A;
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: 0;
+}
+.mods-laser-line.firing {
+  animation: laserFire 1s ease-out forwards;
+}
+@keyframes laserFire {
+  0% {
+    opacity: 1;
+    stroke-width: 4;
+    filter: drop-shadow(0 0 8px #F7931A) drop-shadow(0 0 20px #F7931A) drop-shadow(0 0 40px rgba(247,147,26,0.6));
+  }
+  40% {
+    opacity: 0.8;
+    stroke-width: 3;
+    filter: drop-shadow(0 0 6px #F7931A) drop-shadow(0 0 14px rgba(247,147,26,0.8));
+  }
+  100% {
+    opacity: 0;
+    stroke-width: 1;
+    filter: none;
+  }
+}
+.mods-laser-impact {
+  fill: rgba(247,147,26,0.9);
+  opacity: 0;
+}
+.mods-laser-impact.firing {
+  animation: impactFlash 1s ease-out forwards;
+}
+@keyframes impactFlash {
+  0% {
+    opacity: 1;
+    filter: drop-shadow(0 0 12px #F7931A) drop-shadow(0 0 30px rgba(247,147,26,0.8));
+  }
+  60% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.mods-laser-btc {
+  fill: #F7931A;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 52px;
+  font-weight: 700;
+  opacity: 0;
+}
+.mods-laser-btc.firing {
+  animation: btcFlash 1s ease-out forwards;
+}
+@keyframes btcFlash {
+  0% {
+    opacity: 1;
+    filter: drop-shadow(0 0 10px #F7931A) drop-shadow(0 0 24px #F7931A) drop-shadow(0 0 40px rgba(247,147,26,0.7));
+  }
+  40% {
+    opacity: 0.85;
+    filter: drop-shadow(0 0 8px #F7931A) drop-shadow(0 0 18px rgba(247,147,26,0.8));
+  }
+  100% {
+    opacity: 0;
+    filter: none;
+  }
+}
+.mods-laser-crack {
+  fill: none;
+  stroke: #FFB347;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+}
+.mods-laser-crack.firing {
+  animation: crackFlash 1s ease-out forwards;
+}
+@keyframes crackFlash {
+  0% {
+    opacity: 1;
+    stroke-width: 2;
+    filter: drop-shadow(0 0 6px #F7931A) drop-shadow(0 0 14px rgba(247,147,26,0.8));
+  }
+  30% {
+    opacity: 0.7;
+    stroke-width: 1.5;
+  }
+  100% {
+    opacity: 0;
+    stroke-width: 0.5;
+    filter: none;
+  }
+}
+</style>
+
+<script is:inline>
+(function () {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Reveals */
+  const revEls = document.querySelectorAll('.mods-reveal');
+  if (reduce) {
+    revEls.forEach(el => el.classList.add('visible'));
+  } else {
+    const revObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          revObs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+    revEls.forEach(el => revObs.observe(el));
+  }
+
+  /* Estrellas de fondo */
+  if (!reduce) {
+    const canvas = document.querySelector('.mods-stars-canvas');
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      let w, h, DPR, stars = [], shooting = [];
+
+      function resize() {
+        DPR = Math.min(devicePixelRatio, 1.5);
+        w = canvas.offsetWidth;
+        h = canvas.offsetHeight;
+        canvas.width = w * DPR;
+        canvas.height = h * DPR;
+        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+        const count = Math.floor((w * h) / 9000);
+        stars = Array.from({ length: count }, () => ({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          r: Math.random() * 1.2 + 0.3,
+          base: Math.random() * 0.5 + 0.2,
+          tw: Math.random() * Math.PI * 2,
+          twSpeed: Math.random() * 0.02 + 0.005,
+        }));
+      }
+      resize();
+      window.addEventListener('resize', resize, { passive: true });
+
+      function spawnShooting() {
+        shooting.push({
+          x: Math.random() * w,
+          y: Math.random() * h * 0.4,
+          len: 80 + Math.random() * 60,
+          speed: 6 + Math.random() * 4,
+          angle: Math.PI * 0.25 + (Math.random() - 0.5) * 0.3,
+          life: 0,
+          maxLife: 60,
+        });
+      }
+
+      let rafId = null, running = false, frameCount = 0;
+
+      function draw() {
+        ctx.clearRect(0, 0, w, h);
+        frameCount++;
+
+        stars.forEach(s => {
+          s.tw += s.twSpeed;
+          const op = s.base + Math.sin(s.tw) * 0.2;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255,255,255,${Math.max(0, op)})`;
+          ctx.fill();
+        });
+
+        if (frameCount % 90 === 0 && Math.random() > 0.3) spawnShooting();
+
+        shooting = shooting.filter(sh => sh.life < sh.maxLife);
+        shooting.forEach(sh => {
+          sh.life++;
+          sh.x += Math.cos(sh.angle) * sh.speed;
+          sh.y += Math.sin(sh.angle) * sh.speed;
+          const x2 = sh.x - Math.cos(sh.angle) * sh.len;
+          const y2 = sh.y - Math.sin(sh.angle) * sh.len;
+          const grad = ctx.createLinearGradient(sh.x, sh.y, x2, y2);
+          const fade = 1 - sh.life / sh.maxLife;
+          grad.addColorStop(0, `rgba(255,255,255,${fade * 0.8})`);
+          grad.addColorStop(1, 'rgba(255,255,255,0)');
+          ctx.beginPath();
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = 1.5;
+          ctx.moveTo(sh.x, sh.y);
+          ctx.lineTo(x2, y2);
+          ctx.stroke();
+        });
+
+        rafId = requestAnimationFrame(draw);
+      }
+
+      const obs = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting && !running) {
+            running = true;
+            draw();
+          } else if (!e.isIntersecting && running) {
+            running = false;
+            cancelAnimationFrame(rafId);
+          }
+        });
+      }, { rootMargin: '200px' });
+      obs.observe(canvas);
+    }
+  }
+
+  /* Laser zigzag entre cards */
+  if (!reduce) {
+    const laserSvg = document.querySelector('.mods-laser');
+    const laserCards = Array.from(document.querySelectorAll('.mod-card'));
+
+    if (laserSvg && laserCards.length) {
+      let lines = [];
+      let impacts = [];
+      let btcSymbol = null;
+      let cracks = [];
+      let built = false;
+
+      function buildLaser() {
+        const track = document.querySelector('.mods-track');
+        if (!track) return;
+
+        /* Reset común (también limpia al volver de un resize). */
+        laserSvg.innerHTML = '';
+        lines = [];
+        impacts = [];
+        cracks = [];
+        btcSymbol = null;
+
+        /* Sincronizar el viewBox con el tamaño renderizado real del SVG:
+           1 unidad de viewBox = 1 píxel, sin escalado. Esto evita que los
+           Y se compriman hacia arriba. */
+        const svgRect = laserSvg.getBoundingClientRect();
+        laserSvg.setAttribute('viewBox', `0 0 ${svgRect.width} ${svgRect.height}`);
+
+        /* Centro real de cada card (sin offset), medido contra el SVG. */
+        const rawCenters = laserCards.map(card => {
+          const r = card.getBoundingClientRect();
+          return {
+            x: r.left + r.width / 2 - svgRect.left,
+            y: r.top + r.height / 2 - svgRect.top,
+            w: r.width,
+          };
+        });
+
+        /* El vértice se mete ~18% del ancho hacia el lado interno de la
+           card: las del lado derecho (01, 03, 05) hacia la izquierda, las
+           del izquierdo (02, 04) hacia la derecha. Mismo zigzag en desktop
+           y mobile (las cards alternan de lado en ambos). Y queda igual. */
+        const midX = svgRect.width / 2;
+        const centers = rawCenters.map(c => ({
+          x: c.x > midX ? c.x - c.w * 0.18 : c.x + c.w * 0.18,
+          y: c.y,
+        }));
+        /* Crear una línea por cada segmento */
+        for (let i = 0; i < centers.length - 1; i++) {
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', centers[i].x);
+          line.setAttribute('y1', centers[i].y);
+          line.setAttribute('x2', centers[i+1].x);
+          line.setAttribute('y2', centers[i+1].y);
+          line.setAttribute('class', 'mods-laser-line');
+          laserSvg.appendChild(line);
+          lines.push(line);
+
+          /* Impacto en el punto de destino */
+          const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          circle.setAttribute('cx', centers[i+1].x);
+          circle.setAttribute('cy', centers[i+1].y);
+          circle.setAttribute('r', 6);
+          circle.setAttribute('class', 'mods-laser-impact');
+          laserSvg.appendChild(circle);
+          impacts.push(circle);
+        }
+
+        /* El laser termina en el centro de la card 05 (sin ₿ ni grietas). */
+
+        built = true;
+      }
+
+      function fireLasers() {
+        if (!built) return;
+        lines.forEach(l => l.classList.remove('firing'));
+        impacts.forEach(c => c.classList.remove('firing'));
+        cracks.forEach(c => c.classList.remove('firing'));
+        if (btcSymbol) btcSymbol.classList.remove('firing');
+
+        void laserSvg.getBoundingClientRect();
+
+        requestAnimationFrame(() => {
+          lines.forEach(l => l.classList.add('firing'));
+          impacts.forEach(c => c.classList.add('firing'));
+          cracks.forEach(c => c.classList.add('firing'));
+          if (btcSymbol) btcSymbol.classList.add('firing');
+        });
+      }
+
+      const laserInit = () => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              buildLaser();
+              setTimeout(() => {
+                buildLaser(); /* segunda medición tras estabilizar layout */
+                fireLasers();
+                setInterval(fireLasers, 1500);
+              }, 800);
+            });
+          });
+        });
+      };
+
+      /* Esperar a que todo esté listo: load + fuentes cargadas, para medir
+         las cards ya en su posición final (reveal terminado). */
+      const startLaser = () => {
+        const fontsReady = document.fonts ? document.fonts.ready : Promise.resolve();
+        fontsReady.then(() => setTimeout(laserInit, 500));
+      };
+      if (document.readyState === 'complete') {
+        startLaser();
+      } else {
+        window.addEventListener('load', startLaser);
+      }
+
+      /* Recalcular en resize */
+      let laserResizeT;
+      window.addEventListener('resize', () => {
+        clearTimeout(laserResizeT);
+        laserResizeT = setTimeout(() => {
+          buildLaser();
+        }, 200);
+      }, { passive: true });
+
+      /* Rebuild robusto: cada card revela con transform: translateY(22px)
+         que se asienta en 0.7s. Si medimos durante la animación, los
+         vértices quedan 22px arriba. Reconstruimos cuando el transform de
+         cada card termina (ya con translateY en 0). Debounce para que tras
+         la última card haya una sola medición final correcta. */
+      let rebuildT;
+      const scheduleRebuild = () => {
+        clearTimeout(rebuildT);
+        rebuildT = setTimeout(() => {
+          buildLaser();
+          fireLasers();
+        }, 60);
+      };
+
+      laserCards.forEach(card => {
+        const onRevealEnd = (ev) => {
+          if (ev.propertyName !== 'transform') return;
+          card.removeEventListener('transitionend', onRevealEnd);
+          scheduleRebuild();
+        };
+        card.addEventListener('transitionend', onRevealEnd);
+      });
+
+      /* Fallback por si no llega el transitionend: reconstruir al entrar la
+         sección al viewport, con margen para que el reveal haya terminado. */
+      const track = document.querySelector('.mods-track');
+      if (track && 'IntersectionObserver' in window) {
+        const vpObs = new IntersectionObserver(entries => {
+          entries.forEach(e => {
+            if (e.isIntersecting) {
+              setTimeout(scheduleRebuild, 900);
+              vpObs.unobserve(track);
+            }
+          });
+        }, { threshold: 0.1 });
+        vpObs.observe(track);
+      }
+
+      /* Solo mobile: al abrir o cerrar un acordeón, la card crece o se
+         encoge y las de abajo se desplazan en el flujo. El laser debe
+         reconstruirse para seguir conectando los centros reales. Medimos
+         DESPUÉS de que terminen las transiciones de altura, reusando el
+         mismo debounce post transitionend: así la última medición es la
+         final, ya con las cards en su posición definitiva. La altura final
+         la marcan max-height de la card (0.5s) y grid-template-rows de los
+         bullets (con delay, termina más tarde), por eso escuchamos ambas. */
+      if (window.matchMedia('(max-width: 768px)').matches) {
+        laserCards.forEach(card => {
+          card.addEventListener('transitionend', (ev) => {
+            if (ev.propertyName !== 'max-height' && ev.propertyName !== 'grid-template-rows') return;
+            scheduleRebuild();
+          });
+        });
+      }
+    }
+  }
+
+  /* Cards expandibles en móvil: tap togglea, cierra el anterior */
+  if (window.matchMedia('(max-width: 768px)').matches) {
+    const cards = document.querySelectorAll('.mod-card');
+    cards.forEach(card => {
+      card.addEventListener('click', () => {
+        const wasOpen = card.classList.contains('open');
+        cards.forEach(c => c.classList.remove('open'));
+        if (!wasOpen) card.classList.add('open');
+      });
+    });
+  }
+})();
+</script>
