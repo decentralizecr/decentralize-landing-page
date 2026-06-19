@@ -5,10 +5,15 @@
 <section id="masterclass" class="mods sec">
   <!-- Fondo galaxia -->
   <div class="mods-galaxy" aria-hidden="true">
+    <div class="mods-bg-img"></div>
+    <div class="mods-bg-overlay"></div>
     <div class="mods-blueprint"></div>
     <canvas class="mods-stars-canvas"></canvas>
     <div class="mods-nebula mods-nebula-1"></div>
     <div class="mods-nebula mods-nebula-2"></div>
+    <!-- CAMBIO 4: fundido al pie hacia el negro base, para suavizar el corte
+         con la sección 6. Detrás del contenido (.wrap), no tapa el strip. -->
+    <div class="mods-fade-bottom"></div>
   </div>
 
   <div class="wrap">
@@ -35,7 +40,7 @@
           <div>
             <ul>
               <li>¿Qué es el dinero realmente?</li>
-              <li>Del patrón oro al dinero sin respaldo</li>
+              <li>Del trueque al oro al dinero sin respaldo</li>
               <li>La evolución hacia el dinero digital</li>
               <li>Las propiedades que debe tener el dinero</li>
             </ul>
@@ -56,9 +61,9 @@
           <div>
             <ul>
               <li>Cómo los bancos crean dinero de la nada</li>
-              <li>Inflación, reserva fraccionaria y deuda global</li>
+              <li>Inflación, reserva fraccionaria y deuda</li>
               <li>Bancos centrales y tasas de interés</li>
-              <li>CBDCs: el control total del dinero</li>
+              <li>CBDCs: el control total de tu dinero</li>
             </ul>
           </div>
         </div>
@@ -78,8 +83,8 @@
             <ul>
               <li>Satoshi Nakamoto y el origen de Bitcoin</li>
               <li>Blockchain, halving y política monetaria</li>
-              <li>Minería y nodos: por qué existen</li>
-              <li>Wallets: comprar, vender, custodiar, enviar, recibir</li>
+              <li>Minería de Bitcoin y nodos</li>
+              <li>Wallets: comprar, vender, custodiar, enviar y recibir</li>
             </ul>
           </div>
         </div>
@@ -93,14 +98,14 @@
         <span class="mod-num">04</span>
         <p class="mod-label">Contexto Global</p>
         <h3 class="mod-title">Mercado Global vs Bitcoin</h3>
-        <p class="mod-result"><span>Vas a saber, con datos reales, por qué Bitcoin supera al oro, acciones, bienes raíces y al dólar.</span></p>
+        <p class="mod-result"><span>Vas a saber, con datos reales, por qué Bitcoin supera al oro, las acciones, los bienes raíces, altcoins y al dólar.</span></p>
         <div class="mod-bullets">
           <div>
             <ul>
               <li>Oro vs Bitcoin: ¿quién gana?</li>
               <li>Bienes raíces vs Bitcoin: análisis real</li>
-              <li>Dólares y altcoins vs Bitcoin: la verdad</li>
               <li>Acciones vs Bitcoin: los números no mienten</li>
+              <li>Dólar y altcoins: la verdad</li>
             </ul>
           </div>
         </div>
@@ -118,10 +123,10 @@
         <div class="mod-bullets">
           <div>
             <ul>
-              <li>Tu primera compra de Bitcoin: paso a paso</li>
-              <li>Dollar Cost Averaging (DCA): la estrategia simple</li>
+              <li>Tu primera compra, paso a paso</li>
+              <li>DCA: la estrategia simple de compra</li>
               <li>Cómo NO perder tu Bitcoin</li>
-              <li>Mentalidad a largo plazo vs especulación</li>
+              <li>Mentalidad de largo plazo vs especulación</li>
             </ul>
           </div>
         </div>
@@ -153,6 +158,11 @@
   position: relative;
   z-index: 10;
   overflow: hidden;
+  /* Aire arriba del pill en desktop, para que respire respecto a la
+     sección anterior. En mobile se baja a 36px (ver @media). */
+  padding-top: 80px;
+  /* Aire al pie para que el strip respire y haya zona de fundido con la sec 6. */
+  padding-bottom: 56px;
 }
 
 /* ---- Fondo galaxia ---- */
@@ -163,11 +173,61 @@
   pointer-events: none;
   overflow: hidden;
 }
+/* CAMBIO 4: banda de fundido al pie. Funde la galaxia de la sec 5 al negro base
+   en los últimos ~180px, para que se encuentre sin corte con el fundido superior
+   de la sec 6. z-3 dentro de .mods-galaxy: sobre imagen/overlay/estrellas, pero
+   toda .mods-galaxy va detrás de .wrap, así que no tapa el strip. */
+.mods-fade-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 180px;
+  z-index: 3;
+  background: linear-gradient(to bottom, rgba(6,6,7,0) 0%, var(--bg-base) 100%);
+}
+/* Imagen de fondo real (galaxia). Va al fondo de todo: detrás del overlay,
+   blueprint, nebulas, canvas de estrellas y, por ende, de las cards y el laser
+   (que viven en .wrap, z-index superior). cover la adapta sin recortar mal. */
+.mods-bg-img {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: url('/images/galaxy-bg.jpg');
+  background-image: image-set(
+    url('/images/galaxy-bg.webp') type('image/webp'),
+    url('/images/galaxy-bg.jpg') type('image/jpeg')
+  );
+  background-image: -webkit-image-set(
+    url('/images/galaxy-bg.webp') type('image/webp'),
+    url('/images/galaxy-bg.jpg') type('image/jpeg')
+  );
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  /* scroll por defecto en desktop y mobile (fixed rompe en iOS). */
+  background-attachment: scroll;
+}
+/* Overlay de legibilidad: oscurece la imagen para que el texto de las cards se
+   lea sin esfuerzo, manteniendo la galaxia claramente visible. Encima de la
+   imagen, debajo del resto del fondo y de las cards. */
+.mods-bg-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    180deg,
+    rgba(5,6,10,0.62) 0%,
+    rgba(5,6,10,0.48) 40%,
+    rgba(5,6,10,0.62) 100%
+  );
+}
 .mods-stars-canvas {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+  z-index: 2;
 }
 .mods-blueprint {
   position: absolute;
@@ -226,7 +286,7 @@
   font: 400 1.05rem/1.7 var(--font-body);
   color: var(--txt-body);
   max-width: 560px;
-  margin: 0 0 72px;
+  margin: 0 0 32px;
 }
 
 /* ---- Track zigzag ---- */
@@ -235,15 +295,22 @@
   max-width: 1000px;
   width: 100%;
   margin: 0 auto;
-  /* Espacio para la ₿ (a la altura de la card 05) y sus grietas. */
-  padding-bottom: 64px;
+  /* Respiro al pie del track. Antes era 64px reservado para la ₿ que ya no
+     se dibuja; ahora compacto. Mobile lo baja aún más (ver @media). */
+  padding-bottom: 8px;
 }
 
 /* Card */
 .mod-card {
   position: relative;
   max-width: 460px;
-  background: var(--bg-card);
+  /* Vidrio esmerilado (mismo que mobile): fondo oscuro translúcido + blur
+     suave. Con el laser mandado detrás (z-index, ver estilo global), el
+     cuadriculado y la luz del laser se ven difuminados pero el texto queda
+     legible. El glow naranja del borde lo dan border-soft + el hover. */
+  background: rgba(8,8,12,0.62);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: var(--border-soft);
   border-radius: 20px;
   padding: 28px;
@@ -254,7 +321,10 @@
 }
 .mod-card:nth-child(odd) { margin-right: auto; }
 .mod-card:nth-child(even) { margin-left: auto; }
-.mod-card:not(:first-child) { margin-top: 32px; }
+/* Espacio entre cards. Sibling adyacente para que la PRIMERA card no reciba
+   margin-top: el primer hijo del track es el <svg> del laser, así que
+   :not(:first-child) le pegaba el margen de más a la card 01. */
+.mod-card + .mod-card { margin-top: 32px; }
 
 .mod-card:hover {
   border-color: rgba(247,147,26,0.5);
@@ -275,6 +345,48 @@
 }
 .mod-card.open .mod-bullets {
   grid-template-rows: 1fr;
+}
+
+/* ---- Glow sincronizado con el laser ----
+   La clase .is-lit la prende/apaga el JS en fireLasers, en el mismo ciclo que
+   el laser zigzag. Cada disparo reinicia estas animaciones (1s ease-out, igual
+   que laserFire). El frame 100% calca el estado de reposo exacto de cada
+   elemento (borde rgba(255,255,255,0.1), número rgba(247,147,26,0.25)) para
+   que al terminar vuelva sin salto ni cola de transición. Aplica en desktop y
+   mobile; no toca el glassmorphism (solo border-color, box-shadow y color). */
+.mod-card.is-lit {
+  animation: cardLit 1s ease-out;
+}
+.mod-card.is-lit .mod-num {
+  animation: numLit 1s ease-out;
+}
+@keyframes cardLit {
+  0% {
+    border-color: rgba(247,147,26,0.9);
+    box-shadow: 0 0 26px rgba(247,147,26,0.5), 0 0 52px rgba(247,147,26,0.22);
+  }
+  40% {
+    border-color: rgba(247,147,26,0.6);
+    box-shadow: 0 0 16px rgba(247,147,26,0.3), 0 0 32px rgba(247,147,26,0.12);
+  }
+  100% {
+    border-color: rgba(255,255,255,0.1);
+    box-shadow: 0 0 0 rgba(247,147,26,0);
+  }
+}
+@keyframes numLit {
+  0% {
+    color: var(--btc-light);
+    text-shadow: 0 0 12px rgba(247,147,26,0.9), 0 0 26px rgba(247,147,26,0.5);
+  }
+  40% {
+    color: var(--btc);
+    text-shadow: 0 0 8px rgba(247,147,26,0.6);
+  }
+  100% {
+    color: rgba(247,147,26,0.25);
+    text-shadow: 0 0 0 rgba(247,147,26,0);
+  }
 }
 
 /* Número */
@@ -356,23 +468,27 @@
 
 /* Strip */
 .mods-strip {
+  position: relative;
+  z-index: 3;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 16px;
   flex-wrap: wrap;
-  margin-top: 64px;
+  margin-top: 24px;
 }
+/* CAMBIO 5c: texto del strip en blanco. */
 .mods-strip-item {
   font: 400 0.78rem/1 var(--font-mono);
-  color: var(--txt-low);
+  color: var(--txt-hi);
   letter-spacing: 0.04em;
 }
+/* CAMBIO 5c: separadores verticales en naranja Bitcoin pleno. */
 .mods-strip-div {
   width: 1px;
   height: 14px;
-  background: rgba(247,147,26,0.4);
-  box-shadow: 0 0 6px rgba(247,147,26,0.4);
+  background: var(--btc);
+  box-shadow: 0 0 6px rgba(247,147,26,0.6);
   flex-shrink: 0;
 }
 
@@ -446,9 +562,25 @@
 
 /* Móvil */
 @media (max-width: 768px) {
-  .mods-sub { margin-bottom: 40px; }
+  /* Aire arriba del pill para que respire y se separe del borde superior.
+     CAMBIO 5a: más aire al pie para que el strip no quede pegado al borde. */
+  .mods { padding-top: 36px; padding-bottom: 28px; }
 
-  .mods-track { max-width: 100%; }
+  /* Padding lateral en el subtítulo: que no toque los bordes. Medido para
+     no sumar líneas de más y estirar el alto de la sección. El margin-bottom
+     bajo acerca el subtítulo a la primera card. */
+  .mods-sub {
+    margin-bottom: 8px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  /* Recortar el hueco al pie: el padding-bottom de 64px era para la ₿ que ya
+     no se dibuja. Queda solo un respiro mínimo antes del strip. */
+  .mods-track {
+    max-width: 100%;
+    padding-bottom: 4px;
+  }
 
   .mod-card {
     max-width: unset;
@@ -477,7 +609,7 @@
     margin-left: auto !important;
     margin-right: 10% !important;
   }
-  .mod-card:not(:first-child) { margin-top: 20px; }
+  .mod-card + .mod-card { margin-top: 20px; }
   .mod-card.open {
     max-height: 600px;
     width: 80vw;
@@ -564,6 +696,29 @@
     background: rgba(247,147,26,0.1);
     animation: tapGlow 2s ease-in-out infinite;
   }
+  /* Mobile: el botón naranja se prende con el laser. Mientras .is-lit está
+     activa, dotLit reemplaza al tapGlow y pulsa en sincronía con el laser;
+     su frame 100% calca el reposo del dot, así al apagarse vuelve sin salto. */
+  .mod-card.is-lit .mod-tap-dot {
+    animation: dotLit 1s ease-out;
+  }
+  @keyframes dotLit {
+    0% {
+      border-color: rgba(247,147,26,1);
+      background: rgba(247,147,26,0.5);
+      box-shadow: 0 0 14px rgba(247,147,26,0.9), 0 0 28px rgba(247,147,26,0.5);
+    }
+    40% {
+      border-color: rgba(247,147,26,0.8);
+      background: rgba(247,147,26,0.3);
+      box-shadow: 0 0 10px rgba(247,147,26,0.6);
+    }
+    100% {
+      border-color: rgba(247,147,26,0.6);
+      background: rgba(247,147,26,0.1);
+      box-shadow: 0 0 0 rgba(247,147,26,0);
+    }
+  }
   .mod-tap-arrow {
     font-size: 7px;
     color: rgba(247,147,26,0.7);
@@ -571,7 +726,7 @@
     animation: tapBounce 2s ease-in-out infinite;
   }
 
-  .mods-strip { gap: 10px; margin-top: 40px; }
+  .mods-strip { gap: 10px; margin-top: 12px; }
   .mods-strip-item { font-size: 0.7rem; }
 }
 </style>
@@ -582,15 +737,12 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  z-index: 5;
+  /* El laser pasa por el centro de las cards. Va detrás (debajo de las cards,
+     que son z-index 2) en desktop y mobile, para que el vidrio esmerilado lo
+     difumine: la luz se ve translúcida y suave sin competir con el texto. */
+  z-index: 1;
   pointer-events: none;
   overflow: visible;
-}
-/* Mobile: el laser pasa por encima del centro de las cards. Lo mandamos
-   detrás (debajo de las cards, z-index 2) para que el vidrio esmerilado lo
-   difumine y el texto quede legible. Desktop queda igual (laser al frente). */
-@media (max-width: 768px) {
-  .mods-laser { z-index: 1; }
 }
 .mods-laser-line {
   fill: none;
@@ -725,14 +877,23 @@
         canvas.width = w * DPR;
         canvas.height = h * DPR;
         ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-        const count = Math.floor((w * h) / 9000);
+        /* Conteo de estrellas +60% sobre el valor previo, desktop y mobile. El
+           conteo es (w*h)/divisor, asi que x1.6 estrellas = divisor / 1.6:
+           desktop 9000 -> 5625, mobile 4592 -> 2870. El DPR sigue capeado a 1.5
+           (ver arriba) y la pausa fuera de viewport (IntersectionObserver mas
+           abajo) acota el costo del loop. */
+        const isMobile = window.matchMedia('(max-width: 768px)').matches;
+        const count = Math.floor((w * h) / (isMobile ? 2870 : 5625));
         stars = Array.from({ length: count }, () => ({
           x: Math.random() * w,
           y: Math.random() * h,
           r: Math.random() * 1.2 + 0.3,
           base: Math.random() * 0.5 + 0.2,
           tw: Math.random() * Math.PI * 2,
-          twSpeed: Math.random() * 0.02 + 0.005,
+          /* Frecuencia de titileo intensificada (~x1.7): rango 0.005-0.025 ->
+             0.008-0.043. Titilan mas seguido sin volverse estroboscopico
+             (periodo del mas rapido ~2.5s). */
+          twSpeed: Math.random() * 0.035 + 0.008,
         }));
       }
       resize();
@@ -758,14 +919,25 @@
 
         stars.forEach(s => {
           s.tw += s.twSpeed;
-          const op = s.base + Math.sin(s.tw) * 0.2;
+          /* Amplitud del titileo intensificada (0.2 -> 0.45): picos mas
+             brillantes (base hasta 0.7 + 0.45 satura cerca de 1) y valles mas
+             tenues (clampeados a 0 abajo), para que las estrellas se noten mas
+             vivas sobre la galaxia sin parpadeo artificial. */
+          const op = s.base + Math.sin(s.tw) * 0.45;
           ctx.beginPath();
           ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
           ctx.fillStyle = `rgba(255,255,255,${Math.max(0, op)})`;
           ctx.fill();
         });
 
-        if (frameCount % 90 === 0 && Math.random() > 0.3) spawnShooting();
+        /* Cometas: +40% adicional sobre el valor ya aumentado. La probabilidad
+           de spawn ya estaba saturada en 0.98 (Math.random() > 0.02); no hay
+           una constante de conteo que multiplicar, el ritmo lo fija el
+           intervalo de frames (relacion inversa). Por eso el +40% baja el
+           intervalo de 64 a 45 frames (64 / 1.4 = 45.71, piso 45), subiendo la
+           frecuencia de cometas ~40% en desktop y mobile. Rate efectivo:
+           0.98/45 vs 0.98/64 = x1.42. */
+        if (frameCount % 45 === 0 && Math.random() > 0.02) spawnShooting();
 
         shooting = shooting.filter(sh => sh.life < sh.maxLife);
         shooting.forEach(sh => {
@@ -884,6 +1056,10 @@
         impacts.forEach(c => c.classList.remove('firing'));
         cracks.forEach(c => c.classList.remove('firing'));
         if (btcSymbol) btcSymbol.classList.remove('firing');
+        /* Glow del borde de las cards sincronizado con el laser: misma señal,
+           mismo patrón remove -> rAF add para reiniciar la animación CSS en
+           cada disparo. Prenden y apagan en el mismo ciclo que el laser. */
+        laserCards.forEach(c => c.classList.remove('is-lit'));
 
         void laserSvg.getBoundingClientRect();
 
@@ -892,6 +1068,7 @@
           impacts.forEach(c => c.classList.add('firing'));
           cracks.forEach(c => c.classList.add('firing'));
           if (btcSymbol) btcSymbol.classList.add('firing');
+          laserCards.forEach(c => c.classList.add('is-lit'));
         });
       }
 

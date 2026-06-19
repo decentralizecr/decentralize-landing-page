@@ -1,0 +1,708 @@
+---
+// Sección 6 — Todo lo que recibís (value stack premium) · nebulosa Orión Canvas 2D
+// kind: 'money' = monto en dólares (--btc) · 'incl' = "Incluido" (tenue) ·
+//       'prime' = "Invaluable" (acento).
+const cards = [
+  { icon: 'graduation-cap', name: 'Bitcoin Masterclass',                    desc: '7 horas de contenido en 5 módulos',        value: '$297',       kind: 'money' },
+  { icon: 'users',          name: 'Comunidad privada en Discord',           desc: 'Acceso de por vida',                       value: '$200',       kind: 'money' },
+  { icon: 'percent',        name: 'Tarifas preferenciales BTC',             desc: 'Compra y venta vía Kribatta',              value: '$400',       kind: 'money' },
+  { icon: 'message-circle', name: 'Soporte 24/7 personalizado',            desc: 'Resolvé tus dudas cuando las tengás',      value: 'Incluido',   kind: 'incl' },
+  { icon: 'refresh-cw',     name: 'Acceso de por vida + actualizaciones',  desc: 'Todo el contenido nuevo, sin pagar de más', value: 'Incluido',  kind: 'incl' },
+  { icon: 'calendar',       name: 'Eventos presenciales y llamadas grupales', desc: 'Conectá con la comunidad en vivo',      value: 'Invaluable', kind: 'prime' },
+];
+---
+
+<section id="recibis" class="recibis sec">
+  <!-- Fondo (atrás → adelante): imagen galaxia → nebulosa fluida Canvas 2D →
+       partículas (Canvas 2D, sprite pre-renderizado) → overlay de legibilidad.
+       Cards/contador viven en .wrap, encima. -->
+  <div class="recibis-bg" aria-hidden="true">
+    <div class="recibis-galaxy"></div>
+    <canvas class="recibis-nebula"></canvas>
+    <canvas class="recibis-particles"></canvas>
+    <div class="recibis-overlay"></div>
+    <!-- CAMBIO 4: fundido superior hacia el negro base, encuentra al fundido al
+         pie de la sección 5 para suavizar el corte entre ambos cielos. -->
+    <div class="recibis-fade-top"></div>
+  </div>
+
+  <div class="wrap">
+    <p class="eyebrow recibis-eyebrow recibis-reveal" style="--del:0s">Lo que recibes</p>
+
+    <h2 class="recibis-h2 recibis-reveal" style="--del:0.08s">
+      Todo lo que <span class="accent">recibís</span>
+    </h2>
+
+    <div class="recibis-stack">
+      {cards.map((c, i) => (
+        <article class="recibis-card recibis-reveal" style={`--del:${0.2 + i * 0.15}s`}>
+          <span class="recibis-icon">
+            {c.icon === 'graduation-cap' && (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/>
+                <path d="M22 10v6"/>
+                <path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/>
+              </svg>
+            )}
+            {c.icon === 'users' && (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            )}
+            {c.icon === 'percent' && (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" x2="5" y1="5" y2="19"/>
+                <circle cx="6.5" cy="6.5" r="2.5"/>
+                <circle cx="17.5" cy="17.5" r="2.5"/>
+              </svg>
+            )}
+            {c.icon === 'message-circle' && (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>
+              </svg>
+            )}
+            {c.icon === 'refresh-cw' && (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                <path d="M21 3v5h-5"/>
+                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                <path d="M8 16H3v5"/>
+              </svg>
+            )}
+            {c.icon === 'calendar' && (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 2v4"/>
+                <path d="M16 2v4"/>
+                <rect width="18" height="18" x="3" y="4" rx="2"/>
+                <path d="M3 10h18"/>
+              </svg>
+            )}
+          </span>
+          <div class="recibis-text">
+            <p class="recibis-name">{c.name}</p>
+            <p class="recibis-desc">{c.desc}</p>
+          </div>
+          <span class={`recibis-value recibis-value-${c.kind}`}>{c.value}</span>
+        </article>
+      ))}
+    </div>
+
+    <!-- Contador total: anima 0 -> 1000 en 1.4s ease-out al entrar en viewport.
+         Cifra de marketing redonda, no la suma aritmética de las cards. -->
+    <div class="recibis-total-wrap recibis-reveal" style="--del:1.2s">
+      <p class="recibis-total-label">Valor total</p>
+      <span class="recibis-total-num">
+        <span class="recibis-total-glow" aria-hidden="true"></span>
+        <span class="recibis-total" data-total="1000" data-prefix="+$">+$0</span>
+      </span>
+      <span class="recibis-arrow" aria-hidden="true">▼</span>
+    </div>
+  </div>
+</section>
+
+<style>
+.recibis {
+  /* Ritmo de respiración compartido por cards (CAMBIO 2) y contador (CAMBIO 6):
+     toda la sección late al mismo compás. */
+  --breath-dur: 3.4s;
+  background: var(--bg-base);
+  position: relative;
+  z-index: 10;
+  overflow: hidden;
+  padding-top: 80px;
+  /* CAMBIO 2: menos espacio muerto al pie de la sección 6 en desktop. */
+  padding-bottom: 32px;
+}
+
+/* ---- Fondo: galaxia + nebulosa fluida + embers + overlay ---- */
+.recibis-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+/* Imagen galaxia propia de la sección 6 (galaxy-bg-6). Capa más al fondo:
+   aporta detalle de estrellas/color. webp con fallback jpg. */
+.recibis-galaxy {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: url('/images/galaxy-bg-6.jpg');
+  background-image: image-set(
+    url('/images/galaxy-bg-6.webp') type('image/webp'),
+    url('/images/galaxy-bg-6.jpg') type('image/jpeg')
+  );
+  background-image: -webkit-image-set(
+    url('/images/galaxy-bg-6.webp') type('image/webp'),
+    url('/images/galaxy-bg-6.jpg') type('image/jpeg')
+  );
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  /* scroll (no fixed): fixed rompe en iOS. */
+  background-attachment: scroll;
+}
+/* Nebulosa fluida: gradientes radiales en movimiento con blend aditivo, render
+   a baja resolución + blur CSS. Semi-translúcida para mezclarse con la galaxia
+   y aportar el MOVIMIENTO de masas de color. */
+.recibis-nebula {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  /* El blur ya viene horneado vía offscreen 0.18x + upscale (ver script): nada de
+     filter:blur full-res. Y se quita mix-blend-mode:screen, que era el costo
+     dominante restante (el compositor re-mezclaba la capa full-screen cada
+     frame, +7fps medidos). La mezcla con la galaxia se emula con composición
+     normal a mayor opacidad: sobre un cielo oscuro el resultado es casi idéntico
+     al screen, manteniendo el look de masas de color fluidas. */
+  opacity: 0.72;
+}
+
+/* Partículas: polvo cósmico cálido que sube. Canvas 2D con sprite pre-renderizado
+   (drawImage) para sostener cientos de partículas a 60fps. ~506 desktop, ~176
+   mobile (x11 sobre el conteo previo). */
+.recibis-particles {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  /* Capa de compositing propia: evita repintar las cards/texto de encima. */
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* CAMBIO 4: banda de fundido superior. Funde la galaxia de la sec 6 desde el
+   negro base en los primeros ~180px; se encuentra con el fundido al pie de la
+   sec 5 (mismo --bg-base) para un cruce sin línea dura. */
+.recibis-fade-top {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 180px;
+  z-index: 4;
+  background: linear-gradient(to top, rgba(6,6,7,0) 0%, var(--bg-base) 100%);
+}
+
+/* Overlay de legibilidad: oscurece galaxia + nebulosa para que el texto de las
+   cards se lea sin esfuerzo. Más oscuro arriba/abajo, suave al centro. */
+.recibis-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: linear-gradient(
+    180deg,
+    rgba(6,6,7,0.68) 0%,
+    rgba(6,6,7,0.44) 38%,
+    rgba(6,6,7,0.44) 62%,
+    rgba(6,6,7,0.72) 100%
+  );
+}
+
+.recibis .wrap {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.recibis-eyebrow { margin-bottom: 16px; }
+
+.recibis-h2 {
+  font: 700 clamp(2rem, 4.5vw, 3.2rem)/1.15 var(--font-display);
+  letter-spacing: -0.02em;
+  color: var(--txt-hi);
+  margin: 0 0 12px;
+}
+.accent { color: var(--btc); }
+
+/* ---- Stack de cards ---- */
+.recibis-stack {
+  width: 100%;
+  max-width: 760px;
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.recibis-card {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: var(--bg-glass);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(247,147,26,0.16);
+  border-radius: 16px;
+  padding: 20px 24px;
+  text-align: left;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  /* Reposo: glow naranja de respiración continuo y sutil en el borde. */
+  animation: recibisBreath var(--breath-dur) ease-in-out infinite;
+}
+
+/* Respiración del borde de la card (reposo). Mismo ritmo que el contador. */
+@keyframes recibisBreath {
+  0%, 100% {
+    border-color: rgba(247,147,26,0.16);
+    box-shadow:
+      inset 0 1px 0 rgba(217,48,86,0.07),
+      0 0 16px rgba(247,147,26,0.05);
+  }
+  50% {
+    border-color: rgba(247,147,26,0.40);
+    box-shadow:
+      inset 0 1px 0 rgba(217,48,86,0.07),
+      0 0 26px rgba(247,147,26,0.20);
+  }
+}
+
+/* Icono: círculo 40px con SVG Lucide 18px blanco. También respira. */
+.recibis-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(247,147,26,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  animation: recibisIconBreath var(--breath-dur) ease-in-out infinite;
+}
+@keyframes recibisIconBreath {
+  0%, 100% {
+    border-color: rgba(247,147,26,0.32);
+    box-shadow: 0 0 0 rgba(247,147,26,0);
+  }
+  50% {
+    border-color: rgba(247,147,26,0.6);
+    box-shadow: 0 0 12px rgba(247,147,26,0.28);
+  }
+}
+.recibis-icon svg {
+  width: 18px;
+  height: 18px;
+  color: #fff;
+}
+
+.recibis-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.recibis-name {
+  font: 600 15px/1.3 var(--font-body);
+  color: var(--txt-hi);
+  margin: 0 0 3px;
+}
+.recibis-desc {
+  font: 400 13px/1.4 var(--font-body);
+  color: var(--txt-low);
+  margin: 0;
+}
+
+.recibis-value {
+  flex-shrink: 0;
+  font: 500 14px/1 var(--font-mono);
+  color: var(--btc);
+  white-space: nowrap;
+}
+/* Montos en dólares: naranja Bitcoin pleno. */
+.recibis-value-money { color: var(--btc); }
+/* "Incluido": mismo mono pero tenue, para diferenciar de los montos. */
+.recibis-value-incl  { color: var(--txt-low); }
+/* "Invaluable": acento claro, cierra el stack con peso. */
+.recibis-value-prime { color: var(--btc-light); }
+
+/* Estado ACTIVO (hover desktop / tap mobile vía .is-active): el glow sube de
+   intensidad y queda FIJO (sin respirar) en borde, icono y monto. Solo una card
+   activa a la vez (lo garantiza el JS para el tap). */
+.recibis-card.is-active {
+  animation: none;
+  border-color: rgba(247,147,26,0.85);
+  box-shadow:
+    inset 0 1px 0 rgba(217,48,86,0.07),
+    0 0 34px rgba(247,147,26,0.42);
+  transform: translateY(-2px);
+}
+.recibis-card.is-active .recibis-icon {
+  animation: none;
+  border-color: rgba(247,147,26,0.9);
+  box-shadow: 0 0 18px rgba(247,147,26,0.6);
+}
+.recibis-card.is-active .recibis-value {
+  color: var(--btc-light);
+  text-shadow: 0 0 14px rgba(247,147,26,0.6);
+}
+/* CAMBIO 2: el texto gris (nombre + descripción) también se ilumina en naranja
+   mientras la card está activa. */
+.recibis-card.is-active .recibis-name { color: var(--btc-light); }
+.recibis-card.is-active .recibis-desc { color: var(--btc); }
+
+@media (hover: hover) and (pointer: fine) {
+  .recibis-card:hover {
+    animation: none;
+    border-color: rgba(247,147,26,0.85);
+    box-shadow:
+      inset 0 1px 0 rgba(217,48,86,0.07),
+      0 0 34px rgba(247,147,26,0.42);
+    transform: translateY(-2px);
+  }
+  .recibis-card:hover .recibis-icon {
+    animation: none;
+    border-color: rgba(247,147,26,0.9);
+    box-shadow: 0 0 18px rgba(247,147,26,0.6);
+  }
+  .recibis-card:hover .recibis-value {
+    color: var(--btc-light);
+    text-shadow: 0 0 14px rgba(247,147,26,0.6);
+  }
+  .recibis-card:hover .recibis-name { color: var(--btc-light); }
+  .recibis-card:hover .recibis-desc { color: var(--btc); }
+}
+
+/* ---- Contador total ---- */
+.recibis-total-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 36px;
+}
+.recibis-total-label {
+  font: 600 0.72rem/1 var(--font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--txt-low);
+  margin: 0;
+}
+/* Wrapper del número: ancla el glow radial detrás de "+$1,000". */
+.recibis-total-num {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+/* Glow naranja que se EXPANDE y CONTRAE en loop, mismo ritmo que la respiración
+   de las cards (var(--breath-dur), ease-in-out). */
+.recibis-total-glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 200px;
+  height: 200px;
+  transform: translate(-50%, -50%) scale(0.6);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(247,147,26,0.38) 0%, rgba(247,147,26,0.12) 42%, transparent 72%);
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform, opacity;
+  animation: recibisTotalPulse var(--breath-dur) ease-in-out infinite;
+}
+@keyframes recibisTotalPulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.6);  opacity: 0.4; }
+  50%      { transform: translate(-50%, -50%) scale(1.18); opacity: 0.9; }
+}
+.recibis-total {
+  position: relative;
+  z-index: 1;
+  font: 600 clamp(1.6rem, 3vw, 2.2rem)/1 var(--font-mono);
+  color: var(--btc);
+  letter-spacing: 0.01em;
+  /* Brillo del número late SINCRONIZADO con el glow. */
+  animation: recibisTotalText var(--breath-dur) ease-in-out infinite;
+}
+@keyframes recibisTotalText {
+  0%, 100% { text-shadow: 0 0 6px rgba(247,147,26,0.20);  filter: brightness(1); }
+  50%      { text-shadow: 0 0 18px rgba(247,147,26,0.60); filter: brightness(1.18); }
+}
+.recibis-arrow {
+  font-size: 14px;
+  color: var(--btc);
+  animation: recibisBounce 1.5s ease-in-out infinite;
+}
+@keyframes recibisBounce {
+  0%, 100% { transform: translateY(-4px); }
+  50%      { transform: translateY(4px); }
+}
+
+/* ---- Reveal stagger ---- */
+.recibis-reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
+  transition-delay: var(--del, 0s);
+}
+.recibis-reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---- Mobile ---- */
+@media (max-width: 768px) {
+  /* CAMBIO 4: menos espacio muerto al final en mobile. */
+  /* CAMBIO 1: secciones 5 y 6 más juntas en mobile (menos padding-top aquí).
+     CAMBIO 2: menos espacio muerto al pie de la sección 6 en mobile. */
+  .recibis { padding-top: 28px; padding-bottom: 20px; }
+  .recibis-card {
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 14px;
+  }
+  /* CAMBIO 1: que las cards no toquen los bordes en mobile. */
+  .recibis-stack { padding-left: 14px; padding-right: 14px; box-sizing: border-box; }
+  .recibis-icon { width: 34px; height: 34px; }
+  .recibis-icon svg { width: 16px; height: 16px; }
+  .recibis-name { font-size: 13px; }
+  .recibis-desc { font-size: 11px; }
+  .recibis-value { font-size: 12px; }
+  /* CAMBIO 3: menos espacio entre la última card y el bloque "Valor total". */
+  .recibis-total-wrap { margin-top: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recibis-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .recibis-nebula { display: none; }
+  .recibis-particles { display: none; }
+  .recibis-arrow { animation: none; }
+  /* Sin respiración ni pulsos. La galaxia (estática) se mantiene. */
+  .recibis-card,
+  .recibis-icon,
+  .recibis-total,
+  .recibis-total-glow { animation: none; }
+  .recibis-total-glow { opacity: 0.5; }
+}
+</style>
+
+<script is:inline>
+(function () {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Reveal stagger (IO registrado tras DOMContentLoaded por el orden del script) */
+  const revEls = document.querySelectorAll('#recibis .recibis-reveal');
+  if (reduce) {
+    revEls.forEach(el => el.classList.add('visible'));
+  } else {
+    const revObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          revObs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    revEls.forEach(el => revObs.observe(el));
+  }
+
+  /* CAMBIO 2d: activar/fijar el glow por tap (mobile, sin hover). Solo una card
+     activa a la vez; volver a tocarla la desactiva. En desktop el :hover ya
+     produce el mismo estado activo vía CSS. */
+  const recibisCards = document.querySelectorAll('#recibis .recibis-card');
+  recibisCards.forEach(card => {
+    card.addEventListener('click', () => {
+      const wasActive = card.classList.contains('is-active');
+      recibisCards.forEach(c => c.classList.remove('is-active'));
+      if (!wasActive) card.classList.add('is-active');
+    });
+  });
+
+  /* Contador total: anima 0 -> data-total en 2.3s ease-out al entrar en
+     viewport (una sola vez). Si data-total no es un entero > 0 (placeholder),
+     no anima: deja el texto "[ total ]". */
+  const totalEl = document.querySelector('#recibis .recibis-total');
+  if (totalEl) {
+    const target = parseInt(totalEl.getAttribute('data-total') || '', 10);
+    const prefix = totalEl.getAttribute('data-prefix') || '';
+    if (Number.isFinite(target) && target > 0) {
+      const fmt = n => prefix + n.toLocaleString('en-US');
+      const run = () => {
+        if (reduce) { totalEl.textContent = fmt(target); return; }
+        const dur = 2300, t0 = performance.now();
+        const ease = t => 1 - Math.pow(1 - t, 3);
+        const step = now => {
+          const p = Math.min((now - t0) / dur, 1);
+          totalEl.textContent = fmt(Math.round(ease(p) * target));
+          if (p < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      };
+      const obs = new IntersectionObserver((entries, o) => {
+        entries.forEach(e => { if (e.isIntersecting) { run(); o.unobserve(e.target); } });
+      }, { threshold: 0.4 });
+      obs.observe(totalEl);
+    }
+  }
+
+  /* Fondo animado de la sección 6: nebulosa fluida + partículas en UN SOLO loop
+     rAF, con varias optimizaciones de rendimiento (mismo look, menos costo):
+     1. Nebulosa renderizada en un canvas OFFSCREEN a 0.4x con blur barato y
+        subida con drawImage. Se elimina el filter:blur(44px) CSS full-res, que
+        era el componente más caro (re-blur de toda la capa cada frame).
+     2. Nebulosa actualizada a ~30fps (acumulador de tiempo): se mueve lento, no
+        se nota. Las partículas siguen a 60fps en el mismo loop.
+     3. mix-blend-mode:screen se queda en CSS para conservar la mezcla con la
+        galaxia, pero sin blur el recomposite es barato y solo en frames de
+        update de la nebulosa.
+     4. Un único IntersectionObserver pausa TODO (nebulosa + partículas) fuera de
+        viewport. */
+  if (!reduce) {
+    const nebCanvas = document.querySelector('#recibis .recibis-nebula');
+    const pcanvas = document.querySelector('#recibis .recibis-particles');
+    if (nebCanvas && pcanvas) {
+      /* ---------- Nebulosa (offscreen 0.4x, blur barato) ---------- */
+      const nctx = nebCanvas.getContext('2d');
+      const off = document.createElement('canvas');
+      const octx = off.getContext('2d');
+      const OSCALE = 0.18; // buffer muy chico: el upscale bilineal hace de blur gratis
+      let nW = 0, nH = 0, oW = 0, oH = 0, blobs = [];
+
+      /* Paleta cálida Orión: magenta, rosa, violeta, índigo, azul. */
+      const palette = [
+        [196, 24, 71],   // #c41847 magenta profundo
+        [217, 48, 86],   // #d93056 rosa
+        [123, 97, 150],  // #7b6196 violeta
+        [90, 56, 131],   // #5a3883 índigo
+        [56, 45, 143],   // #382d8f azul
+      ];
+
+      function nebResize() {
+        nW = nebCanvas.offsetWidth; nH = nebCanvas.offsetHeight;
+        nebCanvas.width = Math.max(2, Math.round(nW));   // visible a DPR 1
+        nebCanvas.height = Math.max(2, Math.round(nH));
+        oW = Math.max(80, Math.round(nW * OSCALE));
+        oH = Math.max(80, Math.round(nH * OSCALE));
+        off.width = oW; off.height = oH;
+        blobs = palette.map((col, i) => ({
+          col,
+          bx: (0.18 + 0.66 * ((i + 0.5) / palette.length)),
+          by: 0.30 + (i % 2) * 0.40,
+          r: 0.42 + (i % 3) * 0.12,
+          amp: 0.05 + (i % 3) * 0.03,
+          spd: 0.06 + i * 0.018,
+          ph: i * 1.7,
+        }));
+      }
+
+      let nt = 0;
+      function renderNebula() {
+        // +0.009 = el doble que antes por frame, porque ahora corre a ~30fps:
+        // mantiene la misma velocidad percibida de movimiento.
+        nt += 0.009;
+        octx.clearRect(0, 0, oW, oH);
+        octx.globalCompositeOperation = 'lighter';
+        const minDim = Math.min(oW, oH);
+        for (let i = 0; i < blobs.length; i++) {
+          const b = blobs[i];
+          const cx = (b.bx
+            + Math.sin(nt * b.spd + b.ph) * b.amp
+            + Math.cos(nt * b.spd * 0.53 + b.ph * 1.3) * b.amp * 0.6) * oW;
+          const cy = (b.by
+            + Math.cos(nt * b.spd * 0.8 + b.ph) * b.amp
+            + Math.sin(nt * b.spd * 0.61 + b.ph * 0.7) * b.amp * 0.6) * oH;
+          const rad = (b.r + Math.sin(nt * b.spd * 1.3 + b.ph) * 0.1) * minDim;
+          const g = octx.createRadialGradient(cx, cy, 0, cx, cy, rad);
+          const [r, gr, bl] = b.col;
+          g.addColorStop(0, `rgba(${r},${gr},${bl},0.42)`);
+          g.addColorStop(0.5, `rgba(${r},${gr},${bl},0.15)`);
+          g.addColorStop(1, `rgba(${r},${gr},${bl},0)`);
+          octx.fillStyle = g;
+          octx.fillRect(0, 0, oW, oH);
+        }
+        octx.globalCompositeOperation = 'source-over';
+        // Upscale del offscreen a la capa visible (drawImage suaviza el 0.4x).
+        nctx.clearRect(0, 0, nebCanvas.width, nebCanvas.height);
+        nctx.drawImage(off, 0, 0, nebCanvas.width, nebCanvas.height);
+      }
+
+      /* ---------- Partículas (sprite pre-renderizado) ---------- */
+      const pctx = pcanvas.getContext('2d');
+      const DPR = Math.min(window.devicePixelRatio || 1, 1.5);
+      const isMobile = window.matchMedia('(max-width: 768px)').matches;
+      // x11 sobre el conteo previo: 46->506 desktop, 16->176 mobile.
+      const COUNT = isMobile ? 176 : 506;
+      let W = 0, H = 0;
+
+      const SPRITE = 16;
+      const sprite = document.createElement('canvas');
+      sprite.width = sprite.height = SPRITE;
+      const sctx = sprite.getContext('2d');
+      const sg = sctx.createRadialGradient(SPRITE / 2, SPRITE / 2, 0, SPRITE / 2, SPRITE / 2, SPRITE / 2);
+      sg.addColorStop(0, 'rgba(255,200,128,1)');
+      sg.addColorStop(0.35, 'rgba(247,147,26,0.7)');
+      sg.addColorStop(1, 'rgba(247,147,26,0)');
+      sctx.fillStyle = sg;
+      sctx.fillRect(0, 0, SPRITE, SPRITE);
+
+      let parts = [];
+      function makePart(initial) {
+        return {
+          x: Math.random() * W,
+          y: initial ? Math.random() * H : H + Math.random() * 40,
+          size: 1.4 + Math.random() * 2.2,
+          vy: 8 + Math.random() * 18,
+          drift: (Math.random() - 0.5) * 24,
+          peak: 0.25 + Math.random() * 0.45,
+          life: Math.random() * (initial ? 6 : 0),
+          ttl: 6 + Math.random() * 12,
+          seed: Math.random() * Math.PI * 2,
+        };
+      }
+      function partResize() {
+        W = pcanvas.offsetWidth; H = pcanvas.offsetHeight;
+        pcanvas.width = Math.floor(W * DPR);
+        pcanvas.height = Math.floor(H * DPR);
+        pctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+        parts = Array.from({ length: COUNT }, () => makePart(true));
+      }
+      function drawParticles(dt) {
+        pctx.clearRect(0, 0, W, H);
+        for (let i = 0; i < parts.length; i++) {
+          const p = parts[i];
+          p.life += dt;
+          p.y -= p.vy * dt;
+          p.x += (p.drift + Math.sin(p.life + p.seed) * 6) * dt;
+          const k = p.life / p.ttl;
+          if (k >= 1 || p.y < -20) { parts[i] = makePart(false); continue; }
+          const d = p.size * 2;
+          pctx.globalAlpha = Math.sin(Math.PI * k) * p.peak; // 0 -> pico -> 0
+          pctx.drawImage(sprite, p.x - p.size, p.y - p.size, d, d);
+        }
+        pctx.globalAlpha = 1;
+      }
+
+      function resizeAll() { nebResize(); partResize(); renderNebula(); }
+      resizeAll();
+      window.addEventListener('resize', resizeAll, { passive: true });
+
+      /* ---------- Loop compartido: partículas 60fps, nebulosa ~30fps ---------- */
+      let raf = null, running = false, last = 0, nebAcc = 0;
+      const NEB_INTERVAL = 1 / 30;
+      function tick(now) {
+        const dt = last ? Math.min((now - last) / 1000, 0.05) : 0.016;
+        last = now;
+        drawParticles(dt);
+        nebAcc += dt;
+        if (nebAcc >= NEB_INTERVAL) { nebAcc -= NEB_INTERVAL; renderNebula(); }
+        raf = requestAnimationFrame(tick);
+      }
+      const obs = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting && !running) { running = true; last = 0; tick(performance.now()); }
+          else if (!e.isIntersecting && running) { running = false; cancelAnimationFrame(raf); }
+        });
+      }, { rootMargin: '200px' });
+      obs.observe(document.querySelector('#recibis .recibis-bg'));
+    }
+  }
+})();
+</script>
