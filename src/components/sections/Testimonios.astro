@@ -1,0 +1,1162 @@
+---
+// Sección 8 — Testimonios (upgrade espacial) · id="testimonios"
+// Cards de testimonio como satélites a la deriva en un marquee infinito, sobre un
+// fondo cósmico de 3 capas: nebulosa CSS + constelación SVG estática + meteoros
+// en canvas (desktop y mobile). Lightbox para ver cada screenshot.
+//
+// Convenciones del repo (no del spec genérico):
+//  - Sección autocontenida: <style> scoped + <script is:inline> IIFE.
+//  - Reveal con clase local .testi-reveal + .visible, escalonado con --del.
+//  - Imágenes en /testi-N.webp (public/), no /assets/images.
+//  - Sin sections.ts/galaxy.ts/meteors.ts: factory de canvas inline + IO de pausa.
+//  - Pixel diferido: hooks // TODO Pixel hasta que exista src/lib/pixel.ts.
+const testimonios = [
+  { src: '/testi-1.webp', rot: '-2deg',   floatDelay: '0s',    pill: 'Cliente desde 2022' },
+  { src: '/testi-2.webp', rot: '1.5deg',  floatDelay: '-1.5s', pill: 'Cliente desde 2022' },
+  { src: '/testi-3.webp', rot: '-1deg',   floatDelay: '-3s',   pill: 'Cliente desde 2022' },
+  { src: '/testi-4.webp', rot: '2deg',    floatDelay: '-4.5s', pill: 'Cliente desde 2023' },
+  { src: '/testi-5.webp', rot: '-1.5deg', floatDelay: '-6s',   pill: 'Cliente desde 2023' },
+  { src: '/testi-6.webp', rot: '1deg',    floatDelay: '-7.5s', pill: 'Cliente desde 2024' },
+];
+// 6 cards + 6 duplicadas para el loop seamless del marquee (JS-driven transform).
+const loop = [...testimonios, ...testimonios];
+// Delay del glow pulsante por POSICIÓN (no por dato): 12 valores distintos para
+// que ni las cards ni sus duplicados pulsen sincronizados.
+const glowDelays = ['0s', '-1.2s', '-2.4s', '-0.6s', '-3.6s', '-1.8s',
+                    '-2.7s', '-0.9s', '-3.3s', '-1.5s', '-2.1s', '-4.2s'];
+---
+
+<section id="testimonios" class="sec sec-testi">
+  <!-- Fondo cósmico (atrás → adelante): nebulosa CSS → constelación SVG → meteoros -->
+  <div class="testi-bg" aria-hidden="true">
+    <div class="testi-nebula"></div>
+
+    <svg class="testi-stars" viewBox="0 0 1440 600" preserveAspectRatio="none">
+      <!-- 60 estrellas hardcoded (45 blancas + 15 naranjas), cubriendo todo el
+           viewBox. Densidad mayor arriba/izquierda. nth-child importa para el
+           twinkle: NO reordenar sin recalcular los índices del <style>. -->
+      <!-- Banda superior (y 45-200) -->
+      <circle cx="60"   cy="50"  r="1.3" fill="#fff"     opacity="0.8"/>
+      <circle cx="120"  cy="80"  r="0.8" fill="#fff"     opacity="0.6"/>
+      <circle cx="180"  cy="45"  r="1.5" fill="#fff"     opacity="0.9"/>
+      <circle cx="240"  cy="100" r="0.9" fill="#fff"     opacity="0.55"/>
+      <circle cx="300"  cy="60"  r="0.7" fill="#FFB347"  opacity="0.6"/>
+      <circle cx="90"   cy="130" r="1.0" fill="#fff"     opacity="0.65"/>
+      <circle cx="160"  cy="170" r="0.6" fill="#fff"     opacity="0.4"/>
+      <circle cx="350"  cy="120" r="1.2" fill="#fff"     opacity="0.75"/>
+      <circle cx="420"  cy="70"  r="0.9" fill="#F7931A"  opacity="0.6"/>
+      <circle cx="480"  cy="140" r="0.7" fill="#fff"     opacity="0.45"/>
+      <circle cx="540"  cy="90"  r="1.1" fill="#fff"     opacity="0.6"/>
+      <circle cx="600"  cy="50"  r="0.8" fill="#fff"     opacity="0.55"/>
+      <circle cx="660"  cy="130" r="1.3" fill="#fff"     opacity="0.8"/>
+      <circle cx="720"  cy="70"  r="0.6" fill="#FFB347"  opacity="0.5"/>
+      <circle cx="780"  cy="160" r="1.0" fill="#fff"     opacity="0.6"/>
+      <circle cx="840"  cy="90"  r="0.9" fill="#fff"     opacity="0.55"/>
+      <circle cx="900"  cy="50"  r="1.4" fill="#fff"     opacity="0.85"/>
+      <circle cx="960"  cy="140" r="0.7" fill="#fff"     opacity="0.45"/>
+      <circle cx="1020" cy="80"  r="1.1" fill="#FFB347"  opacity="0.65"/>
+      <circle cx="1080" cy="170" r="0.8" fill="#fff"     opacity="0.5"/>
+      <circle cx="1140" cy="60"  r="1.2" fill="#fff"     opacity="0.75"/>
+      <circle cx="1200" cy="130" r="0.9" fill="#fff"     opacity="0.55"/>
+      <circle cx="1260" cy="90"  r="0.7" fill="#F7931A"  opacity="0.55"/>
+      <circle cx="1320" cy="50"  r="1.3" fill="#fff"     opacity="0.8"/>
+      <circle cx="1380" cy="140" r="0.8" fill="#fff"     opacity="0.5"/>
+      <circle cx="1410" cy="200" r="1.0" fill="#FFB347"  opacity="0.6"/>
+      <!-- Banda media (y 230-380) -->
+      <circle cx="80"   cy="240" r="0.9" fill="#fff"     opacity="0.55"/>
+      <circle cx="200"  cy="290" r="1.2" fill="#fff"     opacity="0.7"/>
+      <circle cx="320"  cy="230" r="0.7" fill="#fff"     opacity="0.45"/>
+      <circle cx="440"  cy="320" r="0.8" fill="#FFB347"  opacity="0.55"/>
+      <circle cx="560"  cy="260" r="1.2" fill="#fff"     opacity="0.65"/>
+      <circle cx="680"  cy="340" r="0.6" fill="#fff"     opacity="0.4"/>
+      <circle cx="800"  cy="280" r="0.9" fill="#fff"     opacity="0.55"/>
+      <circle cx="920"  cy="350" r="1.3" fill="#fff"     opacity="0.8"/>
+      <circle cx="1040" cy="240" r="0.7" fill="#F7931A"  opacity="0.55"/>
+      <circle cx="1160" cy="320" r="0.8" fill="#fff"     opacity="0.5"/>
+      <circle cx="1280" cy="260" r="1.0" fill="#fff"     opacity="0.6"/>
+      <circle cx="1400" cy="340" r="0.9" fill="#FFB347"  opacity="0.55"/>
+      <circle cx="140"  cy="360" r="0.7" fill="#fff"     opacity="0.45"/>
+      <circle cx="380"  cy="380" r="1.1" fill="#fff"     opacity="0.65"/>
+      <circle cx="620"  cy="370" r="0.8" fill="#fff"     opacity="0.5"/>
+      <circle cx="860"  cy="360" r="0.6" fill="#FFB347"  opacity="0.5"/>
+      <circle cx="1100" cy="380" r="1.0" fill="#fff"     opacity="0.6"/>
+      <circle cx="1340" cy="370" r="0.7" fill="#fff"     opacity="0.45"/>
+      <!-- Banda inferior (y 440-600) -->
+      <circle cx="100"  cy="440" r="1.2" fill="#fff"     opacity="0.7"/>
+      <circle cx="260"  cy="500" r="0.8" fill="#fff"     opacity="0.5"/>
+      <circle cx="420"  cy="460" r="0.9" fill="#F7931A"  opacity="0.55"/>
+      <circle cx="580"  cy="540" r="0.7" fill="#fff"     opacity="0.45"/>
+      <circle cx="740"  cy="470" r="1.1" fill="#fff"     opacity="0.65"/>
+      <circle cx="900"  cy="520" r="0.6" fill="#fff"     opacity="0.4"/>
+      <circle cx="1060" cy="450" r="0.9" fill="#FFB347"  opacity="0.55"/>
+      <circle cx="1220" cy="540" r="0.8" fill="#F7931A"  opacity="0.5"/>
+      <circle cx="1380" cy="470" r="1.0" fill="#fff"     opacity="0.6"/>
+      <circle cx="180"  cy="560" r="0.7" fill="#fff"     opacity="0.45"/>
+      <circle cx="500"  cy="580" r="0.6" fill="#FFB347"  opacity="0.5"/>
+      <circle cx="820"  cy="560" r="0.9" fill="#fff"     opacity="0.55"/>
+      <circle cx="1140" cy="580" r="0.7" fill="#fff"     opacity="0.45"/>
+      <circle cx="1300" cy="560" r="1.2" fill="#fff"     opacity="0.7"/>
+      <circle cx="640"  cy="590" r="0.8" fill="#fff"     opacity="0.5"/>
+      <circle cx="980"  cy="595" r="0.7" fill="#F7931A"  opacity="0.5"/>
+      <!-- Tanda 2.2: +60 estrellas (índices 61-120) para densidad pareja en
+           mobile. Rellenan zona central, mitad inferior y bordes laterales.
+           Algunos índices alimentan el twinkle del <style>: no reordenar. -->
+      <!-- Zona central (x 480-960, y 150-450) · índices 61-80 -->
+      <circle cx="500"  cy="180" r="0.9" fill="#fff"     opacity="0.6"/>
+      <circle cx="560"  cy="220" r="0.7" fill="#fff"     opacity="0.45"/>
+      <circle cx="620"  cy="160" r="0.8" fill="#FFB347"  opacity="0.6"/>
+      <circle cx="680"  cy="200" r="1.2" fill="#fff"     opacity="0.75"/>
+      <circle cx="740"  cy="240" r="0.6" fill="#fff"     opacity="0.4"/>
+      <circle cx="800"  cy="180" r="1.0" fill="#fff"     opacity="0.6"/>
+      <circle cx="860"  cy="220" r="1.1" fill="#F7931A"  opacity="0.65"/>
+      <circle cx="920"  cy="160" r="0.8" fill="#fff"     opacity="0.5"/>
+      <circle cx="520"  cy="260" r="0.7" fill="#fff"     opacity="0.45"/>
+      <circle cx="580"  cy="300" r="1.3" fill="#fff"     opacity="0.8"/>
+      <circle cx="640"  cy="240" r="0.6" fill="#fff"     opacity="0.4"/>
+      <circle cx="700"  cy="280" r="0.9" fill="#FFB347"  opacity="0.6"/>
+      <circle cx="760"  cy="320" r="1.0" fill="#fff"     opacity="0.6"/>
+      <circle cx="820"  cy="260" r="0.7" fill="#fff"     opacity="0.45"/>
+      <circle cx="880"  cy="300" r="0.8" fill="#fff"     opacity="0.5"/>
+      <circle cx="940"  cy="240" r="1.1" fill="#fff"     opacity="0.7"/>
+      <circle cx="540"  cy="340" r="0.6" fill="#fff"     opacity="0.4"/>
+      <circle cx="600"  cy="380" r="0.8" fill="#F7931A"  opacity="0.55"/>
+      <circle cx="660"  cy="420" r="0.9" fill="#fff"     opacity="0.55"/>
+      <circle cx="720"  cy="360" r="0.7" fill="#fff"     opacity="0.45"/>
+      <!-- Mitad inferior (y > 300) · índices 81-95 -->
+      <circle cx="780"  cy="400" r="0.8" fill="#fff"     opacity="0.5"/>
+      <circle cx="840"  cy="440" r="1.0" fill="#fff"     opacity="0.6"/>
+      <circle cx="900"  cy="380" r="0.7" fill="#FFB347"  opacity="0.55"/>
+      <circle cx="960"  cy="420" r="0.9" fill="#fff"     opacity="0.55"/>
+      <circle cx="200"  cy="400" r="1.1" fill="#fff"     opacity="0.7"/>
+      <circle cx="320"  cy="460" r="0.7" fill="#fff"     opacity="0.45"/>
+      <circle cx="440"  cy="420" r="0.8" fill="#F7931A"  opacity="0.55"/>
+      <circle cx="1040" cy="400" r="1.2" fill="#fff"     opacity="0.75"/>
+      <circle cx="1160" cy="460" r="0.6" fill="#fff"     opacity="0.4"/>
+      <circle cx="1280" cy="420" r="0.9" fill="#fff"     opacity="0.55"/>
+      <circle cx="80"   cy="480" r="0.8" fill="#fff"     opacity="0.5"/>
+      <circle cx="240"  cy="540" r="0.7" fill="#FFB347"  opacity="0.5"/>
+      <circle cx="360"  cy="500" r="0.9" fill="#fff"     opacity="0.55"/>
+      <circle cx="1080" cy="520" r="1.0" fill="#fff"     opacity="0.6"/>
+      <circle cx="1320" cy="500" r="0.8" fill="#fff"     opacity="0.5"/>
+      <!-- Bordes y zonas vacías · índices 96-120 -->
+      <circle cx="40"   cy="90"  r="0.8" fill="#fff"     opacity="0.5"/>
+      <circle cx="1430" cy="110" r="1.0" fill="#F7931A"  opacity="0.6"/>
+      <circle cx="20"   cy="260" r="0.7" fill="#fff"     opacity="0.45"/>
+      <circle cx="1420" cy="280" r="0.9" fill="#fff"     opacity="0.55"/>
+      <circle cx="50"   cy="400" r="1.1" fill="#fff"     opacity="0.7"/>
+      <circle cx="1410" cy="430" r="0.8" fill="#FFB347"  opacity="0.55"/>
+      <circle cx="30"   cy="540" r="0.7" fill="#fff"     opacity="0.45"/>
+      <circle cx="1430" cy="560" r="0.9" fill="#fff"     opacity="0.55"/>
+      <circle cx="400"  cy="60"  r="0.8" fill="#fff"     opacity="0.5"/>
+      <circle cx="660"  cy="30"  r="0.7" fill="#F7931A"  opacity="0.5"/>
+      <circle cx="1000" cy="40"  r="1.0" fill="#fff"     opacity="0.6"/>
+      <circle cx="1240" cy="30"  r="0.8" fill="#fff"     opacity="0.5"/>
+      <circle cx="140"  cy="30"  r="0.6" fill="#fff"     opacity="0.4"/>
+      <circle cx="880"  cy="120" r="1.1" fill="#fff"     opacity="0.7"/>
+      <circle cx="1140" cy="110" r="0.7" fill="#FFB347"  opacity="0.5"/>
+      <circle cx="460"  cy="120" r="0.8" fill="#fff"     opacity="0.5"/>
+      <circle cx="280"  cy="160" r="1.2" fill="#fff"     opacity="0.75"/>
+      <circle cx="1340" cy="180" r="0.7" fill="#fff"     opacity="0.45"/>
+      <circle cx="1060" cy="180" r="0.8" fill="#F7931A"  opacity="0.55"/>
+      <circle cx="520"  cy="460" r="1.0" fill="#fff"     opacity="0.6"/>
+      <circle cx="700"  cy="500" r="0.7" fill="#fff"     opacity="0.45"/>
+      <circle cx="940"  cy="560" r="0.8" fill="#FFB347"  opacity="0.55"/>
+      <circle cx="1180" cy="580" r="1.1" fill="#fff"     opacity="0.7"/>
+      <circle cx="380"  cy="580" r="0.7" fill="#F7931A"  opacity="0.5"/>
+      <circle cx="820"  cy="595" r="0.8" fill="#fff"     opacity="0.5"/>
+      <!-- Tanda 2.3: 12 estrellas extra en franja baja (y 450-580) para emparejar
+           densidad en mobile. Índices 121-132; las 123/127/129/132 pulsan. -->
+      <circle cx="120"  cy="475" r="1.0" fill="#fff"     opacity="0.6"/>
+      <circle cx="270"  cy="525" r="0.8" fill="#FFB347"  opacity="0.6"/>
+      <circle cx="410"  cy="490" r="1.2" fill="#fff"     opacity="0.7"/>
+      <circle cx="560"  cy="550" r="0.9" fill="#fff"     opacity="0.55"/>
+      <circle cx="700"  cy="475" r="1.1" fill="#F7931A"  opacity="0.65"/>
+      <circle cx="850"  cy="540" r="0.8" fill="#fff"     opacity="0.5"/>
+      <circle cx="990"  cy="490" r="1.0" fill="#fff"     opacity="0.6"/>
+      <circle cx="1130" cy="555" r="1.2" fill="#FFB347"  opacity="0.65"/>
+      <circle cx="1280" cy="480" r="0.9" fill="#fff"     opacity="0.55"/>
+      <circle cx="1380" cy="530" r="1.0" fill="#fff"     opacity="0.6"/>
+      <circle cx="340"  cy="565" r="0.7" fill="#F7931A"  opacity="0.5"/>
+      <circle cx="920"  cy="465" r="1.1" fill="#fff"     opacity="0.7"/>
+    </svg>
+
+    <canvas id="testi-meteors"></canvas>
+  </div>
+
+  <!-- Contenido -->
+  <div class="wrap">
+    <span class="eyebrow testi-reveal" style="--del:0s">LO QUE DICEN LOS ESTUDIANTES</span>
+    <h2 class="sec-h2 testi-reveal" style="--del:.1s">
+      Resultados reales. <span class="accent">Personas reales.</span>
+    </h2>
+    <p class="testi-sub testi-reveal" style="--del:.2s">
+      Esto es lo que dicen algunos de los muchos clientes que aprendieron con mi guía.
+    </p>
+  </div>
+
+  <!-- Marquee full-bleed -->
+  <div class="marquee testi-reveal" style="--del:.3s">
+    <div class="track">
+      {loop.map((t, i) => (
+        <div
+          class="testi-slide"
+          style={`--rot:${t.rot};--float-delay:${t.floatDelay};--glow-delay:${glowDelays[i]}`}
+        >
+          <button
+            class="testi-card"
+            type="button"
+            data-img={t.src}
+            data-idx={i % testimonios.length}
+            aria-label={`Ver testimonio ${(i % testimonios.length) + 1}`}
+          >
+            <img src={t.src} loading="lazy" fetchpriority="low" decoding="async"
+                 alt={`Testimonio ${(i % testimonios.length) + 1}`} width="280" height="498" />
+          </button>
+          <span class="testi-pill">{t.pill}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- Lightbox -->
+<div class="testi-lightbox" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="testi-lb-content">
+    <!-- La X, las flechas y la imagen van dentro de .testi-lb-figure: así las
+         flechas se anclan al centro de la IMAGEN, no del conjunto imagen+pill. -->
+    <div class="testi-lb-figure">
+      <button class="testi-lb-close" type="button" aria-label="Cerrar">×</button>
+      <button class="testi-lb-arrow testi-lb-prev" type="button" aria-label="Anterior">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+      <img class="testi-lb-img" alt="" />
+      <button class="testi-lb-arrow testi-lb-next" type="button" aria-label="Siguiente">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
+    </div>
+    <span class="testi-lb-pill"></span>
+  </div>
+</div>
+
+<style>
+.sec-testi {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-deep);
+  padding: clamp(48px, 7vh, 80px) 0;
+}
+
+/* ---------- Fondo cósmico ---------- */
+.testi-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Capa 1 — nebulosa distante (CSS puro) */
+.testi-nebula {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 50% at 18% 85%, rgba(247,147,26,0.10), transparent 65%),
+    radial-gradient(ellipse 55% 45% at 85% 15%, rgba(90,68,180,0.08), transparent 70%),
+    radial-gradient(ellipse 80% 40% at 50% 50%, rgba(41,182,246,0.04), transparent 75%);
+  filter: blur(8px);
+  opacity: 0;
+  transition: opacity 1.2s var(--ease-out);
+}
+.sec-testi.visible .testi-nebula { opacity: 1; }
+
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .testi-nebula { animation: nebulaBreathe 22s ease-in-out infinite alternate; }
+  @keyframes nebulaBreathe {
+    0%   { transform: scale(1) translateY(0); }
+    100% { transform: scale(1.04) translateY(-8px); }
+  }
+}
+
+/* Capa 2 — constelación estática (SVG) */
+.testi-stars {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 1.5s var(--ease-out);
+}
+.sec-testi.visible .testi-stars { opacity: 1; }
+
+/* fill-box + center: el scale del twinkle se aplica desde el centro de cada
+   círculo, no desde el origen del SVG (si no, la estrella se va volando). */
+.testi-stars circle { transform-origin: center; transform-box: fill-box; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .testi-stars circle:nth-child(3),
+  .testi-stars circle:nth-child(9),
+  .testi-stars circle:nth-child(15),
+  .testi-stars circle:nth-child(21),
+  .testi-stars circle:nth-child(28),
+  .testi-stars circle:nth-child(34),
+  .testi-stars circle:nth-child(41),
+  .testi-stars circle:nth-child(47),
+  .testi-stars circle:nth-child(53),
+  .testi-stars circle:nth-child(58),
+  .testi-stars circle:nth-child(64),
+  .testi-stars circle:nth-child(70),
+  .testi-stars circle:nth-child(76),
+  .testi-stars circle:nth-child(82),
+  .testi-stars circle:nth-child(88),
+  .testi-stars circle:nth-child(94),
+  .testi-stars circle:nth-child(100),
+  .testi-stars circle:nth-child(106),
+  .testi-stars circle:nth-child(112),
+  .testi-stars circle:nth-child(118),
+  .testi-stars circle:nth-child(7),
+  .testi-stars circle:nth-child(25),
+  .testi-stars circle:nth-child(38),
+  .testi-stars circle:nth-child(51),
+  .testi-stars circle:nth-child(67),
+  .testi-stars circle:nth-child(73),
+  .testi-stars circle:nth-child(85),
+  .testi-stars circle:nth-child(97),
+  .testi-stars circle:nth-child(109),
+  .testi-stars circle:nth-child(115) {
+    animation: testiTwinkle 2.8s ease-in-out infinite;
+  }
+  .testi-stars circle:nth-child(9)   { animation-delay: -0.4s; }
+  .testi-stars circle:nth-child(15)  { animation-delay: -0.8s; }
+  .testi-stars circle:nth-child(21)  { animation-delay: -1.2s; }
+  .testi-stars circle:nth-child(28)  { animation-delay: -1.6s; }
+  .testi-stars circle:nth-child(34)  { animation-delay: -2.0s; }
+  .testi-stars circle:nth-child(41)  { animation-delay: -2.4s; }
+  .testi-stars circle:nth-child(47)  { animation-delay: -2.8s; }
+  .testi-stars circle:nth-child(53)  { animation-delay: -3.2s; }
+  .testi-stars circle:nth-child(58)  { animation-delay: -3.6s; }
+  .testi-stars circle:nth-child(64)  { animation-delay: -0.2s; }
+  .testi-stars circle:nth-child(70)  { animation-delay: -0.6s; }
+  .testi-stars circle:nth-child(76)  { animation-delay: -1.0s; }
+  .testi-stars circle:nth-child(82)  { animation-delay: -1.4s; }
+  .testi-stars circle:nth-child(88)  { animation-delay: -1.8s; }
+  .testi-stars circle:nth-child(94)  { animation-delay: -2.2s; }
+  .testi-stars circle:nth-child(100) { animation-delay: -2.6s; }
+  .testi-stars circle:nth-child(106) { animation-delay: -3.0s; }
+  .testi-stars circle:nth-child(112) { animation-delay: -3.4s; }
+  .testi-stars circle:nth-child(118) { animation-delay: -3.8s; }
+  .testi-stars circle:nth-child(7)   { animation-delay: -0.3s; }
+  .testi-stars circle:nth-child(25)  { animation-delay: -1.1s; }
+  .testi-stars circle:nth-child(38)  { animation-delay: -1.9s; }
+  .testi-stars circle:nth-child(51)  { animation-delay: -2.7s; }
+  .testi-stars circle:nth-child(67)  { animation-delay: -3.5s; }
+  .testi-stars circle:nth-child(73)  { animation-delay: -0.5s; }
+  .testi-stars circle:nth-child(85)  { animation-delay: -1.3s; }
+  .testi-stars circle:nth-child(97)  { animation-delay: -2.1s; }
+  .testi-stars circle:nth-child(109) { animation-delay: -2.9s; }
+  .testi-stars circle:nth-child(115) { animation-delay: -3.7s; }
+
+  /* Tanda 2.3: 4 pulsantes extra en la franja baja nueva (índices 123-132). */
+  .testi-stars circle:nth-child(123),
+  .testi-stars circle:nth-child(127),
+  .testi-stars circle:nth-child(129),
+  .testi-stars circle:nth-child(132) {
+    animation: testiTwinkle 2.8s ease-in-out infinite;
+  }
+  .testi-stars circle:nth-child(123) { animation-delay: -0.7s; }
+  .testi-stars circle:nth-child(127) { animation-delay: -1.5s; }
+  .testi-stars circle:nth-child(129) { animation-delay: -2.3s; }
+  .testi-stars circle:nth-child(132) { animation-delay: -1.1s; }
+
+  /* Pop real: opacity + scale + glow al pico (50%), no solo fade. */
+  @keyframes testiTwinkle {
+    0%, 100% {
+      opacity: 0.15;
+      transform: scale(1);
+      filter: drop-shadow(0 0 0 rgba(255,255,255,0));
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.6);
+      filter: drop-shadow(0 0 2.5px rgba(255,255,255,0.9));
+    }
+  }
+}
+
+/* En mobile el SVG se estira (preserveAspectRatio="none") y los radios chicos
+   casi desaparecen. Un scale() se deforma con el viewBox estirado, así que
+   usamos un halo glow (drop-shadow): agranda visualmente sin distorsión. */
+@media (max-width: 767px) {
+  .testi-stars circle {
+    filter: drop-shadow(0 0 1.2px rgba(255,255,255,0.6));
+  }
+}
+
+/* Capa 3 — meteoros (canvas, desktop y mobile vía JS) */
+#testi-meteors {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+@supports not (mix-blend-mode: screen) {
+  #testi-meteors { mix-blend-mode: normal; opacity: 0.7; }
+}
+
+/* ---------- Contenido ---------- */
+.sec-testi .wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto 24px;
+  padding: 0 24px;
+  text-align: center;
+}
+.sec-testi .eyebrow { margin-bottom: 16px; }
+.sec-h2 {
+  font: 700 clamp(2rem, 4.5vw, 3.2rem)/1.15 var(--font-display);
+  letter-spacing: -0.02em;
+  color: var(--txt-hi);
+  margin: 0;
+}
+.accent { color: var(--btc); }
+.testi-sub {
+  font: 400 16px/1.6 var(--font-body);
+  color: var(--txt-mid);
+  max-width: 580px;
+  margin: 16px auto 0;
+}
+
+/* ---------- Marquee + cards satélite ---------- */
+.marquee {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;       /* recorta el track ancho + aplica el mask horizontal */
+  padding: 24px 0 28px;   /* > 22px del halo, así no se clipea arriba/abajo */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.track {
+  display: flex;
+  gap: 28px;
+  width: max-content;
+  will-change: transform;
+  touch-action: pan-y;            /* permite scroll vertical de la página, captura horizontal */
+}
+.marquee.dragging .track { cursor: grabbing; }
+.marquee:not(.dragging) .track { cursor: grab; }
+.marquee.dragging .testi-card { pointer-events: none; } /* evita click accidental tras drag */
+
+/* Slide = card + pill como un solo satélite. La deriva satelital y la rotación
+   viven acá para que imagen y pill floten juntos. */
+.testi-slide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  flex: 0 0 auto;
+  transform: rotate(var(--rot, 0deg));
+  animation: satelliteDrift 10s ease-in-out infinite alternate;
+  animation-delay: var(--float-delay, 0s);
+  will-change: transform;
+}
+
+.testi-card {
+  width: 280px;
+  aspect-ratio: 9 / 16;
+  border-radius: 18px;
+  /* Glow = outline naranja pulsante. outline (no border) se pinta POR FUERA del
+     box, así la <img> con object-fit:cover no lo tapa. */
+  outline: 2.5px solid rgba(247,147,26,0.65);
+  outline-offset: 0px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-card); /* solo profundidad, sin glow naranja acá */
+  overflow: hidden;
+  padding: 0;
+  cursor: pointer;
+  position: relative;
+  transition:
+    transform 0.4s var(--ease-out),
+    outline-color 0.3s var(--ease-out),
+    outline-width 0.3s var(--ease-out),
+    box-shadow 0.3s var(--ease-out);
+  /* solo el glow pulsante (outline) naranja; la deriva la maneja .testi-slide */
+  animation: testiCardGlow 4.5s ease-in-out infinite;
+  animation-delay: var(--glow-delay, 0s);
+  will-change: transform;
+}
+.testi-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+@keyframes satelliteDrift {
+  0%   { transform: rotate(var(--rot, 0deg)) translateY(0); }
+  100% { transform: rotate(var(--rot, 0deg)) translateY(-6px); }
+}
+@keyframes testiCardGlow {
+  0%, 100% {
+    outline-color: rgba(247,147,26,0.65);
+    box-shadow: var(--shadow-card), 0 0 14px rgba(247,147,26,0.45);
+  }
+  50% {
+    outline-color: rgba(247,147,26,1);
+    box-shadow: var(--shadow-card), 0 0 22px rgba(247,147,26,0.85);
+  }
+}
+
+/* Pill informativo bajo cada card (siempre visible en el marquee). */
+.testi-pill {
+  display: inline-block;
+  padding: 10px 22px;
+  background: rgba(20, 18, 16, 0.85);
+  border: 1.5px solid rgba(247,147,26,0.65);
+  border-radius: 999px;
+  color: #fff;
+  font: 600 13px/1.3 var(--font-body);
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+  box-shadow: 0 0 12px rgba(247,147,26,0.30);
+  transition:
+    border-color 0.3s var(--ease-out),
+    box-shadow 0.3s var(--ease-out);
+  /* glow pulsante visible. Sin delay: todos los pills pulsan sincronizados (los
+     duplicados están separados, no se nota), evita depender de heredar --glow-delay. */
+  animation: testiPillGlow 4.5s ease-in-out infinite;
+}
+@keyframes testiPillGlow {
+  0%, 100% {
+    border-color: rgba(247,147,26,0.75);
+    box-shadow: 0 0 14px rgba(247,147,26,0.45), 0 0 28px rgba(247,147,26,0.15);
+  }
+  50% {
+    border-color: rgba(247,147,26,1);
+    box-shadow: 0 0 24px rgba(247,147,26,0.90), 0 0 48px rgba(247,147,26,0.30);
+  }
+}
+@media (max-width: 767px) {
+  .testi-pill { padding: 8px 16px; font-size: 12px; }
+}
+
+@media (hover: hover) {
+  /* El slide estabiliza la rotación a 0° y eleva la card; la deriva se pausa. */
+  .testi-slide:hover {
+    transform: rotate(0deg) translateY(-4px) scale(1.03);
+    animation-play-state: paused;
+  }
+  .testi-slide:hover .testi-card {
+    /* animation:none (no solo pause): libera outline-color para que el hover lo
+       controle. Una animación pausada igual le gana al :hover en la cascada. */
+    animation: none;
+    outline-color: rgba(247,147,26,1); /* full naranja sólido */
+    outline-width: 3px;
+    box-shadow:
+      var(--shadow-deep),
+      0 0 24px rgba(247,147,26,0.85),     /* halo intenso */
+      0 8px 28px rgba(247,147,26,0.30);   /* shadow direccional debajo de la card elevada */
+  }
+  .testi-slide:hover .testi-pill {
+    animation: none; /* libera border/box-shadow para que el hover los fije sólidos */
+    border-color: rgba(247,147,26,1);
+    box-shadow: 0 0 18px rgba(247,147,26,0.55);
+  }
+}
+
+@media (max-width: 767px) {
+  .testi-card { width: 240px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Sin auto-scroll JS ni animaciones: grid estático centrado. width:auto es
+     necesario para que flex-wrap envuelva (max-content lo impediría). */
+  .track { flex-wrap: wrap; justify-content: center; width: auto; }
+  .testi-slide { animation: none; }
+  .testi-card {
+    animation: none;
+    outline-color: rgba(247,147,26,0.85); /* fijo, medio entre base y pico */
+    box-shadow: var(--shadow-card), 0 0 14px rgba(247,147,26,0.50);
+  }
+  .testi-pill { animation: none; }
+  /* Lightbox sin pulso ni slide-up: estado estático y legible. */
+  .testi-lb-img { animation: none; transform: scale(1); }
+  .testi-lb-close { animation: none; }
+  .testi-lb-pill { transform: translateY(0); opacity: 1; transition: none; }
+  .marquee { -webkit-mask-image: none; mask-image: none; padding: 24px; }
+}
+
+/* ---------- Reveal stagger ---------- */
+.testi-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
+  transition-delay: var(--del, 0s);
+}
+.testi-reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .testi-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+}
+
+/* ---------- Lightbox ---------- */
+.testi-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0,0,0,0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s, visibility 0s linear 0.25s;
+}
+.testi-lightbox.open {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.25s;
+}
+.testi-lb-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  max-width: 92vw;
+}
+/* Envuelve SOLO la imagen + X + flechas: ancla las flechas al centro de la
+   imagen (no al conjunto imagen+pill, que dejaría las flechas más abajo). */
+.testi-lb-figure {
+  position: relative;
+  display: inline-flex;
+}
+.testi-lb-img {
+  max-width: 88vw;
+  max-height: 82vh; /* MÁS GRANDE (antes 75vh) */
+  border-radius: 12px;
+  /* Border naranja consistente con las cards + glow estable (el overlay fixed no
+     tiene overflow, así que acá el box-shadow NO se clipea). */
+  border: 2px solid rgba(247,147,26,0.85);
+  /* box-shadow base = fallback estático para reduced-motion; la animación lo
+     sobreescribe en movimiento normal (overlay fixed sin overflow → no clipea). */
+  box-shadow:
+    var(--shadow-deep),
+    0 0 60px rgba(247,147,26,0.55),
+    0 0 120px rgba(247,147,26,0.25);
+  /* Mini scale-up al abrir para que se sienta "abrir" */
+  transform: scale(0.96);
+  transition: transform 0.35s var(--ease-out);
+  animation: testiLbGlow 3.5s ease-in-out infinite;
+  display: block;
+}
+.testi-lightbox.open .testi-lb-img { transform: scale(1); }
+@keyframes testiLbGlow {
+  0%, 100% {
+    box-shadow:
+      var(--shadow-deep),
+      0 0 40px rgba(247,147,26,0.40),
+      0 0 90px rgba(247,147,26,0.18);
+  }
+  50% {
+    box-shadow:
+      var(--shadow-deep),
+      0 0 60px rgba(247,147,26,0.70),
+      0 0 140px rgba(247,147,26,0.30),
+      0 0 220px rgba(247,147,26,0.12);
+  }
+}
+/* Pill grande dentro del lightbox: mismo estilo que el del marquee, escalado,
+   con slide-up al abrir. */
+.testi-lb-pill {
+  padding: 14px 32px;
+  background: rgba(20, 18, 16, 0.92);
+  border: 2px solid rgba(247,147,26,0.85);
+  border-radius: 999px;
+  color: #fff;
+  font: 600 16px/1.3 var(--font-body);
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+  box-shadow: 0 0 24px rgba(247,147,26,0.45);
+  transform: translateY(20px);
+  opacity: 0;
+  transition: transform 0.4s var(--ease-out) 0.1s, opacity 0.4s var(--ease-out) 0.1s;
+}
+.testi-lightbox.open .testi-lb-pill {
+  transform: translateY(0);
+  opacity: 1;
+}
+@media (max-width: 767px) {
+  .testi-lb-pill { padding: 10px 22px; font-size: 13px; }
+}
+
+/* X de cerrar, pegada a la esquina superior derecha de la IMAGEN (hija de
+   .testi-lb-figure), con glow naranja pulsante y borde negro fijo. */
+.testi-lb-close {
+  position: absolute;
+  top: -16px;
+  right: -16px;
+  width: 48px;
+  height: 48px;
+  background: rgba(20, 18, 16, 0.85);
+  border: 2.5px solid rgba(0,0,0,0.85); /* mismo borde negro que las flechas */
+  border-radius: 50%;
+  color: #fff;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 11;
+  animation: testiLbCloseGlow 2.5s ease-in-out infinite;
+  transition: transform 0.25s var(--ease-out), background 0.25s var(--ease-out);
+}
+.testi-lb-close:hover {
+  transform: scale(1.1);
+  background: rgba(247,147,26,0.15);
+}
+@media (max-width: 767px) {
+  .testi-lb-close {
+    width: 38px;
+    height: 38px;
+    font-size: 21px;
+    top: -14px;
+    right: -14px;
+  }
+}
+/* Glow solo por box-shadow: el borde negro queda fijo (no lo pisa el pulso). */
+@keyframes testiLbCloseGlow {
+  0%, 100% { box-shadow: 0 0 10px rgba(247,147,26,0.35); }
+  50% { box-shadow: 0 0 22px rgba(247,147,26,0.80), 0 0 40px rgba(247,147,26,0.30); }
+}
+
+/* Flechas izquierda/derecha a los costados de la imagen. */
+.testi-lb-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 56px;
+  height: 56px;
+  background: rgba(247,147,26,0.92);
+  border: 2.5px solid rgba(0,0,0,0.85); /* borde negro visible por fuera del naranja */
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  box-shadow: 0 0 24px rgba(247,147,26,0.5), 0 0 48px rgba(247,147,26,0.2);
+  transition:
+    transform 0.25s var(--ease-out),
+    box-shadow 0.25s var(--ease-out),
+    background 0.25s var(--ease-out);
+}
+.testi-lb-arrow svg { width: 28px; height: 28px; }
+.testi-lb-arrow:hover {
+  background: rgba(255,179,71,1);
+  transform: translateY(-50%) scale(1.08);
+  box-shadow: 0 0 32px rgba(247,147,26,0.7), 0 0 64px rgba(247,147,26,0.3);
+}
+/* Flechas COMPLETAMENTE afuera de la imagen (ancladas a .testi-lb-figure). */
+.testi-lb-prev { left: -72px; }
+.testi-lb-next { right: -72px; }
+@media (max-width: 767px) {
+  .testi-lb-content { max-width: 100vw; gap: 18px; }
+  .testi-lb-img {
+    max-width: calc(100vw - 110px); /* reserva 55px por lado para las flechas afuera */
+    max-height: 76vh;
+  }
+  .testi-lb-arrow { width: 44px; height: 44px; }
+  .testi-lb-arrow svg { width: 22px; height: 22px; }
+  .testi-lb-prev { left: -52px; }   /* afuera, no sobre la foto */
+  .testi-lb-next { right: -52px; }
+}
+</style>
+
+<script is:inline>
+(function () {
+  const root = document.querySelector('#testimonios');
+  if (!root) return;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* 1) Reveal stagger + clase .visible en la sección (dispara fade de nebula/stars). */
+  const revEls = root.querySelectorAll('.testi-reveal');
+  if (reduce) {
+    revEls.forEach(el => el.classList.add('visible'));
+    root.classList.add('visible');
+  } else {
+    const revObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          revObs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    revEls.forEach(el => revObs.observe(el));
+
+    const bgObs = new IntersectionObserver((entries, o) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          root.classList.add('visible');
+          // TODO Pixel: track('TestimonioVisto') una sola vez al entrar la sección.
+          o.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.3 });
+    bgObs.observe(root);
+  }
+
+  /* 2) Marquee drag/swipe + auto-scroll JS-driven (transform por rAF).
+        Reemplaza al @keyframes scroll: arrastrar pausa y mueve; soltar resume
+        desde la posición actual. Hover (desktop) pausa. Drag real (>5px) suprime
+        el click siguiente para que no abra el lightbox. */
+  const marquee = root.querySelector('.marquee');
+  const track = marquee && marquee.querySelector('.track');
+  if (marquee && track) {
+    if (!reduce) {
+      let trackWidth = 0;   // ancho de UN loop (mitad del track duplicado)
+      let translateX = 0;
+      let speed = 0;        // px/ms; calculada tras layout (≈ ancho / 32000)
+      let isDragging = false;
+      let isHovering = false;
+      let pointerStartX = 0;
+      let pointerStartY = 0;
+      let dragStartTranslate = 0;
+      let didDrag = false;
+      let rafId = null;
+      let lastTime = 0;
+
+      function measure() {
+        trackWidth = track.scrollWidth / 2;
+        speed = trackWidth / 32000; // conserva la cadencia de los 32s/loop
+      }
+
+      function tick(now) {
+        if (!lastTime) lastTime = now;
+        const dt = now - lastTime;
+        lastTime = now;
+
+        if (!isDragging && !isHovering) {
+          translateX -= speed * dt;
+          if (translateX <= -trackWidth) translateX += trackWidth;
+        }
+        track.style.transform = `translateX(${translateX}px)`;
+        rafId = requestAnimationFrame(tick);
+      }
+
+      function startDrag(e) {
+        if (isDragging) return; // evita doble fire (pointerdown + touchstart)
+        isDragging = true;
+        didDrag = false;
+        // OJO: NO agregar 'dragging' acá. Esa clase pone pointer-events:none en las
+        // cards; si se aplicara en cada pointerdown, un click con micro-movimiento
+        // perdería el hit-test sobre el <button> y el lightbox no abriría. Se agrega
+        // recién en moveDrag, cuando se confirma un drag real (didDrag).
+        const point = e.touches ? e.touches[0] : e;
+        pointerStartX = point.clientX;
+        pointerStartY = point.clientY;
+        dragStartTranslate = translateX;
+      }
+
+      function moveDrag(e) {
+        if (!isDragging) return;
+        const point = e.touches ? e.touches[0] : e;
+        const dx = point.clientX - pointerStartX;
+        const dy = point.clientY - pointerStartY;
+
+        // Movimiento más vertical que horizontal: soltar para no romper el
+        // scroll vertical de la página en mobile.
+        if (!didDrag && Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 8) {
+          endDrag();
+          return;
+        }
+        if (!didDrag && Math.abs(dx) > 8) {
+          // umbral alto: el jitter del click no cuenta como drag
+          didDrag = true;
+          marquee.classList.add('dragging'); // recién acá: cards a pointer-events:none + cursor grabbing
+        }
+
+        translateX = dragStartTranslate + dx;
+        while (translateX <= -trackWidth) translateX += trackWidth;
+        while (translateX > 0) translateX -= trackWidth;
+
+        if (e.cancelable && didDrag) e.preventDefault();
+      }
+
+      function endDrag() {
+        if (!isDragging) return;
+        isDragging = false;
+        marquee.classList.remove('dragging');
+        // Tras un drag real, suprimir el próximo click (que abriría el lightbox).
+        if (didDrag) {
+          const suppressClick = (ev) => {
+            ev.stopPropagation();
+            ev.preventDefault();
+          };
+          window.addEventListener('click', suppressClick, { capture: true, once: true });
+          // Cleanup forzado por si el click nunca llega a dispararse.
+          window.setTimeout(() => {
+            window.removeEventListener('click', suppressClick, { capture: true });
+          }, 300);
+        }
+        didDrag = false; // CRÍTICO: resetear para que el próximo click no quede suprimido
+      }
+
+      marquee.addEventListener('mouseenter', () => { isHovering = true; });
+      marquee.addEventListener('mouseleave', () => { isHovering = false; });
+
+      marquee.addEventListener('pointerdown', startDrag);
+      window.addEventListener('pointermove', moveDrag, { passive: false });
+      window.addEventListener('pointerup', endDrag);
+      window.addEventListener('pointercancel', endDrag);
+
+      // Fallback touch (Safari iOS viejo sin Pointer Events).
+      marquee.addEventListener('touchstart', startDrag, { passive: true });
+      window.addEventListener('touchmove', moveDrag, { passive: false });
+      window.addEventListener('touchend', endDrag);
+
+      requestAnimationFrame(() => {
+        measure();
+        rafId = requestAnimationFrame(tick);
+      });
+      window.addEventListener('resize', measure, { passive: true });
+
+      // Pausar el rAF fuera de viewport (eficiencia).
+      const visObs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            if (!rafId) { lastTime = 0; rafId = requestAnimationFrame(tick); }
+          } else if (rafId) {
+            cancelAnimationFrame(rafId);
+            rafId = null;
+          }
+        });
+      }, { rootMargin: '200px' });
+      visObs.observe(marquee);
+    } else {
+      // Reduced-motion: grid estático (el layout lo cubre el CSS).
+      track.style.transform = 'none';
+    }
+  }
+
+  /* 3) Lightbox: click en card → abre; flechas/teclado navegan los 6 (ciclando);
+        X / backdrop / Escape → cierra. */
+  const lb = document.querySelector('.testi-lightbox');
+  const lbImg = lb && lb.querySelector('.testi-lb-img');
+  const lbPill = lb && lb.querySelector('.testi-lb-pill');
+  const lbClose = lb && lb.querySelector('.testi-lb-close');
+  const lbPrev = lb && lb.querySelector('.testi-lb-prev');
+  const lbNext = lb && lb.querySelector('.testi-lb-next');
+  if (lb && lbImg && lbPill && lbClose && lbPrev && lbNext) {
+    // Datos de los 6 testimonios (NO los 12 duplicados). Deben coincidir con el
+    // array `testimonios` del frontmatter (src + pill).
+    const testimoniosData = [
+      { src: '/testi-1.webp', pill: 'Cliente desde 2022' },
+      { src: '/testi-2.webp', pill: 'Cliente desde 2022' },
+      { src: '/testi-3.webp', pill: 'Cliente desde 2022' },
+      { src: '/testi-4.webp', pill: 'Cliente desde 2023' },
+      { src: '/testi-5.webp', pill: 'Cliente desde 2023' },
+      { src: '/testi-6.webp', pill: 'Cliente desde 2024' },
+    ];
+    let currentIdx = 0;
+
+    const openLb = (idx) => {
+      currentIdx = ((idx % testimoniosData.length) + testimoniosData.length) % testimoniosData.length;
+      const data = testimoniosData[currentIdx];
+      lbImg.src = data.src;
+      lbPill.textContent = data.pill;
+      lb.classList.add('open');
+      lb.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      // TODO Pixel: track('TestimonioAbierto', { indice: currentIdx }).
+    };
+    const closeLb = () => {
+      lb.classList.remove('open');
+      lb.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      window.setTimeout(() => { lbImg.src = ''; lbPill.textContent = ''; }, 250);
+    };
+    const nav = (delta) => {
+      currentIdx = (currentIdx + delta + testimoniosData.length) % testimoniosData.length;
+      const data = testimoniosData[currentIdx];
+      // Micro-fade de transición entre testimonios.
+      lbImg.style.opacity = '0';
+      lbPill.style.opacity = '0';
+      window.setTimeout(() => {
+        lbImg.src = data.src;
+        lbPill.textContent = data.pill;
+        lbImg.style.opacity = '';
+        lbPill.style.opacity = '';
+      }, 180);
+    };
+
+    root.querySelectorAll('.testi-card').forEach(card => {
+      card.addEventListener('click', () => {
+        openLb(Number(card.dataset.idx) % testimoniosData.length);
+      });
+    });
+    lbClose.addEventListener('click', closeLb);
+    lbPrev.addEventListener('click', () => nav(-1));
+    lbNext.addEventListener('click', () => nav(1));
+    lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
+    document.addEventListener('keydown', e => {
+      if (!lb.classList.contains('open')) return;
+      if (e.key === 'Escape') closeLb();
+      else if (e.key === 'ArrowLeft') nav(-1);
+      else if (e.key === 'ArrowRight') nav(1);
+    });
+  }
+
+  /* 4) Meteoros (desktop y mobile, no reduced-motion). Sin registro central
+        de canvas: factory inline + IO que enciende/apaga el rAF. */
+  if (reduce) return;
+  const canvas = document.getElementById('testi-meteors');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  const DPR = Math.min(window.devicePixelRatio || 1, 1.5);
+  let rafId = null, timeoutId = null, running = false, meteor = null;
+  let W = 0, H = 0;
+
+  function resize() {
+    const rect = canvas.getBoundingClientRect();
+    W = rect.width;
+    H = rect.height;
+    canvas.width = Math.floor(W * DPR);
+    canvas.height = Math.floor(H * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+
+  // Cada spawn elige un cuadrante de dirección distinto: los meteoros entran
+  // desde varios bordes, no siempre top-right → bottom-left.
+  const directions = [
+    { angleRange: [200, 230] }, // topRight  → bottomLeft
+    { angleRange: [310, 340] }, // topLeft   → bottomRight
+    { angleRange: [255, 285] }, // top       → bottom (casi vertical)
+    { angleRange: [225, 315] }, // topCenter → esquina
+  ];
+
+  function spawn() {
+    const dir = directions[Math.floor(Math.random() * directions.length)];
+    const angleDeg = dir.angleRange[0] + Math.random() * (dir.angleRange[1] - dir.angleRange[0]);
+    const angle = angleDeg * Math.PI / 180;
+    const speed = 4 + Math.random() * 3;
+    const vx = Math.cos(angle) * speed;
+    const vy = Math.abs(Math.sin(angle) * speed); // siempre cae
+
+    // Nace fuera del canvas, en el borde opuesto al destino.
+    let x, y;
+    if (vx > 0.5) {            // va a la derecha: nace a la izquierda
+      x = -50;
+      y = Math.random() * H * 0.6;
+    } else if (vx < -0.5) {    // va a la izquierda: nace a la derecha
+      x = W + 50;
+      y = Math.random() * H * 0.6;
+    } else {                   // casi vertical: nace arriba
+      y = -50;
+      x = W * 0.2 + Math.random() * W * 0.6;
+    }
+
+    const isOrange = Math.random() < 0.7; // ~70% naranja, ~30% blanco
+    meteor = {
+      x, y, vx, vy,
+      life: 0,
+      maxLife: 180,
+      head:       isOrange ? '#FFB347' : '#FFFFFF',
+      trailStart: isOrange ? 'rgba(255,179,71,0.9)' : 'rgba(255,255,255,0.85)',
+      trailMid:   isOrange ? 'rgba(247,147,26,0.5)' : 'rgba(200,210,220,0.4)',
+      trailEnd:   isOrange ? 'rgba(247,147,26,0)'   : 'rgba(200,210,220,0)',
+      shadow:     isOrange ? '#F7931A' : '#FFFFFF',
+    };
+  }
+
+  function frame() {
+    if (!running) return;
+    // Estela por alpha-fade (no clearRect): el fill oscuro bajo mix-blend screen
+    // ≈ transparente, así los pixeles viejos del meteoro se desvanecen.
+    ctx.fillStyle = 'rgba(4,4,5,0.18)';
+    ctx.fillRect(0, 0, W, H);
+
+    if (meteor) {
+      meteor.x += meteor.vx;
+      meteor.y += meteor.vy;
+      meteor.life++;
+
+      const trailLen = 60;
+      const tx = meteor.x - meteor.vx * trailLen * 0.5;
+      const ty = meteor.y - meteor.vy * trailLen * 0.5;
+      const grad = ctx.createLinearGradient(meteor.x, meteor.y, tx, ty);
+      grad.addColorStop(0, meteor.trailStart);
+      grad.addColorStop(0.4, meteor.trailMid);
+      grad.addColorStop(1, meteor.trailEnd);
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(meteor.x, meteor.y);
+      ctx.lineTo(tx, ty);
+      ctx.stroke();
+
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.fillStyle = meteor.head;
+      ctx.shadowColor = meteor.shadow;
+      ctx.shadowBlur = 14;
+      ctx.beginPath();
+      ctx.arc(meteor.x, meteor.y, 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.globalCompositeOperation = 'source-over';
+
+      if (meteor.x < -50 || meteor.x > W + 50 || meteor.y > H + 50 || meteor.life > meteor.maxLife) {
+        meteor = null;
+        timeoutId = window.setTimeout(spawn, 4000 + Math.random() * 3000); // 4-7s
+      }
+    }
+
+    rafId = requestAnimationFrame(frame);
+  }
+
+  function start() {
+    if (running) return;
+    running = true;
+    resize();
+    if (!meteor) spawn();
+    rafId = requestAnimationFrame(frame);
+  }
+
+  function stop() {
+    running = false;
+    if (rafId) cancelAnimationFrame(rafId);
+    if (timeoutId) clearTimeout(timeoutId);
+    rafId = null;
+    timeoutId = null;
+    meteor = null;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+
+  window.addEventListener('resize', () => { if (running) resize(); }, { passive: true });
+
+  const meteorObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) start();
+      else stop();
+    });
+  }, { rootMargin: '200px' });
+  meteorObs.observe(root);
+})();
+</script>

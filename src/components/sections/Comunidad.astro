@@ -1,0 +1,1216 @@
+---
+// Sección 7 — Comunidad Discord · galaxia espiral logarítmica (Canvas 2D) en el
+// fondo, columna texto (45%) + columna imagen (55%) con Servidor.png en marco
+// glass y 5 avatares orbitando el núcleo galáctico.
+//
+// NOTA DE COPY: el blueprint/PROGRESS no traen copy canónico de esta sección.
+// Todo el texto visible de abajo es PLACEHOLDER (marcado en el reporte como
+// DECISIÓN NECESARIA). El asset Servidor.png SÍ existe en /public.
+
+const beneficios = [
+  { icon: 'users',     text: 'Una comunidad activa de bitcoiners en Costa Rica y LatAm' },
+  { icon: 'newspaper', text: 'Novedades y análisis del mercado cada semana' },
+  { icon: 'map-pin',   text: 'Eventos presenciales y encuentros en Costa Rica' },
+  { icon: 'life-buoy', text: 'Soporte y ayuda de la comunidad cuando lo necesités' },
+];
+
+// Canales REALES del Discord. `voz: true` = canales de voz (sin "#").
+// El orden del array (1..5) define la colocación por nth-child en el grid:
+// Caja 1 -> col 1, Caja 2/3/4 -> col 2 apiladas, Caja 5 -> col 3 (desktop).
+const cajas = [
+  {
+    titulo: 'Comunidad Decentralize',
+    voz: false,
+    canales: [
+      { emoji: '📣', nombre: 'anuncios' },
+      { emoji: '💎', nombre: 'beneficios-exclusivos' },
+      { emoji: '📅', nombre: 'próximos-eventos' },
+      { emoji: '💰', nombre: 'programa-de-referidos' },
+      { emoji: '💯', nombre: 'testimonios' },
+      { emoji: '💬', nombre: 'chat-general' },
+    ],
+  },
+  {
+    titulo: 'Bitcoin Masterclass',
+    voz: false,
+    canales: [
+      { emoji: '🎓', nombre: 'bitcoin-masterclass' },
+      { emoji: '❓', nombre: 'dudas-del-bitcoin-masterclass' },
+    ],
+  },
+  {
+    titulo: 'Compra y Venta Bitcoin',
+    voz: false,
+    canales: [
+      { emoji: '📌', nombre: 'tarifas-de-compra-y-venta' },
+      { emoji: '🔄', nombre: 'crea-orden-de-compra-o-venta' },
+    ],
+  },
+  {
+    titulo: 'Llamadas Decentralize',
+    voz: true,
+    canales: [
+      { emoji: '🔊', nombre: 'Llamada General' },
+      { emoji: '🎙️', nombre: 'Llamadas 1-1' },
+    ],
+  },
+  {
+    titulo: 'Bitcoin Only ₿',
+    voz: false,
+    canales: [
+      { emoji: '💬', nombre: 'bitcoin-chat' },
+      { emoji: '🧑‍💻', nombre: 'ayuda-técnica-bitcoin' },
+      { emoji: '📈', nombre: 'noticias-del-mercado' },
+      { emoji: '📚', nombre: 'recursos-útiles' },
+      { emoji: '🎨', nombre: 'bitcoin-art' },
+      { emoji: '😂', nombre: 'bitcoin-memes' },
+    ],
+  },
+];
+
+// 5 avatares de la comunidad orbitando el núcleo. period 15-22s, dir alternada.
+const avatares = [
+  { ini: 'AC', bg: '#F7931A', period: 16, dir: 1,  phase: 0 },
+  { ini: 'MR', bg: '#3A4252', period: 19, dir: -1, phase: 72 },
+  { ini: 'JS', bg: '#CC7A00', period: 22, dir: 1,  phase: 144 },
+  { ini: 'KV', bg: '#2E3642', period: 15, dir: -1, phase: 216 },
+  { ini: 'DT', bg: '#FFB347', period: 18, dir: 1,  phase: 288 },
+];
+---
+
+<section id="comunidad" class="comunidad sec">
+  <!-- Fondo: galaxia espiral logarítmica (Canvas 2D, z-0). Backdrop semi-
+       translúcido para que se vea el #space base detrás. -->
+  <div class="comunidad-bg" aria-hidden="true">
+    <canvas class="comunidad-galaxy"></canvas>
+  </div>
+
+  <div class="wrap">
+    <!-- Pill "COMUNIDAD": encabezado centrado sobre TODA la sección, fuera del
+         grid de 2 columnas. Se centra respecto a la sección completa con
+         margin-inline:auto; NO depende del ancho de la columna ni del reflow del
+         acordeón (antes, dentro de la columna con left:% sobre relative, se movía
+         al abrir "Ver canales"). El H2/subtítulo/beneficios siguen a la izquierda. -->
+    <p class="eyebrow comunidad-eyebrow comunidad-reveal" style="--del:0s">COMUNIDAD</p>
+
+    <div class="comunidad-grid">
+      <!-- ── Columna texto (45%) ── -->
+      <div class="comunidad-text">
+        <h2 class="comunidad-h2 comunidad-reveal" style="--del:0.08s">
+          Unite a la <span class="accent">comunidad</span> Decentralize
+        </h2>
+
+        <p class="comunidad-sub comunidad-reveal" style="--del:0.14s">
+          No aprendés solo. Entrás a un grupo que camina con vos, comparte lo que sabe y te acompaña en el proceso.
+        </p>
+
+        <ul class="comunidad-benefits">
+          {beneficios.map((b, i) => (
+            <li class="comunidad-benefit comunidad-reveal" style={`--del:${0.22 + i * 0.1}s`}>
+              <span class="comunidad-benefit-icon">
+                {b.icon === 'users' && (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                  </svg>
+                )}
+                {b.icon === 'newspaper' && (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
+                    <path d="M18 14h-8"/>
+                    <path d="M15 18h-5"/>
+                    <path d="M10 6h8v4h-8V6Z"/>
+                  </svg>
+                )}
+                {b.icon === 'map-pin' && (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/>
+                    <circle cx="12" cy="10" r="3"/>
+                  </svg>
+                )}
+                {b.icon === 'life-buoy' && (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="m4.93 4.93 4.24 4.24"/>
+                    <path d="m14.83 9.17 4.24-4.24"/>
+                    <path d="m14.83 14.83 4.24 4.24"/>
+                    <path d="m9.17 14.83-4.24 4.24"/>
+                    <circle cx="12" cy="12" r="4"/>
+                  </svg>
+                )}
+              </span>
+              <span class="comunidad-benefit-text">{b.text}</span>
+            </li>
+          ))}
+        </ul>
+
+        <!-- CTA: cierra la columna de texto, centrado bajo los beneficios.
+             En mobile queda entre el texto y la imagen. Glow naranja pulsante. -->
+        <a href="#precio" class="comunidad-btn comunidad-btn-primary comunidad-reveal comunidad-cta" style="--del:0.5s">
+          Quiero unirme
+        </a>
+      </div>
+
+      <!-- ── Columna imagen (55%): imagen + "Ver canales" + acordeón ── -->
+      <div class="comunidad-imgcol">
+        <!-- .comunidad-visual envuelve SOLO imagen + órbita: la galaxia y los
+             avatares siguen centrados en la imagen (su rect no cambia). -->
+        <div class="comunidad-visual comunidad-reveal" style="--del:0.3s">
+          <!-- Glow ambiental detrás del marco: respira en loop e intensifica al
+               hover. Mismo efecto que la foto de "Mi Historia". -->
+          <div class="comunidad-glow" aria-hidden="true"></div>
+          <!-- .comunidad-floater hace la flotación (translateY); .comunidad-frame
+               hace el zoom (scale) al interactuar. Transforms en elementos
+               distintos: se componen, no se anulan. -->
+          <div class="comunidad-floater">
+            <div class="comunidad-frame">
+              <img
+                class="comunidad-server-img"
+                src="/Servidor.png"
+                width="720"
+                height="540"
+                loading="lazy"
+                decoding="async"
+                alt="Servidor de Discord de la comunidad Decentralize"
+              />
+            </div>
+          </div>
+
+          <!-- Avatares orbitando el núcleo galáctico (DIVs animados por JS) -->
+          <div class="comunidad-orbit" aria-hidden="true">
+            {avatares.map((a, i) => (
+              <div
+                class="orbit-avatar"
+                data-i={i}
+                data-period={a.period}
+                data-dir={a.dir}
+                data-phase={a.phase}
+                style={`--av-bg:${a.bg}`}
+              >
+                {a.ini}
+                <span class="orbit-dot"></span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <!-- "Ver canales": centrado bajo la imagen; togglea el acordeón que abre
+             debajo, dentro de esta columna derecha. -->
+        <button type="button" class="comunidad-btn comunidad-btn-ghost comunidad-reveal comunidad-act-ver" style="--del:0.5s" aria-expanded="false" aria-controls="comunidad-channels">
+          <span class="comunidad-btn-label">Ver canales</span>
+          <svg class="comunidad-btn-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m6 9 6 6 6-6"/>
+          </svg>
+        </button>
+
+        <!-- Panel de canales: confinado al ANCHO DE LA IMAGEN (vive dentro de
+             .comunidad-imgcol, la columna derecha ~55%). Abre debajo del botón.
+             El botón se mueve al PIE cuando el panel está abierto vía `order`
+             (ver CSS, disparado por aria-expanded). grid-rows 0fr -> 1fr anima. -->
+        <div id="comunidad-channels" class="comunidad-channels">
+          <div class="comunidad-channels-inner">
+            <!-- 3 columnas verticales fijas, compactas. Izq y der = 1 caja
+                 (align arriba); centro = flex-column con 3 cajas apiladas.
+                 grupos: [Caja1] · [Caja2,3,4] · [Caja5]. -->
+            <div class="comunidad-channels-grid">
+              <div class="cc-col cc-col-left">
+                {cajas.slice(0, 1).map((caja) => (
+                  <div class="cc-caja">
+                    <p class="cc-caja-title">{caja.titulo}</p>
+                    <ul class="cc-list">
+                      {caja.canales.map((c) => (
+                        <li class="cc-channel">
+                          <span class="cc-emoji">{c.emoji}</span>
+                          <span class="cc-name">{!caja.voz && <span class="cc-hash">#</span>}{c.nombre}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+              <div class="cc-col cc-col-center">
+                {cajas.slice(1, 4).map((caja) => (
+                  <div class="cc-caja">
+                    <p class="cc-caja-title">{caja.titulo}</p>
+                    <ul class="cc-list">
+                      {caja.canales.map((c) => (
+                        <li class="cc-channel">
+                          <span class="cc-emoji">{c.emoji}</span>
+                          <span class="cc-name">{!caja.voz && <span class="cc-hash">#</span>}{c.nombre}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+              <div class="cc-col cc-col-right">
+                {cajas.slice(4, 5).map((caja) => (
+                  <div class="cc-caja">
+                    <p class="cc-caja-title">{caja.titulo}</p>
+                    <ul class="cc-list">
+                      {caja.canales.map((c) => (
+                        <li class="cc-channel">
+                          <span class="cc-emoji">{c.emoji}</span>
+                          <span class="cc-name">{!caja.voz && <span class="cc-hash">#</span>}{c.nombre}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+.comunidad {
+  background: var(--bg-base);
+  position: relative;
+  z-index: 10;
+  overflow: hidden;
+  padding-top: 80px;
+  padding-bottom: 80px;
+}
+
+/* ---- Fondo galaxia espiral ---- */
+.comunidad-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  /* Backdrop semi-translúcido: deja ver el #space base (#060607) detrás. */
+  background: rgba(7, 7, 8, 0.5);
+}
+.comunidad-galaxy {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* Capa de compositing propia: no repinta el contenido de encima. */
+  transform: translateZ(0);
+}
+
+.comunidad .wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ---- Grid 45 / 55 ---- */
+/* Desktop: 2 columnas. Izquierda = texto + beneficios + CTA "Quiero unirme".
+   Derecha = imagen + "Ver canales" + acordeón. En mobile colapsa a una sola
+   columna y, por el orden del DOM, queda: texto → beneficios → "Quiero unirme"
+   → imagen → "Ver canales" → acordeón. */
+.comunidad-grid {
+  display: grid;
+  grid-template-columns: 45% 55%;
+  column-gap: 56px;
+  align-items: center;
+}
+
+/* ---- Columna texto (izquierda) ---- */
+.comunidad-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+/* Pill como encabezado centrado de la sección. Vive fuera del grid, como hijo
+   directo de .wrap. display:block + width:max-content + margin-inline:auto lo
+   centra respecto a la sección completa (.wrap), de forma estable: no usa left:%
+   ni depende del reflow del acordeón, así que NO se mueve al abrir/cerrar los
+   canales. Mobile (una sola columna): mismo método, centrado a todo el ancho.
+   El H2, subtítulo y beneficios siguen a la izquierda dentro del grid. */
+.comunidad-eyebrow {
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  margin: 0 auto 16px;
+}
+
+.comunidad-h2 {
+  font: 700 clamp(2rem, 4.5vw, 3.2rem)/1.15 var(--font-display);
+  letter-spacing: -0.02em;
+  color: var(--txt-hi);
+  margin: 0 0 16px;
+}
+.accent { color: var(--btc); }
+
+.comunidad-sub {
+  font: 400 1.05rem/1.7 var(--font-body);
+  color: var(--txt-body);
+  max-width: 460px;
+  margin: 0 0 28px;
+}
+
+/* ---- Beneficios ---- */
+.comunidad-benefits {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+.comunidad-benefit {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.comunidad-benefit-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--btc);
+}
+.comunidad-benefit-icon svg {
+  width: 20px;
+  height: 20px;
+  /* Glow naranja parpadeante (respiración) en los 4 iconos de beneficios.
+     Dos drop-shadow apilados (núcleo brillante + halo ancho) para que el
+     resplandor se vea de verdad alrededor del trazo fino del icono. */
+  animation: comunidadIconGlow 2.5s ease-in-out infinite;
+}
+/* Leve desfase entre iconos para un latido escalonado, no sincronizado. */
+.comunidad-benefit:nth-child(1) .comunidad-benefit-icon svg { animation-delay: 0s; }
+.comunidad-benefit:nth-child(2) .comunidad-benefit-icon svg { animation-delay: 0.35s; }
+.comunidad-benefit:nth-child(3) .comunidad-benefit-icon svg { animation-delay: 0.7s; }
+.comunidad-benefit:nth-child(4) .comunidad-benefit-icon svg { animation-delay: 1.05s; }
+@keyframes comunidadIconGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 2px rgba(247,147,26,0.45)) drop-shadow(0 0 4px rgba(247,147,26,0.2));
+  }
+  50% {
+    filter: drop-shadow(0 0 7px rgba(247,147,26,1)) drop-shadow(0 0 16px rgba(247,147,26,0.85));
+  }
+}
+.comunidad-benefit-text {
+  font: 400 15px/1.5 var(--font-body);
+  color: var(--txt-body);
+}
+
+/* ---- CTA "Quiero unirme": cierra la columna de texto, centrado ---- */
+.comunidad-cta {
+  align-self: center;
+  margin-top: 32px;
+}
+
+/* ---- Columna imagen (derecha): imagen + "Ver canales" + acordeón ---- */
+.comunidad-imgcol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+/* "Ver canales" centrado bajo la imagen. Orden por defecto: bajo la imagen. */
+.comunidad-act-ver { margin-top: 24px; order: 1; }
+/* El panel abre dentro de la columna imagen, confinado a su ancho. */
+.comunidad-channels { order: 2; margin-top: 0; }
+.comunidad-channels.is-open { margin-top: 18px; }
+/* Panel ABIERTO: el botón "Ocultar canales" se va al PIE (debajo de las cajas).
+   Disparado por aria-expanded, sin tocar el JS. */
+.comunidad-act-ver[aria-expanded="true"] { order: 3; }
+
+/* ---- Botones glass ---- */
+.comunidad-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font: 600 15px/1 var(--font-body);
+  border-radius: 12px;
+  padding: 14px 22px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, transform 0.3s ease;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+/* Ghost (Ver canales): glass neutro con borde naranja tenue + glow naranja de
+   reposo que respira en loop (mismo lenguaje y keyframe que "Quiero unirme", para
+   invitar al clic). En hover se detiene el pulso y el glow se intensifica. */
+.comunidad-btn-ghost {
+  background: var(--bg-glass);
+  border: 1px solid rgba(247,147,26,0.28);
+  color: var(--txt-hi);
+  animation: comunidadCtaPulse 2.6s ease-in-out infinite;
+}
+.comunidad-btn-chev {
+  width: 18px;
+  height: 18px;
+  /* Glow naranja propio del chevron (respira en sync con el botón). transform
+     conserva la rotación al abrir/cerrar; filter se suma encima sin romperla. */
+  color: var(--btc);
+  transition: transform 0.4s var(--ease-out), filter 0.3s ease;
+  animation: comunidadChevGlow 2.6s ease-in-out infinite;
+}
+@keyframes comunidadChevGlow {
+  0%, 100% { filter: drop-shadow(0 0 2px rgba(247,147,26,0.5)) drop-shadow(0 0 5px rgba(247,147,26,0.25)); }
+  50%      { filter: drop-shadow(0 0 6px rgba(247,147,26,1)) drop-shadow(0 0 13px rgba(247,147,26,0.6)); }
+}
+.comunidad-btn-ghost[aria-expanded="true"] .comunidad-btn-chev {
+  transform: rotate(180deg);
+}
+/* Primary (CTA): glass naranja con glow naranja pulsante en reposo (invita al
+   clic). El pulso late de baja a alta intensidad en loop. */
+.comunidad-btn-primary {
+  background: rgba(247,147,26,0.16);
+  border: 1px solid rgba(247,147,26,0.5);
+  color: var(--txt-hi);
+  animation: comunidadCtaPulse 2.6s ease-in-out infinite;
+}
+@keyframes comunidadCtaPulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(247,147,26,0.18); }
+  50%      { box-shadow: 0 0 26px rgba(247,147,26,0.55); }
+}
+@media (hover: hover) and (pointer: fine) {
+  /* Hover detiene el pulso y aplica glow naranja más intenso (botón + chevron). */
+  .comunidad-btn-ghost:hover {
+    animation: none;
+    border-color: rgba(247,147,26,0.85);
+    box-shadow: 0 0 30px rgba(247,147,26,0.5);
+    background: rgba(247,147,26,0.1);
+  }
+  .comunidad-btn-ghost:hover .comunidad-btn-chev {
+    animation: none;
+    filter: drop-shadow(0 0 7px rgba(247,147,26,1)) drop-shadow(0 0 16px rgba(247,147,26,0.75));
+  }
+  /* Hover detiene el pulso y aplica un glow más intenso vía transition. */
+  .comunidad-btn-primary:hover {
+    animation: none;
+    border-color: rgba(247,147,26,0.85);
+    box-shadow: 0 0 34px rgba(247,147,26,0.5);
+    background: rgba(247,147,26,0.24);
+    transform: translateY(-2px);
+  }
+}
+
+/* ---- Acordeón de canales (grid-rows 0fr → 1fr) ---- */
+.comunidad-channels {
+  width: 100%;
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s var(--ease-out);
+}
+.comunidad-channels.is-open {
+  grid-template-rows: 1fr;
+}
+.comunidad-channels-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ---- Grid de 3 columnas verticales fijas (desktop) ----
+   3 columnas (izq / centro / der). Izq = Caja 1; centro = Cajas 2/3/4 apiladas
+   en flex-column; der = Caja 5. align-items:start: las columnas no se estiran a
+   la altura de la más alta, cada una arranca arriba. */
+.comunidad-channels-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: start;
+  gap: 12px;
+  padding: 12px 0 2px;
+}
+/* Columna central: apila sus 3 cajas verticalmente con el mismo gap. */
+.cc-col-center {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ---- Caja glass translúcida (deja ver el remolino difuminado detrás) ----
+   Fondo oscuro de alpha bajo + blur: la galaxia espiral pasa difuminada por
+   atrás. Borde naranja con glow INTERMITENTE (respiración ~2.7s), escalonado
+   entre cajas para que no latan todas a la vez. */
+.cc-caja {
+  background: rgba(9, 9, 13, 0.5);
+  -webkit-backdrop-filter: blur(9px);
+  backdrop-filter: blur(9px);
+  border: 1px solid rgba(247,147,26,0.34);
+  border-radius: 13px;
+  padding: 11px 11px 12px;
+  animation: ccBorderGlow 2.7s ease-in-out infinite;
+}
+/* Glow escalonado entre cajas (delay por posición estructural). */
+.cc-col-left .cc-caja { animation-delay: 0s; }
+.cc-col-center .cc-caja:nth-child(1) { animation-delay: 0.5s; }
+.cc-col-center .cc-caja:nth-child(2) { animation-delay: 1s; }
+.cc-col-center .cc-caja:nth-child(3) { animation-delay: 1.5s; }
+.cc-col-right .cc-caja { animation-delay: 0.9s; }
+@keyframes ccBorderGlow {
+  0%, 100% {
+    border-color: rgba(247,147,26,0.3);
+    box-shadow: 0 0 4px rgba(247,147,26,0.12), inset 0 0 8px rgba(247,147,26,0.03);
+  }
+  50% {
+    border-color: rgba(247,147,26,0.62);
+    box-shadow: 0 0 20px rgba(247,147,26,0.42), inset 0 0 12px rgba(247,147,26,0.07);
+  }
+}
+
+/* Título: centrado, naranja, glow naranja, uppercase mono con tracking. */
+.cc-caja-title {
+  text-align: center;
+  font: 600 10.5px/1.3 var(--font-mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--btc);
+  text-shadow: 0 0 8px rgba(247,147,26,0.55), 0 0 18px rgba(247,147,26,0.3);
+  margin: 0 0 9px;
+}
+
+.cc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.cc-channel {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  font: 400 11.5px/1.3 var(--font-mono);
+  color: var(--txt-mid);
+}
+.cc-emoji {
+  flex-shrink: 0;
+  font-size: 12.5px;
+  line-height: 1.2;
+  /* Render como emoji a color, nunca como glifo mono monocromo. */
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+}
+.cc-name { word-break: break-word; }
+.cc-hash {
+  color: var(--txt-low);
+  margin-right: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  /* Glow de borde y título en estado fijo (sin parpadeo). */
+  .cc-caja {
+    animation: none;
+    border-color: rgba(247,147,26,0.5);
+    box-shadow: 0 0 12px rgba(247,147,26,0.28), inset 0 0 10px rgba(247,147,26,0.05);
+  }
+}
+
+/* ---- Columna imagen ---- */
+.comunidad-visual {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* Glow ambiental: replica .hist-glow de "Mi Historia" (respiración naranja en
+   loop, intensifica al hover). Vive detrás del marco y NO toca su transform, así
+   no interfiere con la flotación. */
+.comunidad-glow {
+  position: absolute;
+  width: 115%;
+  height: 115%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(247,147,26,0.12), transparent 68%);
+  filter: blur(40px);
+  pointer-events: none;
+  z-index: 0;
+  animation: comunidadGlowBreath 6s ease-in-out infinite alternate;
+  transition: opacity 0.4s ease, filter 0.4s ease, background 0.4s ease;
+}
+@keyframes comunidadGlowBreath {
+  from { opacity: 0.7; }
+  to   { opacity: 1; }
+}
+/* Wrapper de flotación: SOLO translateY ±8px en loop de 7s. Aislar la
+   flotación acá deja libre el transform del marco para el zoom. */
+.comunidad-floater {
+  width: 100%;
+  animation: comunidadFloat 7s ease-in-out infinite;
+}
+@keyframes comunidadFloat {
+  0%, 100% { transform: translateY(-8px); }
+  50%      { transform: translateY(8px); }
+}
+.comunidad-frame {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  /* Borde + glow naranja al reposo (mismo lenguaje que .alberto-frame). */
+  border: 1px solid rgba(247,147,26,0.25);
+  border-radius: 20px;
+  box-shadow: 0 0 40px rgba(247,147,26,0.18), 0 0 100px rgba(247,147,26,0.08), var(--shadow-deep);
+  overflow: hidden;
+  background: var(--bg-glass);
+  /* El zoom del MARCO COMPLETO (imagen + borde) vive en su propio transform.
+     Como la flotación está en .comunidad-floater, scale y translateY se
+     componen (floater translateY * frame scale) sin pisarse. */
+  transform: scale(1);
+  transform-origin: center center;
+  transition: transform 0.45s var(--ease-out), border-color 0.4s ease, box-shadow 0.4s ease;
+}
+.comunidad-server-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* Sin zoom interno: la imagen se mueve con el marco, no respecto a él. */
+}
+
+/* Hover: el marco completo se acerca (scale) + glow MAS intenso (replica de
+   "Mi Historia", reforzado). Solo en dispositivos con puntero fino. */
+@media (hover: hover) and (pointer: fine) {
+  .comunidad-visual:hover .comunidad-glow {
+    background: radial-gradient(circle, rgba(247,147,26,0.55), transparent 70%);
+    filter: blur(34px);
+    opacity: 1;
+    animation-play-state: paused;
+  }
+  .comunidad-visual:hover .comunidad-frame {
+    transform: scale(1.045);
+    border-color: rgba(247,147,26,0.95);
+    box-shadow:
+      0 0 45px rgba(247,147,26,0.5),
+      0 0 90px rgba(247,147,26,0.25),
+      0 0 150px rgba(247,147,26,0.12),
+      var(--shadow-deep);
+  }
+}
+
+/* Touch: mismo acercamiento del marco completo al tocar/mantener (mobile). */
+.comunidad-visual.is-pressed .comunidad-glow {
+  background: radial-gradient(circle, rgba(247,147,26,0.55), transparent 70%);
+  filter: blur(34px);
+  opacity: 1;
+  animation-play-state: paused;
+}
+.comunidad-visual.is-pressed .comunidad-frame {
+  transform: scale(1.045);
+  border-color: rgba(247,147,26,0.95);
+  box-shadow:
+    0 0 45px rgba(247,147,26,0.5),
+    0 0 90px rgba(247,147,26,0.25),
+    0 0 150px rgba(247,147,26,0.12),
+    var(--shadow-deep);
+}
+
+/* ---- Avatares orbitando ---- */
+.comunidad-orbit {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+.orbit-avatar {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 32px;
+  height: 32px;
+  margin: -16px 0 0 -16px;
+  border-radius: 50%;
+  background: var(--av-bg);
+  border: 2px solid #060607;
+  color: #fff;
+  font: 600 12px/32px var(--font-body);
+  text-align: center;
+  z-index: 3;
+  will-change: transform;
+  /* Reaccionan al contacto: deben capturar puntero (la órbita es none). */
+  pointer-events: auto;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+/* Área de toque ampliada (48px) para el tap en mobile, sin alterar el tamaño
+   visual ni el origen del transform. */
+.orbit-avatar::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+}
+.orbit-dot {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green-live);
+  border: 1.5px solid #060607;
+}
+
+/* ---- Reveal stagger ---- */
+.comunidad-reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
+  transition-delay: var(--del, 0s);
+}
+.comunidad-reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---- Mobile: una sola columna. Por el orden del DOM queda:
+   texto → beneficios → "Quiero unirme" → imagen → "Ver canales" → acordeón. ---- */
+@media (max-width: 768px) {
+  .comunidad { padding-top: 48px; padding-bottom: 56px; }
+  .comunidad .wrap { padding: 0 18px; }
+  .comunidad-grid {
+    grid-template-columns: 1fr;
+    row-gap: 36px;
+  }
+  .comunidad-text { align-items: flex-start; }
+  .comunidad-sub { max-width: none; }
+  /* CTA centrado, con un poco menos de aire arriba al apilar. */
+  .comunidad-cta { margin-top: 24px; }
+  /* Mobile: 2 cajas grandes arriba lado a lado (Caja 1 izq, Caja 5 der), las 3
+     pequeñas (centro) apiladas a todo el ancho abajo. align-items:stretch hace
+     que la fila superior iguale alturas. */
+  .comunidad-channels-grid {
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+    gap: 12px;
+    padding: 14px 0 4px;
+  }
+  .cc-col-left   { grid-column: 1;      grid-row: 1; }
+  .cc-col-right  { grid-column: 2;      grid-row: 1; }
+  .cc-col-center { grid-column: 1 / -1; grid-row: 2; }
+  /* Igualar altura: la caja de cada columna llena el alto del wrapper estirado
+     por el grid. Así "Bitcoin Only" iguala a "Comunidad Decentralize". */
+  .cc-col-left .cc-caja,
+  .cc-col-right .cc-caja {
+    height: 100%;
+    padding: 14px 11px 15px;
+  }
+  /* Texto algo más chico en las 2 grandes para que los nombres largos respiren. */
+  .cc-col-left .cc-channel,
+  .cc-col-right .cc-channel {
+    font-size: 12px;
+    gap: 5px;
+  }
+  /* Las 3 pequeñas: Masterclass | Llamadas lado a lado (fila 1), Compra y Venta
+     a todo el ancho debajo (fila 2). DOM: 1=Masterclass, 2=Compra, 3=Llamadas. */
+  .cc-col-center {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .cc-col-center .cc-caja:nth-child(1) { grid-column: 1;      grid-row: 1; }
+  .cc-col-center .cc-caja:nth-child(3) { grid-column: 2;      grid-row: 1; }
+  .cc-col-center .cc-caja:nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
+  /* Masterclass y Llamadas igualan altura (ambas 2 ítems). */
+  .cc-col-center .cc-caja { height: 100%; }
+  .comunidad-imgcol { max-width: 420px; margin: 0 auto; width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .comunidad-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .comunidad-floater { animation: none; }
+  .comunidad-frame { transition: none; transform: none; }
+  .comunidad-glow { animation: none; opacity: 0.85; }
+  .comunidad-channels { transition: none; }
+  .comunidad-benefit-icon svg { animation: none; filter: drop-shadow(0 0 5px rgba(247,147,26,0.85)) drop-shadow(0 0 12px rgba(247,147,26,0.5)); }
+  /* CTA: glow fijo suave en lugar del pulso. */
+  .comunidad-btn-primary { animation: none; box-shadow: 0 0 16px rgba(247,147,26,0.3); }
+  /* "Ver canales": glow naranja fijo (botón + chevron) sin parpadeo. */
+  .comunidad-btn-ghost { animation: none; box-shadow: 0 0 16px rgba(247,147,26,0.28); }
+  .comunidad-btn-chev { animation: none; filter: drop-shadow(0 0 5px rgba(247,147,26,0.85)) drop-shadow(0 0 11px rgba(247,147,26,0.45)); }
+}
+</style>
+
+<script is:inline>
+(function () {
+  const root = document.querySelector('#comunidad');
+  if (!root) return;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- Reveal stagger (IO tras parseo del script) ---------- */
+  const revEls = root.querySelectorAll('.comunidad-reveal');
+  if (reduce) {
+    revEls.forEach(el => el.classList.add('visible'));
+  } else {
+    const revObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          revObs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    revEls.forEach(el => revObs.observe(el));
+  }
+
+  /* ---------- Acordeón de canales ---------- */
+  const btn = root.querySelector('.comunidad-btn-ghost');
+  const panel = root.querySelector('#comunidad-channels');
+  const label = root.querySelector('.comunidad-btn-label');
+  if (btn && panel && label) {
+    btn.addEventListener('click', () => {
+      const open = panel.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      label.textContent = open ? 'Ocultar canales' : 'Ver canales';
+    });
+  }
+
+  /* ---------- Avatares orbitando ---------- */
+  const orbit = root.querySelector('.comunidad-orbit');
+  const frame = root.querySelector('.comunidad-frame');
+  const floater = root.querySelector('.comunidad-floater');
+  const avatars = orbit ? Array.from(orbit.querySelectorAll('.orbit-avatar')) : [];
+  let orbitRunning = false, orbitRaf = null, orbitT = 0, orbitLast = 0;
+  let rx = 160, ry = 120;
+
+  /* --- Física de colisión por avatar ---
+     Cada avatar tiene un OFFSET (ox,oy) respecto a su posición orbital, con su
+     propia velocidad (vx,vy). Un resorte amortiguado lo tira de vuelta a (0,0)
+     (su órbita): a = -STIFF*offset - DAMP*vel. El golpe inyecta velocidad en la
+     dirección contacto -> avatar (lo aleja del punto de impacto). La órbita base
+     (bx,by) sigue avanzando por debajo; el offset spring se suma encima. */
+  const n = avatars.length;
+  const ox = new Float64Array(n), oy = new Float64Array(n);
+  const vx = new Float64Array(n), vy = new Float64Array(n);
+  const bx = new Float64Array(n), by = new Float64Array(n); // base orbital actual
+  const inside = new Array(n).fill(false);                  // histéresis de proximidad
+  const STIFF = 180;        // rigidez del resorte (omega ~ 13.4 rad/s)
+  const DAMP = 9;           // amortiguación (zeta ~ 0.34: vuelve en ~0.9s con un par de rebotes)
+  const IMPULSE = 540;      // velocidad inyectada por golpe (px/s) -> pico ~40px
+  const MAX_OFF = 60;       // tope de desplazamiento para no salir de la sección
+  const HIT_R = 30;         // radio de contacto (cursor entra y golpea)
+
+  // Golpe: empuja el avatar i alejándolo del punto de contacto (cx,cy) en coords
+  // locales de la órbita. strength escala el impulso (0..1).
+  function hitAvatar(i, cx, cy, strength) {
+    let dx = (bx[i] + ox[i]) - cx;
+    let dy = (by[i] + oy[i]) - cy;
+    let len = Math.hypot(dx, dy);
+    if (len < 0.001) { // contacto en el centro: empuje radial hacia afuera
+      const rl = Math.hypot(bx[i], by[i]) || 1;
+      dx = bx[i] / rl; dy = by[i] / rl;
+    } else {
+      dx /= len; dy /= len;
+    }
+    const imp = IMPULSE * (strength == null ? 1 : strength);
+    vx[i] += dx * imp;
+    vy[i] += dy * imp;
+  }
+
+  // Integración del resorte (Euler) + clamp del offset.
+  function integrateSprings(dt) {
+    for (let i = 0; i < n; i++) {
+      vx[i] += (-STIFF * ox[i] - DAMP * vx[i]) * dt;
+      vy[i] += (-STIFF * oy[i] - DAMP * vy[i]) * dt;
+      ox[i] += vx[i] * dt;
+      oy[i] += vy[i] * dt;
+      // clamp radial del offset
+      const d = Math.hypot(ox[i], oy[i]);
+      if (d > MAX_OFF) { const k = MAX_OFF / d; ox[i] *= k; oy[i] *= k; }
+    }
+  }
+
+  // Centro de la órbita en pantalla = centro de .comunidad-orbit.
+  function orbitCenter() {
+    const r = orbit.getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  }
+
+  function measureOrbit() {
+    if (!frame) return;
+    const w = frame.offsetWidth, h = frame.offsetHeight;
+    rx = w * 0.58;
+    ry = h * 0.5;
+  }
+  function placeAvatars(t) {
+    for (let i = 0; i < n; i++) {
+      const a = avatars[i];
+      const period = parseFloat(a.dataset.period) || 18;
+      const dir = parseFloat(a.dataset.dir) || 1;
+      const phase = (parseFloat(a.dataset.phase) || 0) * Math.PI / 180;
+      const ang = phase + dir * (t * 2 * Math.PI / period);
+      const x = Math.cos(ang) * rx;
+      const y = Math.sin(ang) * ry;
+      bx[i] = x; by[i] = y;
+      // Offset por colisión sumado encima de la órbita.
+      const px = x + ox[i], py = y + oy[i];
+      // Micro-scale opcional en el impacto, proporcional a la velocidad (sutil).
+      const speed = Math.hypot(vx[i], vy[i]);
+      const scale = 1 + Math.min(0.12, speed / 6000);
+      a.style.transform = `translate(${px.toFixed(1)}px, ${py.toFixed(1)}px) scale(${scale.toFixed(3)})`;
+      // Profundidad: detrás del marco cuando sin(ang) < 0
+      a.style.zIndex = Math.sin(ang) < 0 ? '1' : '3';
+    }
+  }
+  function orbitTick(now) {
+    const dt = orbitLast ? Math.min((now - orbitLast) / 1000, 0.05) : 0.016;
+    orbitLast = now;
+    orbitT += dt;
+    integrateSprings(dt);
+    placeAvatars(orbitT);
+    orbitRaf = requestAnimationFrame(orbitTick);
+  }
+
+  /* ---------- Galaxia espiral logarítmica (Canvas 2D) ---------- */
+  const canvas = root.querySelector('.comunidad-galaxy');
+  const bg = root.querySelector('.comunidad-bg');
+  const visual = root.querySelector('.comunidad-visual');
+  let galaxyState = null;
+
+  function buildGalaxy() {
+    const ctx = canvas.getContext('2d');
+    const DPR = Math.min(window.devicePixelRatio || 1, 1.5);
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    const COUNT = isMobile ? 100 : 200;
+    let W = 0, H = 0, cx = 0, cy = 0, scale = 1;
+    let stars = [];
+
+    // Sprites pre-renderizados (blanco + naranja) para drawImage barato.
+    function makeSprite(rgb) {
+      const S = 16;
+      const c = document.createElement('canvas');
+      c.width = c.height = S;
+      const sc = c.getContext('2d');
+      const g = sc.createRadialGradient(S/2, S/2, 0, S/2, S/2, S/2);
+      g.addColorStop(0, `rgba(${rgb},1)`);
+      g.addColorStop(0.4, `rgba(${rgb},0.6)`);
+      g.addColorStop(1, `rgba(${rgb},0)`);
+      sc.fillStyle = g;
+      sc.fillRect(0, 0, S, S);
+      return c;
+    }
+    const spriteWhite = makeSprite('255,255,255');
+    const spriteOrange = makeSprite('247,147,26');
+
+    // Espiral logarítmica r = a·e^(b·θ), 2 brazos, dispersión aleatoria.
+    function buildStars() {
+      stars = [];
+      const a = 6, b = 0.30, arms = 2, turns = 3.2;
+      for (let i = 0; i < COUNT; i++) {
+        const arm = i % arms;
+        const tt = Math.pow(Math.random(), 0.7);      // más densas hacia el centro
+        const theta = tt * turns * Math.PI * 2;
+        let r = a * Math.exp(b * theta);
+        const armAngle = (arm / arms) * Math.PI * 2;
+        // dispersión que crece con el radio (brazos difusos, no líneas)
+        const spread = (Math.random() - 0.5) * (0.18 + r * 0.0016);
+        const ang = theta + armAngle + spread;
+        const jitter = (Math.random() - 0.5) * r * 0.12;
+        const depth = Math.min(r / 280, 1);           // 0 centro → 1 borde
+        stars.push({
+          r: r + jitter,
+          ang,
+          orange: Math.random() < 0.20,
+          size: (1.1 + Math.random() * 1.8) * (1 - depth * 0.35),
+          alpha: 0.65 - depth * 0.4 + Math.random() * 0.12,
+          flash: 0,
+        });
+      }
+    }
+
+    function resize() {
+      W = bg.offsetWidth; H = bg.offsetHeight;
+      canvas.width = Math.floor(W * DPR);
+      canvas.height = Math.floor(H * DPR);
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+      // Centro de la espiral = centro de la columna imagen (núcleo galáctico).
+      if (visual) {
+        const vb = visual.getBoundingClientRect();
+        const bb = bg.getBoundingClientRect();
+        cx = vb.left - bb.left + vb.width / 2;
+        cy = vb.top - bb.top + vb.height / 2;
+      } else {
+        cx = W * 0.72; cy = H * 0.5;
+      }
+      scale = Math.max(W, H) / 520;
+      buildStars();
+    }
+
+    function drawDustLanes(rot) {
+      // Arcos oscuros entre los brazos brillantes (dust lanes).
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(rot * 0.6);
+      ctx.globalCompositeOperation = 'source-over';
+      const a = 6, b = 0.30;
+      for (let lane = 0; lane < 2; lane++) {
+        const off = Math.PI + lane * Math.PI; // entre los 2 brazos
+        ctx.beginPath();
+        for (let th = 0.4; th < 3.2 * Math.PI * 2; th += 0.12) {
+          const r = a * Math.exp(b * th) * scale;
+          const x = Math.cos(th + off) * r;
+          const y = Math.sin(th + off) * r;
+          if (th === 0.4) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = 'rgba(2,2,4,0.55)';
+        ctx.lineWidth = 14 * scale;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    let coreGrad = null;
+    function drawCore() {
+      const cr = 150 * scale;
+      if (!coreGrad) {
+        coreGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, cr);
+        coreGrad.addColorStop(0,   'rgba(255,220,160,0.55)');
+        coreGrad.addColorStop(0.18,'rgba(247,180,90,0.32)');
+        coreGrad.addColorStop(0.5, 'rgba(247,147,26,0.10)');
+        coreGrad.addColorStop(1,   'rgba(247,147,26,0)');
+      }
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.fillStyle = coreGrad;
+      ctx.beginPath();
+      ctx.arc(0, 0, cr, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    let rot = 0, flashTimer = 0;
+    function render(dt) {
+      rot += dt * 0.045; // rotación lenta, contemplativa
+      ctx.clearRect(0, 0, W, H);
+
+      drawDustLanes(rot);
+      drawCore();
+
+      // Destello: cada ~3s una estrella aleatoria destella y decae en ~1s.
+      flashTimer -= dt;
+      if (flashTimer <= 0) {
+        flashTimer = 3;
+        const s = stars[(Math.random() * stars.length) | 0];
+        if (s) s.flash = 1;
+      }
+
+      ctx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < stars.length; i++) {
+        const s = stars[i];
+        const ang = s.ang + rot;
+        const r = s.r * scale;
+        const x = cx + Math.cos(ang) * r;
+        const y = cy + Math.sin(ang) * r;
+        let size = s.size * scale * 1.6;
+        let alpha = s.alpha;
+        if (s.flash > 0) {
+          s.flash = Math.max(0, s.flash - dt); // decae en ~1s
+          size *= 1 + 1.5 * s.flash;
+          alpha = Math.min(1, alpha + 0.5 * s.flash);
+        }
+        const d = size * 2;
+        ctx.globalAlpha = alpha;
+        ctx.drawImage(s.orange ? spriteOrange : spriteWhite, x - size, y - size, d, d);
+      }
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = 'source-over';
+    }
+
+    function renderStatic() { render(0); }
+
+    return { ctx, resize, render, renderStatic };
+  }
+
+  /* ---------- Arranque + IntersectionObserver (pausa fuera de viewport) ---------- */
+  function init() {
+    measureOrbit();
+
+    if (reduce) {
+      // Estático: galaxia dibujada una vez, avatares colocados una vez.
+      if (canvas && bg) {
+        const g = buildGalaxy();
+        g.resize();
+        g.renderStatic();
+        window.addEventListener('resize', () => { g.resize(); g.renderStatic(); }, { passive: true });
+      }
+      placeAvatars(0);
+      return;
+    }
+
+    // Desktop: el cursor "golpea" al entrar en el radio del avatar (pointermove
+    // con puntero fino). Histéresis con `inside` para un golpe por entrada.
+    visual.addEventListener('pointermove', (e) => {
+      if (e.pointerType === 'touch') return;
+      const c = orbitCenter();
+      const cx = e.clientX - c.x, cy = e.clientY - c.y;
+      for (let i = 0; i < n; i++) {
+        const ax = bx[i] + ox[i], ay = by[i] + oy[i];
+        const d = Math.hypot(cx - ax, cy - ay);
+        if (d < HIT_R) {
+          if (!inside[i]) { hitAvatar(i, cx, cy, 1 - d / HIT_R + 0.4); inside[i] = true; }
+        } else if (d > HIT_R * 1.25) {
+          inside[i] = false;
+        }
+      }
+    }, { passive: true });
+
+    // Mobile: tap sobre un avatar lo golpea desde el punto del dedo.
+    avatars.forEach((el, i) => {
+      el.addEventListener('pointerdown', (e) => {
+        const c = orbitCenter();
+        hitAvatar(i, e.clientX - c.x, e.clientY - c.y, 1);
+      });
+    });
+
+    // Mobile: tap/hold sobre la imagen acerca el marco completo (clase is-pressed,
+    // equivalente táctil del hover). Auto-libera por si falta el pointerup.
+    let pressTO = null;
+    const press = () => {
+      visual.classList.add('is-pressed');
+      clearTimeout(pressTO);
+      pressTO = setTimeout(() => visual.classList.remove('is-pressed'), 1100);
+    };
+    const unpress = () => { clearTimeout(pressTO); visual.classList.remove('is-pressed'); };
+    if (floater) {
+      floater.addEventListener('pointerdown', (e) => { if (e.pointerType === 'touch') press(); });
+      floater.addEventListener('pointerup', (e) => { if (e.pointerType === 'touch') unpress(); });
+      floater.addEventListener('pointercancel', unpress);
+    }
+
+    // Galaxia con loop propio, encendido/apagado por el IO.
+    if (canvas && bg) {
+      const g = buildGalaxy();
+      g.resize();
+      galaxyState = { galRunning: false, raf: null, last: 0 };
+      const galTick = (now) => {
+        if (!galaxyState.galRunning) return;
+        const dt = galaxyState.last ? Math.min((now - galaxyState.last) / 1000, 0.05) : 0.016;
+        galaxyState.last = now;
+        g.render(dt);
+        galaxyState.raf = requestAnimationFrame(galTick);
+      };
+      galaxyState.start = () => { galaxyState.last = 0; galTick(performance.now()); };
+      window.addEventListener('resize', () => { g.resize(); measureOrbit(); }, { passive: true });
+    }
+
+    const target = bg || root;
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          if (galaxyState && !galaxyState.galRunning) { galaxyState.galRunning = true; galaxyState.start(); }
+          if (!orbitRunning && avatars.length) { orbitRunning = true; orbitLast = 0; orbitRaf = requestAnimationFrame(orbitTick); }
+        } else {
+          if (galaxyState && galaxyState.galRunning) { galaxyState.galRunning = false; if (galaxyState.raf) cancelAnimationFrame(galaxyState.raf); }
+          if (orbitRunning) { orbitRunning = false; cancelAnimationFrame(orbitRaf); }
+        }
+      });
+    }, { rootMargin: '200px' });
+    obs.observe(target);
+  }
+
+  init();
+})();
+</script>
