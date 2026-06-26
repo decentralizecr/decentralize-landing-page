@@ -8,10 +8,12 @@
 // DECISIÓN NECESARIA). El asset Servidor.png SÍ existe en /public.
 
 const beneficios = [
-  { icon: 'users',     text: 'Una comunidad activa de bitcoiners en Costa Rica y LatAm' },
-  { icon: 'newspaper', text: 'Novedades y análisis del mercado cada semana' },
-  { icon: 'map-pin',   text: 'Eventos presenciales y encuentros en Costa Rica' },
-  { icon: 'life-buoy', text: 'Soporte y ayuda de la comunidad cuando lo necesités' },
+  { icon: 'percent',    text: 'Tarifas preferenciales para comprar BTC' },
+  { icon: 'headphones', text: 'Soporte 24/7, nunca estás solo' },
+  { icon: 'users',      text: 'Networking con bitcoiners de tus valores' },
+  { icon: 'calendar',   text: 'Eventos y llamadas 1:1 con Alberto' },
+  { icon: 'tag',        text: 'Descuentos en negocios del ecosistema' },
+  { icon: 'line-chart', text: 'Análisis que no compartimos en redes' },
 ];
 
 // Canales REALES del Discord. `voz: true` = canales de voz (sin "#").
@@ -97,47 +99,55 @@ const avatares = [
       <!-- ── Columna texto (45%) ── -->
       <div class="comunidad-text">
         <h2 class="comunidad-h2 comunidad-reveal" style="--del:0.08s">
-          Unite a la <span class="accent">comunidad</span> Decentralize
+          Acceso a la <span class="accent">comunidad</span> Decentralize
         </h2>
 
         <p class="comunidad-sub comunidad-reveal" style="--del:0.14s">
-          No aprendés solo. Entrás a un grupo que camina con vos, comparte lo que sabe y te acompaña en el proceso.
+          No se trata solo de aprender Bitcoin. Se trata de rodearte de las personas correctas.
         </p>
 
         <ul class="comunidad-benefits">
           {beneficios.map((b, i) => (
             <li class="comunidad-benefit comunidad-reveal" style={`--del:${0.22 + i * 0.1}s`}>
               <span class="comunidad-benefit-icon">
+                {b.icon === 'percent' && (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="5" x2="5" y2="19"/>
+                    <circle cx="6.5" cy="6.5" r="2.5"/>
+                    <circle cx="17.5" cy="17.5" r="2.5"/>
+                  </svg>
+                )}
+                {b.icon === 'headphones' && (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/>
+                  </svg>
+                )}
                 {b.icon === 'users' && (
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
                     <circle cx="9" cy="7" r="4"/>
                     <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
                     <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                   </svg>
                 )}
-                {b.icon === 'newspaper' && (
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
-                    <path d="M18 14h-8"/>
-                    <path d="M15 18h-5"/>
-                    <path d="M10 6h8v4h-8V6Z"/>
+                {b.icon === 'calendar' && (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
                   </svg>
                 )}
-                {b.icon === 'map-pin' && (
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/>
-                    <circle cx="12" cy="10" r="3"/>
+                {b.icon === 'tag' && (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+                    <line x1="7" y1="7" x2="7.01" y2="7"/>
                   </svg>
                 )}
-                {b.icon === 'life-buoy' && (
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"/>
-                    <path d="m4.93 4.93 4.24 4.24"/>
-                    <path d="m14.83 9.17 4.24-4.24"/>
-                    <path d="m14.83 14.83 4.24 4.24"/>
-                    <path d="m9.17 14.83-4.24 4.24"/>
-                    <circle cx="12" cy="12" r="4"/>
+                {b.icon === 'line-chart' && (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 3v18h18"/>
+                    <path d="m19 9-5 5-4-4-3 3"/>
                   </svg>
                 )}
               </span>
@@ -357,9 +367,11 @@ const avatares = [
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  /* 6 beneficios en 2 columnas x 3 filas (desktop) para no ocupar mucho alto. */
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  column-gap: 24px;
+  row-gap: 16px;
   width: 100%;
 }
 .comunidad-benefit {
@@ -387,6 +399,8 @@ const avatares = [
 .comunidad-benefit:nth-child(2) .comunidad-benefit-icon svg { animation-delay: 0.35s; }
 .comunidad-benefit:nth-child(3) .comunidad-benefit-icon svg { animation-delay: 0.7s; }
 .comunidad-benefit:nth-child(4) .comunidad-benefit-icon svg { animation-delay: 1.05s; }
+.comunidad-benefit:nth-child(5) .comunidad-benefit-icon svg { animation-delay: 1.4s; }
+.comunidad-benefit:nth-child(6) .comunidad-benefit-icon svg { animation-delay: 1.75s; }
 @keyframes comunidadIconGlow {
   0%, 100% {
     filter: drop-shadow(0 0 2px rgba(247,147,26,0.45)) drop-shadow(0 0 4px rgba(247,147,26,0.2));
@@ -774,6 +788,8 @@ const avatares = [
   }
   .comunidad-text { align-items: flex-start; }
   .comunidad-sub { max-width: none; }
+  /* Beneficios: 6 en una sola columna en móvil. */
+  .comunidad-benefits { grid-template-columns: 1fr; }
   /* CTA centrado, con un poco menos de aire arriba al apilar. */
   .comunidad-cta { margin-top: 24px; }
   /* Mobile: 2 cajas grandes arriba lado a lado (Caja 1 izq, Caja 5 der), las 3
