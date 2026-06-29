@@ -1,0 +1,917 @@
+---
+// Sección 9 — La Oferta (precio) · card "planeta" + anillo orbital Saturno (Canvas 2D)
+// La card funciona como el planeta; un anillo de satoshis la cruza por delante
+// (abajo, brillante) y por detrás (arriba, tenue) → efecto Saturno 3D real, logrado
+// con DOS canvas apilados (atrás z1 / adelante z3) y la card DOM en el medio (z2),
+// una sola animación / un solo RAF / un solo array de partículas.
+// Copy oficial: $147 → $97, pago único, acceso de por vida, garantía 7 días.
+// Compliance SUGEF/Ley 7786: sin cifras de % en tarifas.
+
+// "Kribatta" siempre como link naranja a https://web.kribatta.com/ (target _blank, noopener).
+const kribattaLink = '<a class="incl-link" href="https://web.kribatta.com/" target="_blank" rel="noopener noreferrer">Kribatta</a>';
+
+const incluidos = [
+  'Bitcoin Masterclass: 7 horas en 5 módulos',
+  `Tarifas preferenciales de compra y venta vía ${kribattaLink}`,
+  'Comunidad privada de bitcoiners en Costa Rica',
+  'Soporte personalizado cuando lo necesités',
+  'Acceso de por vida con actualizaciones incluidas',
+  'Eventos presenciales, beneficios y llamadas grupales',
+];
+---
+
+<section id="precio" class="precio">
+  <!-- Spotlight: foco radial naranja que entra desde arriba (fade-in 1s al ver la sección) -->
+  <div class="precio-spotlight" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <div class="precio-stage">
+      <!-- Capa DETRÁS de la card: partículas con sin(angle) < 0 (parte superior de la órbita) -->
+      <canvas class="precio-ring-back" aria-hidden="true"></canvas>
+
+      <!-- El "planeta": card de precio -->
+      <div class="price-card">
+        <p class="eyebrow">Tu inversión</p>
+
+        <p class="price-old"><span class="price-old-amt">$147</span></p>
+        <p class="price-new">$97</p>
+        <p class="price-anchor">Valor real: +$1,000</p>
+        <p class="price-support">Pago único · Acceso de por vida</p>
+
+        <div class="price-divider"></div>
+
+        <ul class="price-incl">
+          {incluidos.map((t) => (
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M20 6 9 17l-5-5"/>
+              </svg>
+              <span set:html={t}></span>
+            </li>
+          ))}
+        </ul>
+
+        <div class="price-cta-beam">
+          <a href="#form" class="price-cta">
+            <span class="liquid" aria-hidden="true"></span>
+            <span class="price-cta-t">Unirme al Bitcoin Masterclass</span>
+          </a>
+        </div>
+
+        <p class="price-guarantee">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+          <span><span class="price-guarantee-key">Garantía de 15 días</span> · Si no es para vos, te devolvemos el 100%</span>
+        </p>
+
+        <div class="price-badges">
+          <span class="price-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            Pago 100% seguro
+          </span>
+
+          <a class="price-badge" href="https://web.kribatta.com/" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>
+              <path d="m9 12 2 2 4-4"/>
+            </svg>
+            <span class="incl-link">Kribatta</span>, regulado por SUGEF
+          </a>
+
+          <span class="price-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/>
+              <path d="m9 12 2 2 4-4"/>
+            </svg>
+            Acceso de por vida
+          </span>
+
+          <span class="price-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+              <line x1="4" x2="4" y1="22" y2="15"/>
+            </svg>
+            Comunidad en Costa Rica
+          </span>
+        </div>
+      </div>
+
+      <!-- Capa DELANTE de la card: partículas con sin(angle) >= 0 (parte inferior de la órbita) -->
+      <canvas class="precio-ring-front" aria-hidden="true"></canvas>
+    </div>
+  </div>
+</section>
+
+<style>
+.precio {
+  position: relative;
+  z-index: 10;
+  overflow: hidden;
+  background: #050506;
+  padding: 30px 0 34px;
+}
+
+/* ---- Spotlight (foco desde arriba) ---- */
+.precio-spotlight {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1s ease;
+  background: radial-gradient(ellipse 55% 45% at 50% -5%, rgba(247,147,26,0.10), transparent 70%);
+}
+.precio.in .precio-spotlight { opacity: 1; }
+
+.precio .wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ---- Stage: contexto de apilado del Saturno ---- */
+.precio-stage {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Padding suficiente para que el anillo (que cruza por encima/debajo de la card) no se
+     recorte contra los bordes del canvas, sin dejar la sección demasiado alta y vacía.
+     El anillo queda contenido dentro del alto de la card (su extremo vertical no llega al
+     borde superior/inferior), así que 30px dan margen de sobra sin recortarlo. */
+  padding: 30px 0;
+}
+
+/* Las dos capas del anillo. La card va en medio (z-index:2). */
+.precio-ring-back,
+.precio-ring-front {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  transform: translateZ(0);
+}
+@supports not (mix-blend-mode: screen) {
+  .precio-ring-back,
+  .precio-ring-front { opacity: 0.8; }
+}
+.precio-ring-back  { z-index: 1; }
+.precio-ring-front { z-index: 3; }
+
+/* ---- Card de precio (el planeta) ---- */
+.price-card {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 460px;
+  margin: 0 auto;
+  padding: 40px;
+  border-radius: 28px;
+  background: var(--bg-glass);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(247,147,26,0.4);
+  box-shadow: var(--shadow-card), 0 0 45px rgba(247,147,26,0.18);
+  text-align: center;
+  /* Entrada: scale 0.92 -> 1 con ease tipo back.out(1.4) */
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity 0.6s var(--ease-out), transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Glow naranja general del borde/card, con latido coordinado. Convive con el border beam
+     (.price-card::before), que va por encima y no se toca. */
+  animation: cardGlow 2.5s ease-in-out infinite alternate;
+}
+@keyframes cardGlow {
+  from { box-shadow: var(--shadow-card), 0 0 30px rgba(247,147,26,0.10); }
+  to   { box-shadow: var(--shadow-card), 0 0 55px rgba(247,147,26,0.30); }
+}
+.precio.in .price-card { opacity: 1; transform: none; }
+
+/* Border beam: haz cónico que recorre el borde (el anillo capturando luz de estrella).
+   @property permite animar el ángulo. En navegadores sin @property degrada a un
+   borde con gradiente cónico estático (aceptable). */
+@property --beam-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+.price-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: 5;
+  pointer-events: none;
+  border-radius: inherit;
+  padding: 1.5px;
+  /* Segmento brillante con núcleo casi blanco (#FFFFFF a #FFE0B0) en el pico, envuelto en
+     naranja Bitcoin. Franja brillante ensanchada para que el punto de luz se lea claro. */
+  background: conic-gradient(from var(--beam-angle, 0deg),
+    transparent 58%,
+    rgba(247,147,26,0.55) 74%,
+    #FFB347 83%,
+    #FFE0B0 88.5%,
+    #FFFFFF 90.5%,
+    #FFE0B0 92.5%,
+    #FFB347 97%,
+    transparent 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          mask-composite: exclude;
+  animation: beam 4s linear infinite;
+}
+/* Glow del beam: copia desenfocada y ensanchada que viaja sincronizada con ::before,
+   proyectando un resplandor alrededor del punto brillante (mismo --beam-angle, misma fase). */
+.price-card::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  z-index: 4;
+  pointer-events: none;
+  border-radius: inherit;
+  padding: 4px;
+  background: conic-gradient(from var(--beam-angle, 0deg),
+    transparent 70%,
+    rgba(247,147,26,0.5) 82%,
+    rgba(255,224,176,0.95) 90%,
+    rgba(247,147,26,0.5) 98%,
+    transparent 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          mask-composite: exclude;
+  filter: blur(5px);
+  opacity: 0.85;
+  animation: beam 4s linear infinite;
+}
+@keyframes beam { to { --beam-angle: 360deg; } }
+
+.price-card .eyebrow { margin-bottom: 18px; }
+
+/* ---- Precio viejo (tachado animado) ---- */
+.price-old {
+  display: block;
+  font: 500 22px/1 var(--font-mono);
+  color: var(--txt-low);
+  margin: 0;
+}
+.price-old-amt { position: relative; display: inline-block; }
+.price-old-amt::after {
+  content: '';
+  position: absolute;
+  left: -2px;
+  top: 50%;
+  height: 2px;
+  width: 0;
+  background: #F7931A;
+  transform: translateY(-50%);
+  transition: width 0.4s var(--ease-out) 0.5s;
+}
+.precio.in .price-old-amt::after { width: calc(100% + 4px); }
+
+/* ---- Precio nuevo (pulso glow al aparecer) ---- */
+.price-new {
+  font: 600 clamp(3.5rem, 7vw, 5rem)/1 var(--font-mono);
+  color: #fff;
+  letter-spacing: -0.02em;
+  margin: 8px 0 6px;
+}
+.precio.in .price-new { animation: pricePulse 0.5s var(--ease-out) 0.7s both; }
+@keyframes pricePulse {
+  from { text-shadow: 0 0 30px rgba(247,147,26,0.85); }
+  to   { text-shadow: 0 0 0 rgba(247,147,26,0); }
+}
+
+/* Ancla de valor: el contenido vale +$1,000, pagás $97. Discreta, no compite con el $97
+   ni con la línea naranja. Mono chica, color tenue, centrada, sin glow. */
+.price-anchor {
+  font: 500 12px/1.3 var(--font-mono);
+  color: var(--txt-low);
+  letter-spacing: 0.02em;
+  margin: 0 0 8px;
+}
+
+.price-support {
+  font: 500 12px/1.3 var(--font-mono);
+  color: var(--btc);
+  letter-spacing: 0.02em;
+  margin: 0;
+  /* Glow naranja con latido coordinado (2.5s). Doble capa (cercana intensa + amplia) para
+     que el texto naranja claramente irradie luz, sin caer en lo chillón. */
+  text-shadow: 0 0 9px rgba(247,147,26,0.8), 0 0 18px rgba(247,147,26,0.5);
+  animation: supportGlow 2.5s ease-in-out infinite alternate;
+}
+@keyframes supportGlow {
+  from { text-shadow: 0 0 10px rgba(247,147,26,0.6),  0 0 18px rgba(247,147,26,0.4); }
+  to   { text-shadow: 0 0 20px rgba(247,147,26,0.95), 0 0 34px rgba(247,147,26,0.62); }
+}
+
+.price-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.08);
+  margin: 24px 0 20px;
+}
+
+/* ---- 6 incluidos ---- */
+.price-incl {
+  list-style: none;
+  margin: 0 0 24px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+}
+.price-incl li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font: 400 14px/1.4 var(--font-body);
+  color: #D5DAE1;
+}
+/* "Kribatta" como link naranja, visualmente distinguible (color + subrayado sutil). */
+.incl-link {
+  color: var(--btc);
+  text-decoration: underline;
+  text-decoration-color: rgba(247,147,26,0.45);
+  text-underline-offset: 2px;
+  font-weight: 600;
+  transition: text-decoration-color 0.3s ease, color 0.3s ease;
+}
+.incl-link:hover { text-decoration-color: var(--btc); }
+/* El <a> "Kribatta" de la lista de incluidos se inyecta vía set:html y NO recibe el
+   atributo de scope de Astro, así que el .incl-link scopeado no lo alcanza (quedaba en el
+   gris heredado del ítem, sin subrayado). Regla :global() bajo .price-incl, con la
+   especificidad del descendiente para ganarle al color del texto del ítem. */
+.price-incl :global(.incl-link) {
+  color: var(--btc);
+  text-decoration: underline;
+  text-decoration-color: rgba(247,147,26,0.45);
+  text-underline-offset: 2px;
+  font-weight: 600;
+  transition: text-decoration-color 0.3s ease, color 0.3s ease;
+}
+.price-incl :global(.incl-link:hover) { text-decoration-color: var(--btc); }
+
+.price-incl svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--btc);
+  /* Glow naranja solo en los checks (no en el texto del item), latido coordinado.
+     Doble drop-shadow apilado: el stroke fino del check tiene poca superficie, así que
+     reforzamos con una capa cercana intensa + una más amplia para que cada ✓ se vea encendido. */
+  filter: drop-shadow(0 0 6px rgba(247,147,26,0.9)) drop-shadow(0 0 10px rgba(247,147,26,0.55));
+  animation: iconGlow 2.5s ease-in-out infinite alternate;
+}
+/* Glow compartido por los iconos de checks y badges, para un ritmo coordinado */
+@keyframes iconGlow {
+  from { filter: drop-shadow(0 0 5px rgba(247,147,26,0.7))  drop-shadow(0 0 8px rgba(247,147,26,0.45)); }
+  to   { filter: drop-shadow(0 0 8px rgba(247,147,26,1))    drop-shadow(0 0 13px rgba(247,147,26,0.7)); }
+}
+
+/* ---- CTA liquid glass + breathing glow ---- */
+.price-cta {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 16px 24px;
+  border-radius: 999px;
+  border: 1.5px solid #F7931A;
+  background: rgba(247,147,26,0.15);
+  color: #fff;
+  font: 600 15px/1 var(--font-body);
+  text-decoration: none;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 0 24px -4px rgba(247,147,26,.45);
+  transition: transform 0.25s ease, border-color 0.3s ease, background 0.3s ease;
+  animation: ctaBreathe 2.5s ease-in-out infinite alternate;
+}
+.price-cta:hover { transform: translateY(-2px); background: rgba(247,147,26,0.22); }
+.price-cta-t { position: relative; z-index: 3; }
+.price-cta .liquid {
+  position: absolute;
+  left: var(--mx, 50%);
+  top: var(--my, 50%);
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255,255,255,.5), rgba(255,255,255,0) 60%);
+  filter: blur(8px);
+  opacity: 0;
+  transition: opacity 0.35s;
+  pointer-events: none;
+  z-index: 2;
+  mix-blend-mode: screen;
+}
+.price-cta:hover .liquid { opacity: 0.9; }
+@keyframes ctaBreathe {
+  0%   { box-shadow: inset 0 1px 0 rgba(255,255,255,.40), 0 0 12px rgba(247,147,26,0.30); }
+  100% { box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 0 28px rgba(247,147,26,0.70); }
+}
+
+/* Border beam del CTA: misma implementación EXACTA que la card (conic-gradient + @property +
+   máscara xor, inset:-1px), pero sobre un wrapper SIN overflow:hidden. El botón conserva su
+   overflow:hidden para clipear el blob liquid; ese overflow recortaba el ::before del botón a su
+   borde-box y, sumado a que el beam quedaba dentro del borde naranja sólido (mismo color), hacía
+   que el punto brillante girara camuflado y se leyera estático. Llevándolo al wrapper, el beam va
+   a inset:-1px straddleando el borde sobre el fondo oscuro (igual que la card) y se ve viajar.
+   Variable propia --beam-angle-cta + duración 3.2s para desincronizar de la card. El breathing
+   glow del botón queda intacto (vive en .price-cta, no se toca). */
+.price-cta-beam {
+  position: relative;
+  display: block;
+  width: 100%;
+  border-radius: 999px;
+}
+@property --beam-angle-cta {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+.price-cta-beam::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: 4;
+  pointer-events: none;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(from var(--beam-angle-cta, 0deg),
+    transparent 58%,
+    rgba(247,147,26,0.55) 74%,
+    #FFB347 83%,
+    #FFE0B0 88.5%,
+    #FFFFFF 90.5%,
+    #FFE0B0 92.5%,
+    #FFB347 97%,
+    transparent 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          mask-composite: exclude;
+  animation: beamCta 3.2s linear infinite;
+}
+@keyframes beamCta { to { --beam-angle-cta: 360deg; } }
+
+/* ---- Garantía (sello de confianza en texto, bajo el CTA) ----
+   Texto libre sin caja (no debe leerse como botón). Escudo naranja + "Garantía de 15 días"
+   en naranja; el resto en gris claro legible. Centrado. */
+.price-guarantee {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  margin: 16px 0 0;
+  font: 400 11px/1.4 var(--font-mono);
+  color: #C2C8D0;
+  text-align: center;
+}
+.price-guarantee svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  color: var(--btc);
+  filter: drop-shadow(0 0 5px rgba(247,147,26,0.6));
+}
+.price-guarantee-key {
+  color: var(--btc);
+  font-weight: 600;
+}
+
+/* ---- 4 badges ---- */
+.price-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 14px;
+  margin-top: 20px;
+}
+.price-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font: 400 10px/1.2 var(--font-mono);
+  letter-spacing: 0.02em;
+  color: rgba(255,255,255,0.5);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+.price-badge svg {
+  width: 12px; height: 12px; flex-shrink: 0; color: var(--btc);
+  /* Glow naranja en los iconos de badge (lock, shield-check, badge-check, flag), mismo ritmo
+     que los checks. Stroke fino + icono chico: doble drop-shadow para que brillen visiblemente. */
+  filter: drop-shadow(0 0 6px rgba(247,147,26,0.95)) drop-shadow(0 0 10px rgba(247,147,26,0.6));
+  animation: iconGlow 2.5s ease-in-out infinite alternate;
+}
+a.price-badge:hover { color: rgba(255,255,255,0.85); }
+
+/* ---- Mobile ---- */
+@media (max-width: 768px) {
+  .precio { padding: 22px 0 28px; }
+  .precio .wrap { padding: 0 16px; }
+  .precio-stage { padding: 26px 0; }
+  .price-card { max-width: 340px; padding: 28px 20px; border-radius: 22px; }
+  .price-new { font-size: clamp(3rem, 14vw, 3.6rem); }
+  .price-incl li { font-size: 13px; }
+  .price-cta { font-size: 14px; padding: 14px 20px; }
+
+  /* Badges en grilla 2x2: cada uno en su celda, alineados y centrados. Cuadrícula con
+     líneas divisorias apenas perceptibles (blanco alpha bajo) que separan los 4 sin
+     parecer botones ni cajas llamativas. */
+  .price-badges {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    margin-top: 22px;
+  }
+  .price-badge {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    padding: 12px 8px;
+  }
+  .price-badges > :nth-child(1) {
+    border-right: 1px solid rgba(255,255,255,0.10);
+    border-bottom: 1px solid rgba(255,255,255,0.10);
+  }
+  .price-badges > :nth-child(2) { border-bottom: 1px solid rgba(255,255,255,0.10); }
+  .price-badges > :nth-child(3) { border-right: 1px solid rgba(255,255,255,0.10); }
+}
+
+/* ---- Reduced motion: sin órbita giratoria, beam fijo, sin pulsos ---- */
+@media (prefers-reduced-motion: reduce) {
+  .price-card { opacity: 1; transform: none; }
+  .price-old-amt::after { width: calc(100% + 4px); transition: none; }
+  .price-new { animation: none; text-shadow: none; }
+  .price-cta { animation: none; }
+  .precio-spotlight { opacity: 1; transition: none; }
+  /* Beam fijo (gradiente estático, sin viajar) en card y botón */
+  .price-card::before,
+  .price-card::after,
+  .price-cta-beam::before { animation: none; }
+  /* Glows naranjas presentes pero fijos (sin latido) */
+  .price-card { animation: none; box-shadow: var(--shadow-card), 0 0 45px rgba(247,147,26,0.20); }
+  .price-support { animation: none; text-shadow: 0 0 16px rgba(247,147,26,0.85), 0 0 28px rgba(247,147,26,0.55); }
+  .price-incl svg { animation: none; filter: drop-shadow(0 0 7px rgba(247,147,26,0.95)) drop-shadow(0 0 11px rgba(247,147,26,0.6)); }
+  .price-badge svg { animation: none; filter: drop-shadow(0 0 7px rgba(247,147,26,0.95)) drop-shadow(0 0 11px rgba(247,147,26,0.6)); }
+}
+</style>
+
+<script is:inline>
+(function () {
+  const root = document.querySelector('#precio');
+  if (!root) return;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---- Entrada (IntersectionObserver + CSS choreography; GSAP opportunistic) ---- */
+  const enterObs = new IntersectionObserver((entries, o) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { root.classList.add('in'); o.unobserve(e.target); }
+    });
+  }, { threshold: reduce ? 0 : 0.35 });
+  enterObs.observe(root);
+
+  /* ---- CTA: blob liquid glass que sigue el puntero + hook de Pixel diferido ---- */
+  const cta = root.querySelector('.price-cta');
+  if (cta) {
+    cta.addEventListener('pointermove', e => {
+      const r = cta.getBoundingClientRect();
+      cta.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      cta.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    });
+    cta.addEventListener('click', () => {
+      // TODO Pixel: track('InitiateCheckout')  (pixel.ts aún no existe; no disparar)
+    });
+  }
+
+  /* ---- Anillo Saturno: 2 canvas apilados, 1 sola animación/RAF/array ---- */
+  const stage  = root.querySelector('.precio-stage');
+  const card   = root.querySelector('.price-card');
+  const cvBack = root.querySelector('.precio-ring-back');
+  const cvFront= root.querySelector('.precio-ring-front');
+  if (!stage || !card || !cvBack || !cvFront) return;
+  const ctxBack  = cvBack.getContext('2d');
+  const ctxFront = cvFront.getContext('2d');
+  if (!ctxBack || !ctxFront) return;
+
+  const DPR  = Math.min(window.devicePixelRatio || 1, 1.5);
+  const TILT = 15 * Math.PI / 180;           // anillo visto en ángulo (Saturno)
+  const cosT = Math.cos(TILT), sinT = Math.sin(TILT);
+
+  let W = 0, H = 0, cx = 0, cy = 0, rx = 320, ry = 180;
+  let isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+  /* Sprite naranja pre-renderizado (glow horneado, evita shadowBlur por partícula) */
+  const S = 32;
+  const sprite = document.createElement('canvas');
+  sprite.width = sprite.height = S;
+  const sc = sprite.getContext('2d');
+  const sg = sc.createRadialGradient(S/2, S/2, 0, S/2, S/2, S/2);
+  sg.addColorStop(0, 'rgba(255,200,120,1)');
+  sg.addColorStop(0.4, 'rgba(247,147,26,0.65)');
+  sg.addColorStop(1, 'rgba(247,147,26,0)');
+  sc.fillStyle = sg;
+  sc.fillRect(0, 0, S, S);
+
+  /* ---- Planeta ₿: logo Bitcoin del repo, dibujado en el canvas TRASERO (detrás de la card),
+     centrado en el mismo centro que el anillo. Giro falso-3D por scaleX + glow naranja que late. */
+  const btc = new Image();
+  let btcReady = false;
+  let planetW = 0, planetH = 0, glowR = 0, glowGrad = null;
+  btc.onload = () => {
+    btcReady = true;
+    resize();              // recalcular dimensiones del planeta con el ratio real
+    if (reduce) render();  // pintar el frame estático ahora que la imagen llegó
+  };
+  btc.src = '/bitcoin-orange.png';
+
+  let rotPhase = 0;   // fase de rotación: scaleX = cos(rotPhase). Inicia en 1 (cara frontal)
+  let glowPhase = 0;  // fase del latido del glow
+  const ROT_SPEED  = 0.36;  // ~17 s por vuelta completa (contemplativo)
+  const GLOW_SPEED = 1.5;   // latido del resplandor (~4 s)
+
+  let parts = [];
+  function buildParts() {
+    // Stream denso: suficientes para que el trazo de la elipse se lea continuo.
+    const COUNT = isMobile ? 56 : 110;
+    parts = [];
+    for (let i = 0; i < COUNT; i++) {
+      parts.push({
+        // distribución uniforme sobre el perímetro + jitter angular mínimo
+        angle: (i / COUNT) * Math.PI * 2 + (Math.random() - 0.5) * 0.12,
+        speed: 0.3 + Math.random() * 0.3,   // 0.3 - 0.6 rad/s (stream no uniforme)
+        size:  1.6 + Math.random() * 1.4,   // 1.6 - 3px (textura)
+        jit:   (Math.random() * 2 - 1) * 6, // ±6px radial: grosor orgánico SOBRE el trazo
+        bri:   0.85 + Math.random() * 0.15, // leve variación de brillo
+      });
+    }
+  }
+
+  function resize() {
+    isMobile = window.matchMedia('(max-width: 768px)').matches;
+    W = stage.offsetWidth;
+    H = stage.offsetHeight;
+    cvBack.width  = cvFront.width  = Math.floor(W * DPR);
+    cvBack.height = cvFront.height = Math.floor(H * DPR);
+    ctxBack.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctxFront.setTransform(DPR, 0, 0, DPR, 0, 0);
+    cx = card.offsetLeft + card.offsetWidth / 2;
+    cy = card.offsetTop  + card.offsetHeight / 2;
+    // Elipse ceñida a la card: rx un poco mayor que su media-anchura (bordes apenas por
+    // fuera), ry según la altura para cruzar visible por encima (detrás) y por debajo (delante).
+    const cw = card.offsetWidth, ch = card.offsetHeight;
+    if (isMobile) { rx = cw * 0.60; ry = ch * 0.34; }
+    else          { rx = cw * 0.62; ry = ch * 0.38; }
+    if (!parts.length) buildParts();
+
+    // Planeta ₿: alto ~la mitad de la card, centrado en la zona media (precio arriba y CTA
+    // abajo despejados). El ancho sigue el ratio real del logo. Glow contenido alrededor del
+    // glifo (no un halo gigante que invada precio/CTA).
+    if (btcReady) {
+      const ratio = btc.naturalWidth / btc.naturalHeight || 0.73;
+      planetH = ch * (isMobile ? 0.42 : 0.46);
+      planetW = planetH * ratio;
+      glowR   = planetW * 0.85;
+      glowGrad = ctxBack.createRadialGradient(0, 0, 0, 0, 0, glowR);
+      glowGrad.addColorStop(0,    'rgba(247,147,26,0.40)');
+      glowGrad.addColorStop(0.45, 'rgba(247,147,26,0.16)');
+      glowGrad.addColorStop(1,    'rgba(247,147,26,0)');
+    }
+  }
+
+  /* Planeta ₿ + glow: se dibuja en ctxBack ANTES de las partículas traseras (planeta al fondo,
+     partículas encima). El glow no rota (círculo estable); el glifo sí (scaleX = cos(rotPhase)). */
+  function drawPlanet() {
+    if (!btcReady || !glowGrad) return;
+    // Glow naranja que late (modulado por globalAlpha, no recreando el gradiente)
+    const pulse = 0.5 + 0.5 * Math.sin(glowPhase);   // 0..1
+    // En mobile la card es casi del ancho del viewport: atenuamos para no lavar el texto.
+    const aMul = isMobile ? 0.62 : 1;
+    ctxBack.save();
+    ctxBack.translate(cx, cy);
+    ctxBack.globalAlpha = (0.16 + 0.16 * pulse) * aMul; // resplandor sube y baja (tenue)
+    ctxBack.fillStyle = glowGrad;
+    ctxBack.beginPath();
+    ctxBack.arc(0, 0, glowR, 0, Math.PI * 2);
+    ctxBack.fill();
+    // Glifo ₿: scaleX = cos(rotPhase). |sx|->0 = de canto; sx<0 = cara trasera (espejada)
+    const sx = Math.cos(rotPhase);
+    // Glifo más chico: subimos un poco el alpha para que se reconozca (visibilidad por opacidad,
+    // no por tamaño). Sigue siendo secundario al texto.
+    ctxBack.globalAlpha = (0.24 + 0.10 * Math.abs(sx)) * aMul;
+    ctxBack.scale(sx, 1);
+    ctxBack.drawImage(btc, -planetW / 2, -planetH / 2, planetW, planetH);
+    ctxBack.restore();
+    ctxBack.globalAlpha = 1;
+  }
+
+  function drawSprite(ctx, x, y, size, alpha) {
+    const d = size * 4;
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(sprite, x - d / 2, y - d / 2, d, d);
+  }
+
+  /* ---- Rayos eléctricos: arcos quebrados que salen del planeta ₿ y "cargan" una partícula
+     del anillo. Concepto adaptado de las grietas del laser de Modulos (SVG+CSS) a Canvas 2D:
+     path segmentado con offset perpendicular aleatorio + núcleo claro + halo naranja + flash
+     con decay rápido. El destino puede ser cualquier partícula del anillo; cada rayo se dibuja
+     en el canvas que respeta su profundidad (front z3 sobre la card / back z1 detras). */
+  let tNow = 0;
+  let bolts = [];
+  let nextBoltAt = 0;
+
+  function makeBoltGeom(ox, oy, tx, ty) {
+    const segs = isMobile ? 6 : 8;
+    const dx = tx - ox, dy = ty - oy;
+    const len = Math.hypot(dx, dy) || 1;
+    const px = -dy / len, py = dx / len;           // unitario perpendicular
+    const amp = Math.min(len * 0.18, 34);          // desvío perpendicular máximo
+    const pts = [{ x: ox, y: oy }];
+    for (let i = 1; i < segs; i++) {
+      const t = i / segs;
+      const taper = Math.sin(t * Math.PI);         // 0 en extremos, 1 al medio
+      const off = (Math.random() * 2 - 1) * amp * taper;
+      pts.push({ x: ox + dx * t + px * off, y: oy + dy * t + py * off });
+    }
+    pts.push({ x: tx, y: ty });
+    // 0-2 ramificaciones cortas desde un vértice intermedio
+    const branches = [];
+    const nb = Math.random() < 0.55 ? 1 : (Math.random() < 0.5 ? 2 : 0);
+    const baseAng = Math.atan2(dy, dx);
+    for (let b = 0; b < nb; b++) {
+      const v = pts[2 + ((Math.random() * (segs - 3)) | 0)];
+      const blen = len * (0.12 + Math.random() * 0.16);
+      const bang = baseAng + (Math.random() * 2 - 1) * 1.1;
+      const bp = [{ x: v.x, y: v.y }];
+      for (let j = 1; j <= 3; j++) {
+        const t = j / 3;
+        bp.push({ x: v.x + Math.cos(bang) * blen * t + (Math.random() * 2 - 1) * 8,
+                  y: v.y + Math.sin(bang) * blen * t + (Math.random() * 2 - 1) * 8 });
+      }
+      branches.push(bp);
+    }
+    return { pts, branches, dur: 150 + Math.random() * 150 };
+  }
+
+  function fireBoltAt(now, tgt) {
+    // origen: sobre la "superficie" del planeta ₿, del lado que mira al destino (radial)
+    const ang = Math.atan2(tgt._y - cy, tgt._x - cx);
+    const r = (planetW || 140) * 0.30;
+    const g = makeBoltGeom(cx + Math.cos(ang) * r, cy + Math.sin(ang) * r, tgt._x, tgt._y);
+    g.start = now;
+    g.front = tgt._front;   // canvas según la profundidad del destino (front z3 / back z1)
+    bolts.push(g);
+  }
+
+  // Estallido de 1-3 rayos hacia partículas en direcciones claramente distintas (sectores
+  // repartidos alrededor de la ₿). El destino puede ser cualquier partícula: arriba o abajo.
+  function spawnBurst(now, count) {
+    if (!parts.length) return;
+    const cand = [];
+    for (let i = 0; i < parts.length; i++) if (parts[i]._x != null) cand.push(parts[i]);
+    if (!cand.length) return;
+    const angOf = p => Math.atan2(p._y - cy, p._x - cx);
+    const base = Math.random() * Math.PI * 2;
+    const chosen = [];
+    for (let k = 0; k < count; k++) {
+      const want = base + k * (Math.PI * 2 / count);   // ángulos repartidos
+      let best = null, bestd = Infinity;
+      for (let i = 0; i < cand.length; i++) {
+        const p = cand[i];
+        if (chosen.indexOf(p) !== -1) continue;
+        // distancia angular a la dirección deseada
+        const d = Math.abs(((angOf(p) - want + Math.PI * 3) % (Math.PI * 2)) - Math.PI);
+        if (d < bestd) { bestd = d; best = p; }
+      }
+      if (best) { chosen.push(best); fireBoltAt(now, best); }
+    }
+  }
+
+  function strokePath(ctx, pts) {
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+    ctx.stroke();
+  }
+
+  function drawOneBolt(ctx, b, now) {
+    const p = (now - b.start) / b.dur;
+    if (p < 0 || p >= 1) return;
+    const a = (1 - p) * (0.7 + 0.3 * Math.random());   // decay + parpadeo eléctrico
+    const depth = b.front ? 1 : 0.6;                   // los de atrás, más tenues (profundidad)
+    // halo naranja
+    ctx.shadowBlur = 12;
+    ctx.globalAlpha = a * 0.6 * depth;
+    ctx.strokeStyle = '#FFB347';
+    ctx.lineWidth = 3;
+    strokePath(ctx, b.pts);
+    for (let j = 0; j < b.branches.length; j++) strokePath(ctx, b.branches[j]);
+    // núcleo claro
+    ctx.shadowBlur = 6;
+    ctx.globalAlpha = a * depth;
+    ctx.strokeStyle = 'rgba(255,240,210,1)';
+    ctx.lineWidth = 1.2;
+    strokePath(ctx, b.pts);
+    for (let j = 0; j < b.branches.length; j++) strokePath(ctx, b.branches[j]);
+  }
+
+  // Cada rayo se dibuja en el canvas que corresponde a la profundidad de su destino:
+  // partícula DELANTE -> ctxFront (z3, sobre la card); partícula DETRAS -> ctxBack (z1, detras).
+  function drawBolts(now) {
+    if (!bolts.length) return;
+    ctxFront.save(); ctxFront.lineCap = 'round'; ctxFront.lineJoin = 'round'; ctxFront.shadowColor = 'rgba(247,147,26,0.9)';
+    ctxBack.save();  ctxBack.lineCap  = 'round'; ctxBack.lineJoin  = 'round'; ctxBack.shadowColor  = 'rgba(247,147,26,0.9)';
+    for (let i = 0; i < bolts.length; i++) {
+      const b = bolts[i];
+      drawOneBolt(b.front ? ctxFront : ctxBack, b, now);
+    }
+    ctxFront.restore(); ctxBack.restore();
+    ctxFront.globalAlpha = 1; ctxBack.globalAlpha = 1;
+    ctxFront.shadowBlur = 0;  ctxBack.shadowBlur = 0;
+  }
+
+  function render() {
+    ctxBack.clearRect(0, 0, W, H);
+    ctxFront.clearRect(0, 0, W, H);
+    drawPlanet();   // planeta primero -> las partículas traseras quedan encima de él
+    for (let i = 0; i < parts.length; i++) {
+      const p = parts[i];
+      const ca = Math.cos(p.angle), sa = Math.sin(p.angle);
+      // SOBRE el trazo de la elipse, con jitter radial mínimo para grosor orgánico.
+      // elipse inclinada 15°: rota el offset por TILT.
+      const ox = ca * (rx + p.jit), oy = sa * (ry + p.jit);
+      const x = cx + ox * cosT - oy * sinT;
+      const y = cy + ox * sinT + oy * cosT;
+      // profundidad: sin >= 0 -> DELANTE (abajo, brillante); sin < 0 -> DETRÁS (arriba, tenue)
+      const front = sa >= 0;
+      const ctx   = front ? ctxFront : ctxBack;
+      const alpha = (front ? (0.5 + 0.3 * sa) : 0.15) * p.bri;
+      const size  = p.size * (front ? 1.1 : 0.8);
+      drawSprite(ctx, x, y, size, alpha);
+      // guardar posición/profundidad para que los rayos puedan apuntarle
+      p._x = x; p._y = y; p._front = front;
+    }
+    drawBolts(tNow);   // rayos: front (z3) o back (z1) según la profundidad del destino
+    ctxBack.globalAlpha = 1;
+    ctxFront.globalAlpha = 1;
+  }
+
+  let raf = null, running = false, last = 0;
+  function tick(now) {
+    if (!running) return;
+    const dt = last ? Math.min((now - last) / 1000, 0.05) : 0.016;
+    last = now;
+    tNow = now;
+    for (let i = 0; i < parts.length; i++) parts[i].angle += parts[i].speed * dt;
+    rotPhase  += ROT_SPEED  * dt;   // giro lento del planeta
+    glowPhase += GLOW_SPEED * dt;   // latido del glow
+    // Rayos esporádicos: un evento cada ~1.5-3s. Por evento sale 1, 2 o 3 rayos con
+    // probabilidad IGUAL (~33% cada uno), en direcciones distintas: estallido radial desde la ₿.
+    if (nextBoltAt === 0) nextBoltAt = now + 900;
+    if (now >= nextBoltAt) {
+      const r = Math.random();
+      spawnBurst(now, r < 1 / 3 ? 1 : (r < 2 / 3 ? 2 : 3));
+      nextBoltAt = now + 1500 + Math.random() * 1500;
+    }
+    if (bolts.length) bolts = bolts.filter(b => now - b.start < b.dur);
+    render();
+    raf = requestAnimationFrame(tick);
+  }
+  function start() { if (running) return; running = true; last = 0; nextBoltAt = 0; bolts = []; raf = requestAnimationFrame(tick); }
+  function stop()  { running = false; if (raf) cancelAnimationFrame(raf); raf = null; }
+
+  resize();
+  window.addEventListener('resize', () => { resize(); if (reduce) render(); }, { passive: true });
+  // La altura de la card cambia al cargar las fuentes: recalcular centro/elipse.
+  window.addEventListener('load', () => { resize(); if (reduce) render(); });
+
+  if (reduce) {
+    if (!parts.length) buildParts();
+    render();          // partículas estáticas, sin girar
+    return;
+  }
+
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) start(); else stop(); });
+  }, { rootMargin: '200px' });
+  obs.observe(root);
+})();
+</script>
