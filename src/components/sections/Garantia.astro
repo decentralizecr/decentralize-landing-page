@@ -1,0 +1,375 @@
+---
+// Sección 10 — Garantía · escudo de energía / force field planetario (CSS + SVG, sin Canvas)
+// Sección de "respiro" tras Precio: fondo --bg-deep, contenido centrado, sin cards ni botones.
+// Núcleo: escudo shield-check (Lucide) con stroke-draw al entrar en viewport. Alrededor, un
+// DOMO esférico de fuerza que respira como un organismo de luz: malla hexagonal con máscara
+// radial (limb brightening), rim-glow, sheen 3D y un GLOW EXTERIOR que irradia hacia afuera.
+// Todo el brillo late SINCRONIZADO vía una variable animada compartida (--breath), y sube y
+// queda fijo en alto mientras se presiona el domo (--press, press-and-hold). Radiowaves: una
+// onda automática cada ~1s + una onda on-demand por cada click/tap (spans autodestruidos).
+// Performance: CSS/SVG + JS mínimo (IntersectionObserver, press-hold, spawn de ondas). 0 canvas.
+// Copy oficial: 15 días, 100% del dinero. Voseo. Links email + Instagram en naranja --btc.
+---
+
+<section id="garantia" class="garantia">
+  <div class="g-wrap">
+    <span class="eyebrow">Garantía</span>
+
+    <div class="shield-stage" aria-hidden="true">
+      <!-- Glow exterior: resplandor naranja que irradia HACIA AFUERA del borde (respira) -->
+      <span class="ff-glow"></span>
+
+      <!-- Domo de fuerza: malla hexagonal esférica (máscara radial = brillo de borde) -->
+      <svg class="ff-hex" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <pattern id="g-hex" width="56" height="100" patternUnits="userSpaceOnUse" patternTransform="scale(0.42)">
+            <path d="M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100" fill="none" stroke="#F7931A" stroke-width="2"/>
+            <path d="M28 0L28 34L0 50L0 84L28 100L56 84L56 50L28 34" fill="none" stroke="#F7931A" stroke-width="2"/>
+          </pattern>
+          <radialGradient id="g-hexfade" cx="50%" cy="50%" r="50%">
+            <stop offset="0%"   stop-color="#fff" stop-opacity="0.04"/>
+            <stop offset="55%"  stop-color="#fff" stop-opacity="0.12"/>
+            <stop offset="82%"  stop-color="#fff" stop-opacity="0.42"/>
+            <stop offset="94%"  stop-color="#fff" stop-opacity="0.62"/>
+            <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+          </radialGradient>
+          <mask id="g-hexmask">
+            <circle cx="100" cy="100" r="100" fill="url(#g-hexfade)"/>
+          </mask>
+        </defs>
+        <circle cx="100" cy="100" r="100" fill="url(#g-hex)" mask="url(#g-hexmask)"/>
+      </svg>
+
+      <!-- Sheen: luz especular arriba-izquierda para dar volumen de esfera -->
+      <span class="ff-sheen"></span>
+      <!-- Rim-glow: anillo de luz en la circunferencia del domo -->
+      <span class="ff-rim"></span>
+      <!-- Contenedor de ondas (radiowaves): los spans se generan/destruyen por JS -->
+      <span class="ff-waves"></span>
+      <!-- Pulso único de activación tras dibujarse el escudo -->
+      <span class="ff-pulse"></span>
+
+      <!-- Escudo shield-check (Lucide), núcleo con stroke-draw -->
+      <svg class="shield" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path class="s-outline" pathLength="1"
+          d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>
+        <path class="s-check" pathLength="1" d="m9 12 2 2 4-4"/>
+      </svg>
+
+      <!-- Zona interactiva circular (press-hold + onda on-demand). Transparente, encima de todo. -->
+      <span class="ff-hit"></span>
+    </div>
+
+    <h2 class="g-title">15 días de garantía. Sin riesgo.</h2>
+
+    <p class="g-copy">
+      Explorá el contenido, mirá las clases y tomate el tiempo para decidir. Si sentís que el
+      curso no es para vos, te devolvemos el 100% de tu dinero.
+    </p>
+
+    <p class="g-contact">
+      Escribinos a
+      <a class="g-link" href="mailto:admin@decentralizecr.com">admin@decentralizecr.com</a>
+      o por Instagram
+      <a class="g-link" href="https://instagram.com/decentralizecr" target="_blank" rel="noopener noreferrer">@decentralizecr</a>.
+    </p>
+  </div>
+</section>
+
+<style>
+/* Brillo compartido del domo. --breath late en loop (animación); --press sube y mantiene fijo
+   el brillo mientras se presiona (transición). Cada capa deriva su opacidad/glow de ambos, así
+   TODO late sincronizado y TODO sube junto al presionar. Patrón @property ya usado en Precio. */
+@property --breath { syntax: '<number>'; inherits: true; initial-value: 0; }
+@property --press  { syntax: '<number>'; inherits: true; initial-value: 0; }
+
+.garantia {
+  position: relative;
+  z-index: 10;
+  overflow: hidden;
+  background: var(--bg-deep);
+  padding: 4px 0;
+}
+
+.g-wrap {
+  position: relative;
+  z-index: 1;
+  min-height: 46vh;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 10px 24px;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  text-align: center;
+  gap: 18px;
+}
+
+/* ---- Stage del escudo + domo de fuerza ---- */
+.shield-stage {
+  --dome: clamp(220px, 64vw, 320px);
+  position: relative;
+  width: var(--dome);
+  height: var(--dome);
+  display: grid;
+  place-items: center;
+  /* Respiración compartida: --breath 0->1->0. --press transiciona suave al prender/soltar. */
+  animation: ffBreathe 3.6s ease-in-out infinite;
+  /* El domo entero (todas las capas + escudo) se acerca como UNA pieza al hover/press: el
+     transform va al CONTENEDOR PADRE, no a las capas, así escalan solidarias (el hex grid no
+     hace zoom propio). perspective + translateZ = sensación 3D de "dar un paso al frente". */
+  transform: perspective(700px) translateZ(0);
+  transform-origin: center;
+  transition: --press 0.45s ease, transform 0.35s var(--ease-out);
+  will-change: transform;
+}
+@keyframes ffBreathe { 0%, 100% { --breath: 0; } 50% { --breath: 1; } }
+.shield-stage > * { grid-area: 1 / 1; }   /* capas apiladas y centradas */
+/* Acercamiento solidario: hover (desktop) y press (desktop/mobile). .pressed va después de
+   :hover para ganar cuando ambos están activos (misma especificidad, decide el orden). */
+.shield-stage:hover   { transform: perspective(700px) translateZ(26px); }
+.shield-stage.pressed { --press: 1; transform: perspective(700px) translateZ(34px); }
+
+/* Glow exterior: box-shadow naranja que sobresale del círculo. Su opacidad late con --breath
+   y sube fijo con --press (burbuja de energía irradiando luz hacia afuera). */
+.ff-glow {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow:
+    0 0 60px 8px  rgba(247,147,26,0.45),
+    0 0 120px 28px rgba(247,147,26,0.22);
+  opacity: calc((0.26 + 0.40 * var(--breath)) * (1 - var(--press)) + 0.92 * var(--press));
+}
+
+/* Domo hexagonal (malla esférica). Las líneas suben de brillo en el pico del pulso. */
+.ff-hex {
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: calc((0.60 + 0.40 * var(--breath)) * (1 - var(--press)) + 1 * var(--press));
+}
+
+/* Sheen: realce especular para que la malla lea como superficie esférica, no plana */
+.ff-sheen {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 36% 30%, rgba(255,206,140,0.12), transparent 40%),
+    radial-gradient(circle at 50% 50%, transparent 62%, rgba(247,147,26,0.05) 86%, transparent 100%);
+}
+
+/* Rim-glow: anillo de luz en el borde del domo, late con el conjunto */
+.ff-rim {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  pointer-events: none;
+  border: 1px solid rgba(247,147,26,0.30);
+  box-shadow:
+    inset 0 0 24px rgba(247,147,26,0.22),
+    inset 0 0 6px  rgba(247,147,26,0.32),
+    0 0 26px rgba(247,147,26,0.20);
+  opacity: calc((0.35 + 0.55 * var(--breath)) * (1 - var(--press)) + 1 * var(--press));
+}
+
+/* ---- Radiowaves: ondas que emanan del centro (auto ~1s + on-demand al click) ---- */
+.ff-waves { width: 100%; height: 100%; pointer-events: none; position: relative; }
+.ff-waves .wave {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 56%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1px solid rgba(247,147,26,0.5);
+  transform: translate(-50%, -50%) scale(0.32);
+  opacity: 0;
+  animation: ffWave 1.7s ease-out forwards;
+}
+@keyframes ffWave {
+  0%   { transform: translate(-50%, -50%) scale(0.32); opacity: 0; }
+  10%  { opacity: 0.55; }
+  100% { transform: translate(-50%, -50%) scale(2.2); opacity: 0; }
+}
+
+/* Pulso de activación: una sola onda al terminar de dibujarse el escudo */
+.ff-pulse {
+  width: 58%;
+  height: 58%;
+  border-radius: 50%;
+  border: 1.5px solid rgba(247,147,26,0.5);
+  opacity: 0;
+  pointer-events: none;
+}
+.garantia.in .ff-pulse { animation: ffPulse 0.8s var(--ease-out) 1.6s forwards; }
+@keyframes ffPulse {
+  0%   { transform: scale(0.4); opacity: 0; }
+  20%  { opacity: 0.9; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* Zona interactiva: círculo transparente que captura el press-hold y el click on-demand */
+.ff-hit {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  pointer-events: auto;
+  cursor: pointer;
+  z-index: 4;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* ---- Escudo (núcleo): shield-check con stroke-draw ---- */
+.shield {
+  width: 90px;
+  height: 90px;
+  color: var(--btc);
+  pointer-events: none;
+  z-index: 2;
+  /* Glow del escudo: late con el domo y queda alto fijo mientras se presiona */
+  filter: drop-shadow(0 0 calc(8px + 7px * var(--breath) + 18px * var(--press))
+            rgba(247,147,26, calc(0.40 + 0.20 * var(--breath) + 0.40 * var(--press))));
+}
+.shield path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;   /* oculto por defecto; se dibuja al entrar en viewport */
+}
+.shield .s-outline { transition: stroke-dashoffset 1.2s var(--ease-out); }
+.shield .s-check   { transition: stroke-dashoffset 0.4s var(--ease-out) 1.2s; }
+.garantia.in .shield path { stroke-dashoffset: 0; }
+
+/* ---- Texto ---- */
+.g-title {
+  margin: 0;
+  font: 600 clamp(1.7rem, 4.6vw, 2.6rem)/1.18 var(--font-display);
+  color: var(--txt-hi);
+  letter-spacing: -0.01em;
+}
+.g-copy {
+  margin: 0;
+  max-width: 52ch;
+  font: 400 clamp(0.95rem, 2.2vw, 1.06rem)/1.65 var(--font-body);
+  color: var(--txt-body);
+}
+
+/* Línea de contacto: info secundaria, tipografía menor y color más tenue para que no compita
+   con el párrafo principal. Margen negativo para acercarla al copy (vence el gap del grid). */
+.g-contact {
+  margin: -8px 0 0;
+  max-width: 52ch;
+  font: 400 clamp(0.82rem, 1.8vw, 0.9rem)/1.6 var(--font-body);
+  color: var(--txt-low);
+}
+
+/* Links naranja, consistentes con .incl-link de Precio */
+.g-link {
+  color: var(--btc);
+  text-decoration: underline;
+  text-decoration-color: rgba(247,147,26,0.45);
+  text-underline-offset: 2px;
+  font-weight: 600;
+  transition: text-decoration-color 0.3s ease, color 0.3s ease;
+}
+.g-link:hover { text-decoration-color: var(--btc); }
+
+/* ---- Mobile ---- */
+@media (max-width: 768px) {
+  .garantia { padding: 4px 0; }
+  .g-wrap { min-height: 40vh; padding: 8px 18px; gap: 16px; }
+  .shield { width: 72px; height: 72px; }
+}
+
+/* ---- Reduced motion: escudo dibujado, sin respiración, salto, ondas ni acercamiento ---- */
+@media (prefers-reduced-motion: reduce) {
+  .shield path { stroke-dashoffset: 0; transition: none; }
+  /* Brillo medio fijo (--breath estático); el press sigue subiendo brillo, instantáneo */
+  .shield-stage { animation: none; --breath: 0.5; transition: none; transform: none; }
+  .shield-stage:hover, .shield-stage.pressed { transform: none; }
+  .ff-pulse, .ff-waves { display: none; }
+}
+</style>
+
+<script is:inline>
+(function () {
+  const root = document.querySelector('#garantia');
+  if (!root) return;
+  // MediaQueryList vivo: se consulta .matches en cada spawn (robusto ante timing de carga y
+  // ante el usuario cambiando la preferencia del SO en caliente).
+  const rmq = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  function run() {
+    const stage  = root.querySelector('.shield-stage');
+    const waves  = root.querySelector('.ff-waves');
+    const hit    = root.querySelector('.ff-hit');
+    const shield = root.querySelector('.shield');
+
+    // Atributo de scope de Astro (data-astro-cid-xxxx). Los spans creados por JS NO lo reciben,
+    // así que hay que heredarlo del contenedor para que el CSS scopeado (.wave + @keyframes
+    // ffWave) aplique al span dinámico; si no, no anima y animationend nunca dispara (acumularía
+    // nodos). Mismo patrón de scope que el link Kribatta inyectado en Precio.
+    const scopeAttr = waves ? [].slice.call(waves.attributes)
+      .map(a => a.name).filter(n => n.indexOf('data-astro-cid') === 0)[0] : null;
+
+    // Onda on-demand/automática: span que se anima y se autodestruye al terminar (sin acumular DOM)
+    function spawnWave() {
+      if (rmq.matches || !waves) return;
+      const w = document.createElement('span');
+      w.className = 'wave';
+      if (scopeAttr) w.setAttribute(scopeAttr, '');
+      waves.appendChild(w);
+      // Doble red de seguridad para que NUNCA se acumulen nodos: animationend (camino normal) +
+      // setTimeout de respaldo (cubre el caso de animationend que no dispara: display:none,
+      // pestaña en segundo plano, animación interrumpida). remove() repetido es inofensivo.
+      const kill = () => w.remove();
+      w.addEventListener('animationend', kill, { once: true });
+      setTimeout(kill, 1900);
+    }
+
+    // Auto: una onda cada ~1s, solo mientras la sección está en viewport (perf)
+    let waveTimer = null;
+    function startWaves() { if (!rmq.matches && !waveTimer) waveTimer = setInterval(spawnWave, 1000); }
+    function stopWaves()  { if (waveTimer) { clearInterval(waveTimer); waveTimer = null; } }
+
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { root.classList.add('in'); startWaves(); }
+        else stopWaves();
+      });
+    }, { threshold: 0.4 });
+    io.observe(root);
+
+    // Salto sutil del escudo (Web Animations API: one-shot re-disparable, sin tocar el filter
+    // ni el stroke-draw). El transform del escudo compone con el del domo; vuelve solo a scale 1.
+    function bounceShield() {
+      if (rmq.matches || !shield || typeof shield.animate !== 'function') return;
+      shield.animate(
+        [{ transform: 'scale(1)' }, { transform: 'scale(1.16)', offset: 0.42 }, { transform: 'scale(1)' }],
+        { duration: 230, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' }
+      );
+    }
+
+    // Press-and-hold: brillo alto sostenido mientras se presiona; vuelve a respirar al soltar.
+    // pointerleave/cancel evitan que quede trabado encendido si el cursor/dedo sale del área.
+    if (stage && hit) {
+      // Click: el escudo salta y, apenas tras el pico (~90ms), la onda emana del centro (del
+      // escudo), de modo que se lee como que la onda nace de su movimiento. spawnWave ya filtra
+      // reduced-motion. El radiowave automático (cada ~1s) sigue saliendo del centro sin salto.
+      const press   = () => { stage.classList.add('pressed'); bounceShield(); setTimeout(spawnWave, 90); };
+      const release = () => stage.classList.remove('pressed');
+      hit.addEventListener('pointerdown',   press);
+      hit.addEventListener('pointerup',     release);
+      hit.addEventListener('pointerleave',  release);
+      hit.addEventListener('pointercancel', release);
+    }
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+  else run();
+})();
+</script>

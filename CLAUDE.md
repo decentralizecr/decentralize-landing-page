@@ -42,7 +42,7 @@ Lint + typecheck + pruebas (unit y E2E de flujos críticos) en verde.
 - Sin llaves/secretos en el repo ni en el frontend
 
 ## Datos oficiales (mandan sobre cualquier fuente)
-- Precio: $97, con $147 tachado. Garantía: 7 días.
+- Precio: $97, con $147 tachado. Garantía: 15 días.
 - Alberto: perdió $100K; +9,000 horas estudiando desde 2021; ayudó a +200 personas.
 - Curso: 5 módulos, 7+ horas. Un solo pago, acceso de por vida.
 - Testimonios: solo screenshots (testi-1 a testi-6). Sin cifras de ROI.

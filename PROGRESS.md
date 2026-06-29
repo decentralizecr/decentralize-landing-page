@@ -49,7 +49,7 @@ Dirección visual Híbrido A+B aprobada por el cliente. Hero listo para implemen
 | 7 | Comunidad Discord | Pendiente | Servidor.png + canales colapsables + beneficios |
 | 8 | Testimonios | Pendiente | testi-1 a 6, sin cifras ROI, cerca del precio |
 | 9 | Precio | ✅ Aprobado | Anillo Saturno denso + planeta ₿ giratorio con glow + rayos eléctricos; border beam en card y CTA, glows. Copy final: eyebrow "TU INVERSIÓN", $147→$97, ancla +$1,000, 6 incluidos (Kribatta link), garantía 15 días, badges 2x2. Verificado 7/7 (build, anclas, fps, reduced-motion, 390px, Kribatta). |
-| 10 | Garantía | 🔨 Próxima | Force field shield. 7 días, limpio, escudo |
+| 10 | Garantía | 🔨 Próxima | Force field shield. 15 días, limpio, escudo |
 | 11 | FAQ | Pendiente | Acordeón oscuro |
 | 12 | CTA Final | Pendiente | Vuelve el planeta, cierre del viaje |
 | 13 | Redes + Footer | Pendiente | Cierre limpio |
