@@ -2,10 +2,12 @@
 // Sección 6 — Todo lo que recibís (value stack premium) · nebulosa Orión Canvas 2D
 // kind: 'money' = monto en dólares (--btc) · 'incl' = "Incluido" (tenue) ·
 //       'prime' = "Invaluable" (acento).
+// "Kribatta" siempre como link naranja a https://web.kribatta.com/ (target _blank, noopener).
+const kribattaLink = '<a class="incl-link" href="https://web.kribatta.com/" target="_blank" rel="noopener noreferrer">Kribatta</a>';
 const cards = [
   { icon: 'graduation-cap', name: 'Bitcoin Masterclass',                    desc: '7 horas de contenido en 5 módulos',        value: '$297',       kind: 'money' },
   { icon: 'users',          name: 'Comunidad privada en Discord',           desc: 'Acceso de por vida',                       value: '$200',       kind: 'money' },
-  { icon: 'percent',        name: 'Tarifas preferenciales BTC',             desc: 'Compra y venta vía Kribatta',              value: '$400',       kind: 'money' },
+  { icon: 'percent',        name: 'Tarifas preferenciales BTC',             desc: `Compra y venta vía ${kribattaLink}`,       value: '$400',       kind: 'money' },
   { icon: 'message-circle', name: 'Soporte 24/7 personalizado',            desc: 'Resolvé tus dudas cuando las tengás',      value: 'Incluido',   kind: 'incl' },
   { icon: 'refresh-cw',     name: 'Acceso de por vida + actualizaciones',  desc: 'Todo el contenido nuevo, sin pagar de más', value: 'Incluido',  kind: 'incl' },
   { icon: 'calendar',       name: 'Eventos presenciales y llamadas grupales', desc: 'Conectá con la comunidad en vivo',      value: 'Invaluable', kind: 'prime' },
@@ -83,7 +85,7 @@ const cards = [
           </span>
           <div class="recibis-text">
             <p class="recibis-name">{c.name}</p>
-            <p class="recibis-desc">{c.desc}</p>
+            <p class="recibis-desc" set:html={c.desc}></p>
           </div>
           <span class={`recibis-value recibis-value-${c.kind}`}>{c.value}</span>
         </article>
@@ -310,6 +312,19 @@ const cards = [
   color: var(--txt-low);
   margin: 0;
 }
+/* "Kribatta" como link naranja, mismo tratamiento que en la sección Precio
+   (color --btc + subrayado sutil con offset, hover refuerza el subrayado).
+   El <a> se inyecta vía set:html y NO recibe el atributo de scope de Astro, así
+   que el selector interno va con :global() (el .recibis-desc sí queda scopeado). */
+.recibis-desc :global(.incl-link) {
+  color: var(--btc);
+  text-decoration: underline;
+  text-decoration-color: rgba(247,147,26,0.45);
+  text-underline-offset: 2px;
+  font-weight: 600;
+  transition: text-decoration-color 0.3s ease, color 0.3s ease;
+}
+.recibis-desc :global(.incl-link:hover) { text-decoration-color: var(--btc); }
 
 .recibis-value {
   flex-shrink: 0;
