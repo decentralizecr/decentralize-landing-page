@@ -1,0 +1,729 @@
+---
+// Sección 11 — FAQ · catálogo estelar (acordeón sobre star map estático)
+// Patrón autocontenido del repo: HTML + <style> scoped + <script is:inline> IIFE.
+// Fondo --bg-tech + blueprint grid (replica de .mods-blueprint de §5, para consistencia) +
+// un STAR MAP estático generado en build (PRNG sembrado, determinista). Cero canvas, cero RAF,
+// cero WebGL: las estrellas se baquean como <circle> en el HTML estático.
+// Cada fila es un "cuerpo celeste catalogado": designación DCR-00x + glyph de estrella. Al
+// expandir un item, su glyph se ILUMINA (100% CSS scopeado al item abierto). Un solo item
+// abierto a la vez. Copy oficial: garantía unificada a 15 días. Voseo. Sin guion largo.
+
+// --- Star map estático (build time): mulberry32 sembrado => posiciones estables ---
+function mulberry32(a: number) {
+  return function () {
+    a |= 0; a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const rand = mulberry32(20260629);
+type Star = { x: number; y: number; r: number; op: number; c: string; feat: boolean };
+// Estrellas base: cielo tenue. Piso de opacidad subido para que se perciba mejor.
+const stars: Star[] = Array.from({ length: 88 }, () => {
+  const x = +(rand() * 1000).toFixed(1);
+  const y = +(rand() * 1000).toFixed(1);
+  const r = +(rand() * 1.5 + 0.5).toFixed(2);
+  const op = +(rand() * 0.5 + 0.35).toFixed(2);
+  // ~1 de cada 7 estrella en naranja Bitcoin (fill literal: var() no resuelve en atributo SVG)
+  const c = rand() > 0.85 ? '#F7931A' : '#FFFFFF';
+  return { x, y, r, op, c, feat: false };
+});
+// Estrellas destacadas: más grandes y brillantes, con glow suave (clase .star-feat)
+const featured: Star[] = Array.from({ length: 7 }, () => {
+  const x = +(rand() * 1000).toFixed(1);
+  const y = +(rand() * 1000).toFixed(1);
+  const r = +(rand() * 1.6 + 2.4).toFixed(2);
+  const op = +(rand() * 0.18 + 0.8).toFixed(2);
+  const c = rand() > 0.5 ? '#F7931A' : '#FFFFFF';
+  return { x, y, r, op, c, feat: true };
+});
+const allStars: Star[] = stars.concat(featured);
+
+type Faq = { id: string; q: string; a: string; html?: boolean };
+const faqs: Faq[] = [
+  {
+    id: 'DCR-001',
+    q: '¿Cómo sé que esto no es una estafa?',
+    a: 'Decentralize es una empresa formal, legalmente registrada en Costa Rica bajo el nombre Decentralize CR S.R.L. Operamos con total transparencia y compromiso. Además, ofrecemos una garantía de 15 días para que puedas probar el curso sin riesgo. El contenido es exclusivamente educativo y no brindamos asesoría financiera, fiscal ni de inversión.',
+  },
+  {
+    id: 'DCR-002',
+    q: '¿Necesito saber de finanzas o tecnología para tomar este curso?',
+    a: 'No. Está diseñado para que cualquier persona, sin importar su experiencia previa, pueda entender Bitcoin desde cero. Todo explicado en lenguaje claro, sin tecnicismos ni complicaciones. Si sabés usar WhatsApp, tenés todo lo que necesitás.',
+  },
+  {
+    id: 'DCR-003',
+    q: '¿Tengo que hacer trading o estar pendiente del precio?',
+    a: 'Para nada. Acá no enseñamos trading. Aprendés a gestionar y custodiar Bitcoin con convicción, a largo plazo, y a proteger tu capital sin estrés ni pantallas abiertas todo el día.',
+  },
+  {
+    id: 'DCR-004',
+    q: '¿Cuánto dinero necesito para empezar con Bitcoin?',
+    a: 'Podés empezar con lo que tengas. Desde $1 si querés. Lo importante es que sepas qué estás haciendo antes de invertir. El curso te enseña la estrategia DCA (Dollar Cost Averaging) que funciona con cualquier monto.',
+  },
+  {
+    id: 'DCR-005',
+    q: '¿El acceso es de por vida?',
+    a: 'Sí. Un solo pago te da acceso permanente al contenido del curso, todas las actualizaciones futuras, y a la comunidad privada Decentralize con todos sus beneficios. Sin mensualidades, sin sorpresas.',
+  },
+  {
+    id: 'DCR-006',
+    q: '¿Y si tengo dudas durante el curso?',
+    a: 'Vas a tener acceso directo a Alberto y a la comunidad privada Decentralize, donde podés hacer preguntas, recibir soporte 24/7 y compartir experiencias con otros Bitcoiners. Además podés agendar llamadas 1:1. No estás solo en este camino.',
+  },
+  {
+    id: 'DCR-007',
+    q: '¿Este curso es solo para principiantes?',
+    a: 'No. También es para quienes ya compraron BTC pero quieren profundizar, evitar errores y entender con claridad lo que están haciendo. Además obtenés acceso de por vida a la comunidad privada, tarifas preferenciales para comprar y vender BTC, eventos y beneficios reales que por sí solos ya justifican la inversión.',
+  },
+  {
+    id: 'DCR-008',
+    q: '¿Cómo funciona la garantía de 15 días?',
+    html: true,
+    a: 'Probás el contenido los primeros 15 días. Si no cumple tus expectativas, te devolvemos el 100% de tu dinero. Sin preguntas, sin riesgo. Solo escribinos a <a href="mailto:admin@decentralizecr.com">admin@decentralizecr.com</a> o por Instagram <a href="https://instagram.com/decentralizecr" target="_blank" rel="noopener noreferrer">@decentralizecr</a>.',
+  },
+];
+---
+
+<section id="faq" class="faq">
+  <!-- Blueprint grid (replica de §5) -->
+  <div class="faq-blueprint" aria-hidden="true"></div>
+
+  <!-- Star map estático (SVG): fallback sin-JS y para prefers-reduced-motion. Cuando hay
+       movimiento permitido, el JS lo oculta y dibuja todo en el canvas animado de abajo. -->
+  <svg class="faq-stars" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    {allStars.map((s) => <circle class={s.feat ? 'star-feat' : undefined} cx={s.x} cy={s.y} r={s.r} fill={s.c} opacity={s.op} />)}
+  </svg>
+
+  <!-- Capa animada (Canvas 2D): estrellas titilantes + cometas + asteroides + constelación.
+       Mismo enfoque que §5/§6/§8. La enciende/apaga un IntersectionObserver (perf). -->
+  <canvas class="faq-canvas" aria-hidden="true"></canvas>
+
+  <div class="faq-wrap">
+    <div class="faq-head faq-reveal">
+      <span class="eyebrow">Preguntas frecuentes</span>
+      <h2 class="faq-h2">¿Todavía tenés <span class="accent">dudas</span>?</h2>
+      <p class="faq-sub">Estas son las preguntas que recibimos con más frecuencia.</p>
+    </div>
+
+    <div class="faq-list">
+      {faqs.map((item, i) => (
+        <div class="faq-reveal" style={`--del:${(i * 0.07).toFixed(2)}s`}>
+          <div class="faq-item" data-faq>
+            <h3 class="faq-h">
+              <button
+                class="faq-q-btn"
+                id={`faq-q-${i + 1}`}
+                aria-expanded="false"
+                aria-controls={`faq-a-${i + 1}`}
+              >
+                <span class="faq-q-main">
+                  <span class="faq-dot" aria-hidden="true"></span>
+                  <span class="faq-q">{item.q}</span>
+                </span>
+                <svg class="faq-plus" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+              </button>
+            </h3>
+            <div class="faq-a-wrap" id={`faq-a-${i + 1}`} role="region" aria-labelledby={`faq-q-${i + 1}`}>
+              <div class="faq-a-inner">
+                {item.html
+                  ? <p class="faq-a" set:html={item.a} />
+                  : <p class="faq-a">{item.a}</p>}
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+.faq {
+  position: relative;
+  z-index: 10;
+  overflow: hidden;
+  background: var(--bg-tech);
+  padding: 60px 0 68px;
+  /* Que el encabezado no quede bajo el nav fijo al saltar al ancla #faq */
+  scroll-margin-top: 90px;
+}
+
+/* Blueprint grid: misma regla que .mods-blueprint de §5 (no hay clase global compartida) */
+.faq-blueprint {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 80px 80px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 30%, transparent 80%);
+}
+
+/* Star map estático: baja opacidad, máscara radial para apagarse en los bordes y no competir
+   con el texto. Sin animación (cumple "sin twinkle" y reduced-motion por defecto). */
+.faq-stars {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.75;
+  mask-image: radial-gradient(ellipse 78% 64% at 50% 44%, black 32%, transparent 82%);
+  -webkit-mask-image: radial-gradient(ellipse 78% 64% at 50% 44%, black 32%, transparent 82%);
+}
+/* Estrellas destacadas: glow cálido suave. Estático (filtro aplicado una vez, sin RAF). */
+.faq-stars .star-feat {
+  filter: drop-shadow(0 0 2.5px rgba(255,220,180,0.85)) drop-shadow(0 0 6px rgba(255,200,140,0.4));
+}
+/* Cuando el canvas animado toma el control, ocultamos el SVG base (evita doble estrella) */
+.faq.canvas-on .faq-stars { display: none; }
+
+/* Canvas animado: misma atenuación radial en bordes que el SVG, baja opacidad general */
+.faq-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.92;
+  mask-image: radial-gradient(ellipse 84% 72% at 50% 44%, black 42%, transparent 90%);
+  -webkit-mask-image: radial-gradient(ellipse 84% 72% at 50% 44%, black 42%, transparent 90%);
+}
+
+.faq-wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ---- Encabezado ---- */
+.faq-head {
+  text-align: center;
+  margin-bottom: 28px;
+}
+.faq-h2 {
+  margin: 16px 0 0;
+  font: 700 clamp(2rem, 4.5vw, 3rem)/1.15 var(--font-display);
+  letter-spacing: -0.02em;
+  color: var(--txt-hi);
+}
+.accent { color: var(--btc); }
+.faq-sub {
+  margin: 12px auto 0;
+  max-width: 46ch;
+  font: 400 clamp(0.95rem, 2.2vw, 1.05rem)/1.6 var(--font-body);
+  color: var(--txt-mid);
+}
+
+/* ---- Acordeón ---- */
+.faq-h { margin: 0; }
+/* Cajas independientes con espacio entre ellas (ya no border-bottom corrido) */
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+/* Item CERRADO: caja TRANSPARENTE. Sin fondo glass ni esmerilado, para que se vean las estrellas
+   y los cometas NITIDOS a traves. Solo queda el borde naranja tenue con glow chico (el borde lo da
+   un box-shadow spread 1px, no mueve layout). */
+.faq-item {
+  position: relative;
+  border-radius: 14px;
+  background: transparent;
+  box-shadow: 0 0 0 1px rgba(247,147,26,0.30), 0 0 11px rgba(247,147,26,0.08);
+  /* El fondo translucido y el blur se aplican INSTANTANEOS al abrir (sin transicion en
+     background/backdrop-filter): asi no hay ventana intermedia donde el fondo se vea raro.
+     Solo el glow del borde transiciona. */
+  transition: box-shadow 0.35s ease;
+}
+/* Item ABIERTO: VIDRIO ESMERILADO. Fondo translucido (alpha medio) + backdrop-filter blur fuerte.
+   El canvas de estrellas/cometas (z-index menor, detras) NO se tapa: se DIFUMINA. Las estrellas y
+   cometas se perciben como manchas de luz suaves y borrosas, no como puntos nitidos que compiten
+   con el texto. El alpha medio atenua y el blur desenfoca; el texto queda legible encima.
+   CRITICO: backdrop-filter solo funciona si NINGUN ancestro tiene transform/filter/perspective !=
+   none. El wrapper .faq-reveal usa transform en el reveal: queda en transform:none al terminar
+   (CSS .visible + refuerzo por JS en transitionend), por eso el blur del backdrop si aplica. */
+.faq-item.open {
+  background: rgba(12, 12, 18, 0.6);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  animation: faqGlowPulse 3.2s ease-in-out infinite;
+}
+@keyframes faqGlowPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 1px var(--btc), 0 0 18px rgba(247,147,26,0.22), 0 0 40px rgba(247,147,26,0.10);
+  }
+  50% {
+    box-shadow: 0 0 0 1px var(--btc), 0 0 28px rgba(247,147,26,0.42), 0 0 62px rgba(247,147,26,0.18);
+  }
+}
+.faq-q-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 20px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+}
+/* Fila: punto naranja + pregunta, alineados verticalmente al centro */
+.faq-q-main {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+/* Punto naranja con glow pulsante (unico indicador del item, reemplaza al glyph + ID DCR-00x).
+   Se ilumina al abrir (hereda el feedback que antes tenia el glyph). */
+.faq-dot {
+  flex-shrink: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--btc);
+  animation: faqDotPulse 2.5s ease-in-out infinite;
+}
+@keyframes faqDotPulse {
+  0%, 100% { opacity: 0.5; box-shadow: 0 0 3px rgba(247,147,26,0.5); }
+  50%      { opacity: 1;   box-shadow: 0 0 9px rgba(247,147,26,0.95); }
+}
+/* Item ABIERTO: el punto sube de brillo y glow (mas encendido), latido mas marcado */
+.faq-item.open .faq-dot {
+  animation: faqDotPulseOpen 2.5s ease-in-out infinite;
+}
+@keyframes faqDotPulseOpen {
+  0%, 100% { opacity: 0.85; box-shadow: 0 0 6px rgba(247,147,26,0.7), 0 0 12px rgba(247,147,26,0.35); }
+  50%      { opacity: 1;    box-shadow: 0 0 12px rgba(247,147,26,1), 0 0 22px rgba(247,147,26,0.55); }
+}
+
+/* Pregunta: Inter 500 16px blanco; naranja al abrir */
+.faq-q {
+  display: block;
+  font: 500 16px/1.4 var(--font-body);
+  color: var(--txt-hi);
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+.faq-item.open .faq-q { color: var(--btc); }
+
+/* Ícono "+": rota 45° y pasa a naranja al abrir. Centrado vertical via align-items del boton. */
+.faq-plus {
+  flex-shrink: 0;
+  color: var(--txt-low);
+  transition: transform 0.3s var(--ease-out), color 0.3s ease;
+}
+
+/* ---- Hover (desktop) sobre item cerrado: el glow del borde sube y glyph/+ se iluminan ---- */
+@media (hover: hover) and (pointer: fine) {
+  .faq-item:not(.open):hover {
+    box-shadow: 0 0 0 1px rgba(247,147,26,0.55), 0 0 18px rgba(247,147,26,0.18);
+  }
+  .faq-item:not(.open):hover .faq-q { text-shadow: 0 0 14px rgba(255,255,255,0.28); }
+  /* Hover: el punto sube un poco de glow (anticipo del estado abierto) */
+  .faq-item:not(.open):hover .faq-dot { box-shadow: 0 0 7px rgba(247,147,26,0.85); }
+  .faq-item:not(.open):hover .faq-plus { color: rgba(247,147,26,0.7); }
+}
+.faq-item.open .faq-plus {
+  transform: rotate(45deg);
+  color: var(--btc);
+}
+
+/* Respuesta: grid 0fr -> 1fr */
+.faq-a-wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.45s var(--ease-out);
+}
+.faq-item.open .faq-a-wrap { grid-template-rows: 1fr; }
+.faq-a-inner { overflow: hidden; }
+.faq-a {
+  margin: 0;
+  padding: 0 20px 22px;
+  max-width: 62ch;
+  font: 400 14.5px/1.7 var(--font-body);
+  color: var(--txt-mid);
+}
+
+/* Links naranja en R8 (misma receta que .g-link de Garantía / .incl-link de Precio) */
+.faq-a :global(a) {
+  color: var(--btc);
+  text-decoration: underline;
+  text-decoration-color: rgba(247,147,26,0.45);
+  text-underline-offset: 2px;
+  font-weight: 600;
+  transition: text-decoration-color 0.3s ease, color 0.3s ease;
+}
+.faq-a :global(a:hover) { text-decoration-color: var(--btc); }
+
+/* ---- Reveal al hacer scroll: mismo patron que el resto del sitio (Recibis/Precio).
+   opacity 0 + translateY(28px) -> visible, disparado por IntersectionObserver. Stagger via
+   --del por item. El wrapper .faq-reveal aisla esta transicion de las del .faq-item (open). ---- */
+.faq-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
+  transition-delay: var(--del, 0s);
+}
+.faq-reveal.visible {
+  opacity: 1;
+  /* transform:none tras el reveal es OBLIGATORIO: un transform activo en este ancestro romperia el
+     backdrop-filter (vidrio esmerilado) del item abierto, dejando las estrellas nitidas. will-change
+     vuelve a auto para liberar la capa de composicion. El JS lo refuerza en transitionend. */
+  transform: none;
+  will-change: auto;
+}
+
+/* ---- Mobile ---- */
+@media (max-width: 768px) {
+  .faq { padding: 40px 0 48px; }
+  .faq-wrap { padding: 0 18px; }
+  .faq-head { margin-bottom: 24px; }
+  .faq-q-btn { padding: 20px 16px; gap: 12px; }
+  .faq-q { font-size: 15px; }
+  .faq-a { font-size: 14px; padding: 0 16px 20px; }
+  /* En mobile el viewport es angosto y alto: abrimos mucho la máscara para que el centro
+     (zona del acordeón) tenga cielo poblado. El texto sigue legible porque las estrellas son
+     tenues y la opacidad general baja un poco. */
+  .faq-canvas {
+    opacity: 0.82;
+    mask-image: radial-gradient(ellipse 120% 90% at 50% 46%, black 64%, transparent 100%);
+    -webkit-mask-image: radial-gradient(ellipse 120% 90% at 50% 46%, black 64%, transparent 100%);
+  }
+}
+
+/* ---- Reduced motion: encabezado visible, fondo estático (SVG, sin canvas/cometas). Cajas glass
+   con borde glow naranja FIJO (sin latido); cerrado casi transparente, abierto mas opaco y
+   legible ---- */
+@media (prefers-reduced-motion: reduce) {
+  .faq-q, .faq-plus, .faq-a-wrap, .faq-item { transition: none; }
+  /* Sin reveal animado: items visibles directo */
+  .faq-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  /* Punto naranja fijo (sin pulso), glow medio; mas encendido y fijo cuando el item esta abierto */
+  .faq-dot { animation: none; box-shadow: 0 0 5px rgba(247,147,26,0.7); }
+  .faq-item.open .faq-dot { animation: none; box-shadow: 0 0 10px rgba(247,147,26,1), 0 0 18px rgba(247,147,26,0.5); }
+  .faq-item.open {
+    animation: none;
+    /* Reduced-motion: el canvas no corre (queda el SVG estatico tenue). Subimos el alpha para
+       garantizar legibilidad incluso si el navegador no aplicara el backdrop-filter. El blur, si
+       esta disponible, igual difumina el SVG de fondo. */
+    background: rgba(12, 12, 18, 0.9);
+    box-shadow: 0 0 0 1px var(--btc), 0 0 22px rgba(247,147,26,0.3), 0 0 48px rgba(247,147,26,0.12);
+  }
+}
+</style>
+
+<script is:inline>
+(function () {
+  const root = document.querySelector('#faq');
+  if (!root) return;
+
+  // Reveal al hacer scroll (mismo patron que el resto del sitio). Stagger via --del en el HTML.
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const revEls = Array.prototype.slice.call(root.querySelectorAll('.faq-reveal'));
+  if (reduce) {
+    revEls.forEach(function (el) { el.classList.add('visible'); });
+  } else {
+    const revObs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        const el = e.target;
+        el.classList.add('visible');
+        revObs.unobserve(el);
+        // Tras el reveal, eliminar cualquier transform residual del wrapper: un transform != none en
+        // este ancestro romperia el backdrop-filter (vidrio esmerilado) del item abierto. Lo forzamos
+        // en transitionend (y con un fallback por timeout por si la transicion no dispara).
+        const clear = function () { el.style.transform = 'none'; el.style.willChange = 'auto'; };
+        el.addEventListener('transitionend', clear, { once: true });
+        setTimeout(clear, 1000);
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    revEls.forEach(function (el) { revObs.observe(el); });
+  }
+
+  const items = Array.prototype.slice.call(root.querySelectorAll('[data-faq]'));
+
+  function setOpen(item, open) {
+    const btn = item.querySelector('.faq-q-btn');
+    item.classList.toggle('open', open);
+    if (btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  items.forEach(function (item) {
+    const btn = item.querySelector('.faq-q-btn');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      const willOpen = !item.classList.contains('open');
+      // Un solo item abierto a la vez: cerrar el resto
+      items.forEach(function (other) { if (other !== item) setOpen(other, false); });
+      setOpen(item, willOpen);
+      if (willOpen) {
+        const q = btn.querySelector('.faq-q');
+        const pregunta = q ? q.textContent.trim() : '';
+        void pregunta;
+        // TODO Pixel: track('FAQAbierto', { pregunta }) cuando exista src/lib/pixel.ts
+      }
+    });
+  });
+})();
+</script>
+
+<script is:inline>
+/* Fondo animado del catálogo estelar (Canvas 2D, sin WebGL). Mismo enfoque que §5/§6/§8:
+   estrellas titilantes (sprite pre-bakeado) + cometas con trail + asteroides en drift +
+   constelación tenue entre las destacadas. DPR capeado a 1.5, pausa fuera de viewport con
+   IntersectionObserver. prefers-reduced-motion: no corre nada (queda el SVG estático). */
+(function () {
+  const root = document.querySelector('#faq');
+  if (!root) return;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) return; // queda el star map SVG estático
+
+  const canvas = root.querySelector('.faq-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  // El canvas toma el control: ocultamos el SVG base para no duplicar estrellas
+  root.classList.add('canvas-on');
+
+  const DPR = Math.min(window.devicePixelRatio || 1, 1.5);
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+  const STAR_COUNT = isMobile ? 130 : 200;
+  const FEATURED   = 12;
+  const ASTEROIDS  = isMobile ? 6 : 10;
+  const MAX_COMETS = isMobile ? 2 : 3; // varias fugaces simultáneas ocasionalmente
+
+  // Sprite pre-bakeado: glow radial suave. Se escala por estrella (perf: 1 drawImage c/u).
+  function makeSprite(r, g, b) {
+    const s = 64, c = document.createElement('canvas');
+    c.width = c.height = s;
+    const gx = c.getContext('2d');
+    const grd = gx.createRadialGradient(s/2, s/2, 0, s/2, s/2, s/2);
+    grd.addColorStop(0,    'rgba(' + r + ',' + g + ',' + b + ',1)');
+    grd.addColorStop(0.35, 'rgba(' + r + ',' + g + ',' + b + ',0.55)');
+    grd.addColorStop(1,    'rgba(' + r + ',' + g + ',' + b + ',0)');
+    gx.fillStyle = grd;
+    gx.beginPath();
+    gx.arc(s/2, s/2, s/2, 0, Math.PI * 2);
+    gx.fill();
+    return c;
+  }
+  const spriteW = makeSprite(255, 255, 255);
+  const spriteO = makeSprite(247, 147, 26);
+
+  let W = 0, H = 0, stars = [], asteroids = [], edges = [];
+  let rafId = null, running = false, comets = [], cometTimer = null;
+
+  function rnd(min, max) { return min + Math.random() * (max - min); }
+
+  function build() {
+    // Estrellas: las primeras FEATURED son las destacadas (más grandes/brillantes, con glow).
+    stars = [];
+    for (let i = 0; i < STAR_COUNT; i++) {
+      const feat = i < FEATURED;
+      const orange = Math.random() < 0.26;
+      const twinkle = !feat && Math.random() < 0.50; // ~50% titilan
+      stars.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: feat ? rnd(2.4, 4.0) : rnd(0.5, 2.0),
+        baseAlpha: feat ? rnd(0.85, 1) : rnd(0.30, 0.80),
+        amp: twinkle ? rnd(0.25, 0.6) : 0,
+        phase: Math.random() * Math.PI * 2,
+        twSpeed: rnd(0.6, 2.2),
+        orange: orange,
+        feat: feat,
+      });
+    }
+    // Asteroides: puntos un poco más grandes que driftan lento y constante (wrap en bordes).
+    asteroids = [];
+    for (let k = 0; k < ASTEROIDS; k++) {
+      let vx = rnd(-0.45, 0.45), vy = rnd(-0.30, 0.30);
+      if (Math.abs(vx) < 0.12) vx = vx < 0 ? -0.12 : 0.12;
+      asteroids.push({
+        x: Math.random() * W, y: Math.random() * H, vx: vx, vy: vy,
+        r: rnd(1.5, 2.6), alpha: rnd(0.4, 0.7), orange: Math.random() < 0.4,
+      });
+    }
+    // Constelación: cada destacada se une a sus 2 vecinas destacadas más cercanas (set dedupe).
+    // Con ~12 destacadas da una red más rica sin recargar.
+    edges = [];
+    const seen = {};
+    for (let i = 0; i < FEATURED; i++) {
+      const dist = [];
+      for (let j = 0; j < FEATURED; j++) {
+        if (j === i) continue;
+        const dx = stars[i].x - stars[j].x, dy = stars[i].y - stars[j].y;
+        dist.push([dx*dx + dy*dy, j]);
+      }
+      dist.sort(function (p, q) { return p[0] - q[0]; });
+      for (let n = 0; n < Math.min(2, dist.length); n++) {
+        const j = dist[n][1];
+        const a = Math.min(i, j), b = Math.max(i, j), key = a + '-' + b;
+        if (!seen[key]) { seen[key] = 1; edges.push([a, b]); }
+      }
+    }
+  }
+
+  function resize() {
+    const rect = canvas.getBoundingClientRect();
+    W = rect.width; H = rect.height;
+    canvas.width = Math.floor(W * DPR);
+    canvas.height = Math.floor(H * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    build();
+  }
+
+  function drawSprite(sprite, x, y, diameter, alpha) {
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(sprite, x - diameter/2, y - diameter/2, diameter, diameter);
+  }
+
+  // ---- Cometas / estrellas fugaces (varias a la vez, respawn 1.5-3s) ----
+  const DIRS = [[200,230],[310,340],[255,285],[225,315]];
+  function spawnComet() {
+    if (comets.length >= MAX_COMETS) return;
+    const d = DIRS[(Math.random() * DIRS.length) | 0];
+    const angle = (d[0] + Math.random() * (d[1] - d[0])) * Math.PI / 180;
+    const speed = 5 + Math.random() * 3;
+    const vx = Math.cos(angle) * speed;
+    const vy = Math.abs(Math.sin(angle) * speed);
+    let x, y;
+    if (vx > 0.5)      { x = -60; y = Math.random() * H * 0.6; }
+    else if (vx < -0.5){ x = W + 60; y = Math.random() * H * 0.6; }
+    else               { y = -60; x = W * 0.2 + Math.random() * W * 0.6; }
+    const orange = Math.random() < 0.7; // 70% naranja / 30% blanco (consistente con §8)
+    comets.push({
+      x: x, y: y, vx: vx, vy: vy, life: 0, maxLife: 220,
+      head: orange ? '#FFB347' : '#FFFFFF',
+      ts: orange ? 'rgba(255,179,71,0.9)' : 'rgba(255,255,255,0.85)',
+      tm: orange ? 'rgba(247,147,26,0.5)' : 'rgba(200,210,220,0.4)',
+      te: orange ? 'rgba(247,147,26,0)'   : 'rgba(200,210,220,0)',
+      shadow: orange ? '#F7931A' : '#FFFFFF',
+    });
+  }
+  // Scheduler auto-perpetuo: dispara cada 1.5-3s mientras está en viewport. A veces lanza
+  // una segunda en la misma tanda (varias fugaces simultáneas), respetando el cap MAX_COMETS.
+  function scheduleComet() {
+    cometTimer = window.setTimeout(function () {
+      if (running) {
+        spawnComet();
+        if (Math.random() < 0.35) spawnComet();
+        scheduleComet();
+      }
+    }, 1500 + Math.random() * 1500); // 1.5-3s
+  }
+
+  function frame(now) {
+    if (!running) return;
+    const t = now / 1000;
+    ctx.clearRect(0, 0, W, H);
+
+    // Constelación: líneas muy tenues con leve fade global
+    if (edges.length) {
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(247,147,26,' + (0.08 + Math.sin(t * 0.4) * 0.03).toFixed(3) + ')';
+      ctx.beginPath();
+      for (let e = 0; e < edges.length; e++) {
+        const a = stars[edges[e][0]], b = stars[edges[e][1]];
+        ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+      }
+      ctx.stroke();
+    }
+
+    // Estrellas (titilan las marcadas; el resto brillo fijo)
+    for (let i = 0; i < stars.length; i++) {
+      const s = stars[i];
+      let a = s.baseAlpha + (s.amp ? Math.sin(t * s.twSpeed + s.phase) * s.amp : 0);
+      if (a < 0) a = 0; else if (a > 1) a = 1;
+      const dia = s.r * (s.feat ? 4.4 : 2.4);
+      drawSprite(s.orange ? spriteO : spriteW, s.x, s.y, dia, a);
+    }
+
+    // Asteroides: drift lento y constante, wrap en bordes
+    for (let k = 0; k < asteroids.length; k++) {
+      const ast = asteroids[k];
+      ast.x += ast.vx; ast.y += ast.vy;
+      if (ast.x < -10) ast.x = W + 10; else if (ast.x > W + 10) ast.x = -10;
+      if (ast.y < -10) ast.y = H + 10; else if (ast.y > H + 10) ast.y = -10;
+      drawSprite(ast.orange ? spriteO : spriteW, ast.x, ast.y, ast.r * 3, ast.alpha);
+    }
+    ctx.globalAlpha = 1;
+
+    // Cometas activos: trail por gradiente + cabeza con glow (composite lighter)
+    for (let m = comets.length - 1; m >= 0; m--) {
+      const comet = comets[m];
+      comet.x += comet.vx; comet.y += comet.vy; comet.life++;
+      const tx = comet.x - comet.vx * 14, ty = comet.y - comet.vy * 14;
+      const grad = ctx.createLinearGradient(comet.x, comet.y, tx, ty);
+      grad.addColorStop(0, comet.ts);
+      grad.addColorStop(0.4, comet.tm);
+      grad.addColorStop(1, comet.te);
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 2.4;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(comet.x, comet.y); ctx.lineTo(tx, ty);
+      ctx.stroke();
+
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.fillStyle = comet.head;
+      ctx.shadowColor = comet.shadow;
+      ctx.shadowBlur = 14;
+      ctx.beginPath();
+      ctx.arc(comet.x, comet.y, 2.6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.globalCompositeOperation = 'source-over';
+
+      if (comet.x < -80 || comet.x > W + 80 || comet.y > H + 80 || comet.life > comet.maxLife) {
+        comets.splice(m, 1);
+      }
+    }
+
+    rafId = requestAnimationFrame(frame);
+  }
+
+  function start() {
+    if (running) return;
+    running = true;
+    if (W === 0) resize();
+    if (!cometTimer) scheduleComet();
+    rafId = requestAnimationFrame(frame);
+  }
+  function stop() {
+    running = false;
+    if (rafId) cancelAnimationFrame(rafId);
+    if (cometTimer) { clearTimeout(cometTimer); cometTimer = null; }
+    rafId = null;
+  }
+
+  resize();
+  let resizeT;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeT);
+    resizeT = setTimeout(function () { if (running) resize(); }, 200);
+  }, { passive: true });
+
+  const io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) { if (e.isIntersecting) start(); else stop(); });
+  }, { rootMargin: '200px' });
+  io.observe(root);
+})();
+</script>
