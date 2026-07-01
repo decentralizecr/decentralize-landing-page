@@ -1,0 +1,152 @@
+---
+// Sección 12 — CTA Final · cierre emocional del landing
+// Sin WebGL ni Globo: el planeta se sacó de esta sección (causaba glitch visual y peso). Queda solo
+// el CTA sobre fondo oscuro profundo, con las estrellas del canvas fijo del Hero (#space, z0)
+// asomando sutilmente por una banda media semitransparente. El borde inferior vuelve a --bg-deep
+// para conectar sin costura con el amanecer que ahora vive arriba del footer (§13). Copy: voseo,
+// garantía 15 días, sin guion largo. Patrón autocontenido: IIFE + rmq + guard de readyState.
+---
+
+<section id="ctafinal" class="ctafinal">
+  <div class="cf-wrap">
+    <span class="eyebrow">Tu momento</span>
+    <h2 class="cf-title">Tu plata no va a esperar. <span class="accent">Vos decidís.</span></h2>
+    <p class="cf-sub">Siete horas que pueden cambiar tu relación con el dinero para siempre.</p>
+    <a href="#form" class="btn btn-glass btn-primary btn-hero cf-cta" id="cf-cta">
+      <span class="liquid"></span>
+      <span class="t">Empezar ahora →</span>
+    </a>
+    <p class="cf-micro">Garantía de 15 días · Pago único · Acceso de por vida</p>
+  </div>
+</section>
+
+<style>
+.ctafinal {
+  position: relative;
+  z-index: 10;            /* por encima del Globo fijo (z1); banda media transparente deja ver #space */
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  padding: 4vh 24px 4vh;  /* compacto: se ajusta al alto del contenido, respiro mínimo (sin min-height) */
+  /* Oscuro arriba y abajo; banda media apenas transparente para que asomen las estrellas del
+     canvas fijo del Hero (#space). El borde inferior vuelve a --bg-deep para fundir con el footer. */
+  background: linear-gradient(180deg,
+    var(--bg-deep) 0%,
+    rgba(4,4,5,0.72) 22%,
+    rgba(4,4,5,0.42) 50%,
+    rgba(4,4,5,0.78) 80%,
+    var(--bg-deep) 100%);
+}
+
+/* ---- Contenido ---- */
+.cf-wrap {
+  position: relative;
+  z-index: 3;
+  max-width: 680px;
+  margin: 0 auto;
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: 22px;
+}
+
+.cf-title {
+  margin: 0;
+  font: 700 clamp(1.9rem, 5.2vw, 3.1rem)/1.08 var(--font-display);
+  letter-spacing: -0.02em;
+  color: #fff;
+  /* Sombra negra apilada estilo Hero, para legibilidad sobre las estrellas */
+  text-shadow:
+    0 0 6px rgba(0,0,0,1), 0 0 15px rgba(0,0,0,1), 0 2px 4px rgba(0,0,0,1),
+    2px 2px 0 rgba(0,0,0,0.9), -2px -2px 0 rgba(0,0,0,0.9),
+    1px -1px 0 rgba(0,0,0,0.9), -1px 1px 0 rgba(0,0,0,0.9);
+}
+.cf-title .accent {
+  background: linear-gradient(135deg, #F7931A 0%, #FFB347 40%, #F7931A 70%, #CC7A00 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  text-shadow: none;
+  filter: drop-shadow(0 0 8px rgba(0,0,0,1)) drop-shadow(0 2px 4px rgba(0,0,0,1));
+}
+
+.cf-sub {
+  margin: 0;
+  max-width: 40ch;
+  font: 400 clamp(0.95rem, 2.2vw, 1.12rem)/1.6 var(--font-body);
+  color: rgba(255,255,255,0.78);
+  text-shadow: 0 0 4px rgba(0,0,0,1), 0 0 12px rgba(0,0,0,1), 0 2px 4px rgba(0,0,0,1);
+}
+
+/* CTA: reutiliza .btn .btn-glass .btn-primary .btn-hero (liquid glass + pill) y sube el glow */
+.cf-cta {
+  margin-top: 4px;
+  padding: 18px 40px;
+  font-size: 17px;
+  /* Override de la respiración heredada (btnBreathe) por una más intensa, segun el brief.
+     !important para ganarle al `animation` de .btn-glass.btn-primary.btn-hero (más específico). */
+  animation: cfBreathe 2.6s ease-in-out infinite alternate !important;
+}
+@keyframes cfBreathe {
+  0%   { box-shadow: 0 0 16px rgba(247,147,26,0.50), 0 0 34px rgba(247,147,26,0.25); }
+  100% { box-shadow: 0 0 30px rgba(247,147,26,0.90), 0 0 60px rgba(247,147,26,0.50); }
+}
+
+.cf-micro {
+  margin: 2px 0 0;
+  font: 400 11px/1.5 var(--font-mono);
+  letter-spacing: 0.04em;
+  color: rgba(255,255,255,0.5);
+}
+
+/* ---- Reveal al entrar (.in lo agrega el observer); stagger suave ---- */
+.cf-wrap > * {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
+}
+.ctafinal.in .cf-wrap > * { opacity: 1; transform: none; }
+.ctafinal.in .cf-wrap > *:nth-child(1) { transition-delay: 0.05s; }
+.ctafinal.in .cf-wrap > *:nth-child(2) { transition-delay: 0.15s; }
+.ctafinal.in .cf-wrap > *:nth-child(3) { transition-delay: 0.28s; }
+.ctafinal.in .cf-wrap > *:nth-child(4) { transition-delay: 0.40s; }
+.ctafinal.in .cf-wrap > *:nth-child(5) { transition-delay: 0.50s; }
+
+/* ---- Mobile (390px sin desbordes) ---- */
+@media (max-width: 768px) {
+  .ctafinal { padding: 4vh 18px 4vh; }
+  .cf-wrap { gap: 18px; }
+  .cf-cta { padding: 16px 32px; font-size: 16px; }
+}
+
+/* ---- Reduced motion: contenido visible sin animación de entrada ---- */
+@media (prefers-reduced-motion: reduce) {
+  .cf-wrap > * { opacity: 1; transform: none; transition: none; }
+}
+</style>
+
+<script is:inline>
+(function () {
+  const section = document.getElementById('ctafinal');
+  if (!section) return;
+
+  function run() {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { section.classList.add('in'); io.unobserve(section); }
+      });
+    }, { threshold: 0.25 });
+    io.observe(section);
+
+    // Pixel diferido: NO se dispara todavía (se cableará en la fase del Pixel).
+    const cta = document.getElementById('cf-cta');
+    if (cta) cta.addEventListener('click', function () {
+      // TODO Pixel: track('InitiateCheckout', {origen:'cta_final'})
+    });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+  else run();
+})();
+</script>

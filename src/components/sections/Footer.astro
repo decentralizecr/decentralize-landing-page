@@ -1,0 +1,608 @@
+---
+// Sección 13 — Redes + Footer · "edge of the universe" (último elemento de la página)
+// Cierre del viaje: el campo de estrellas se ADELGAZA hacia abajo y se funde a negro (el viaje
+// termina en la frontera del vacío). Patrón autocontenido como el resto del repo: IIFE +
+// <script is:inline> + IntersectionObserver + guard de prefers-reduced-motion.
+//
+// Fondo edge-of-universe (costo bajo):
+//   1. Starfield estático SVG (fallback no-JS / reduced-motion), estrellas densas arriba.
+//   2. Canvas 2D con el mismo campo + titileo sutil (solo si motion ok); oculta el SVG al activarse.
+//   3. 2 galaxias tenues (divs CSS con radial-gradient elíptico, estáticas, sin costo por frame).
+//   4. Overlay CSS .ftr-fade: tapa la costura con §12 arriba y funde a negro el borde inferior.
+// Transición §12→§13: CtaFinal ya funde su borde inferior a --bg-deep (.cf-basefade); el footer
+// arranca en --bg-deep opaco (z-index:10, tapa el Globo fijo z1) => unión negro→negro invisible.
+//
+// Iconos: simple-icons inline (Instagram, TikTok, Facebook, X con el logo actual), 20px,
+// fill currentColor, en nodos glass de 48px que brillan en hover. Pixel diferido: TODO en el
+// click de Instagram, sin disparar. Copy voseo, sin guion largo. Disclaimer SUGEF verbatim.
+
+// --- Starfield estático (SVG): generado determinista para SSG estable. Densidad sesgada arriba. ---
+function mulberry32(a: number) {
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const rnd = mulberry32(137);
+const VW = 1000, VH = 600;
+const staticStars = Array.from({ length: 72 }, () => {
+  const yf = 0.06 + Math.pow(rnd(), 1.7) * 0.84;   // 6%..90%, denso cerca del 6-30%
+  const depthFade = 1 - yf;                         // más tenue hacia abajo
+  const r = 0.5 + rnd() * 1.1;
+  const op = (0.25 + rnd() * 0.5) * (0.25 + 0.75 * depthFade);
+  const orange = rnd() < 0.15;
+  return {
+    x: +(rnd() * VW).toFixed(1),
+    y: +(yf * VH).toFixed(1),
+    r: +r.toFixed(2),
+    op: +op.toFixed(2),
+    c: orange ? '#F7931A' : '#ffffff',
+  };
+});
+
+// --- Redes (simple-icons paths oficiales; X = logo actual, no el pájaro) ---
+const socials = [
+  {
+    name: 'Instagram', href: 'https://instagram.com/decentralizecr', id: 'ftr-ig',
+    path: 'M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z',
+  },
+  {
+    name: 'TikTok', href: 'https://tiktok.com/@decentralizecr', id: '',
+    path: 'M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z',
+  },
+  {
+    name: 'Facebook', href: 'https://facebook.com/decentralizecr', id: '',
+    path: 'M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z',
+  },
+  {
+    name: 'X', href: 'https://x.com/decentralizecr', id: '',
+    path: 'M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z',
+  },
+];
+---
+
+<section id="footer-sect" class="ftr">
+  <!-- Fondo edge-of-universe -->
+  <div class="ftr-bg" aria-hidden="true">
+    <svg class="ftr-stars-static" viewBox={`0 0 ${VW} ${VH}`} preserveAspectRatio="xMidYMid slice">
+      {staticStars.map((s) => (
+        <circle cx={s.x} cy={s.y} r={s.r} fill={s.c} opacity={s.op} />
+      ))}
+    </svg>
+    <canvas class="ftr-stars-canvas"></canvas>
+    <div class="ftr-galaxy ftr-galaxy--a"></div>
+    <div class="ftr-galaxy ftr-galaxy--b"></div>
+    <div class="ftr-fade"></div>
+    <!-- Amanecer en el borde INFERIOR (edge of universe): arco cyan->gold + lens-flare, overlay CSS
+         (mix-blend screen), el sol en el horizonte al final de la página. Capas: estrellas arriba
+         -> starfield en el medio -> horizonte luminoso abajo. -->
+    <div class="ftr-sunrise" aria-hidden="true"></div>
+    <div class="ftr-flare" aria-hidden="true"></div>
+  </div>
+
+  <div class="ftr-inner">
+    <!-- BLOQUE A: Redes -->
+    <div class="ftr-social ftr-reveal">
+      <span class="eyebrow">¿Querés ver más?</span>
+      <h2 class="ftr-h2">Seguime <span class="alt">en redes sociales.</span></h2>
+      <p class="ftr-sub">
+        Publico contenido semanal sobre Bitcoin, dinero, economía de Costa Rica y los cambios que
+        están transformando el sistema financiero.
+      </p>
+      <div class="ftr-nodes">
+        {socials.map((s) => (
+          <a
+            class="ftr-node"
+            href={s.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={s.name}
+            id={s.id || undefined}
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+              <path d={s.path} />
+            </svg>
+          </a>
+        ))}
+      </div>
+    </div>
+
+    <div class="ftr-divider" aria-hidden="true"></div>
+
+    <!-- BLOQUE B: Footer · 4 columnas en fila (desktop) / apiladas (mobile) -->
+    <div class="ftr-cols ftr-reveal">
+      <!-- Col 1: marca (logo grande clickeable al inicio + tagline + redes chicas) -->
+      <div class="ftr-col ftr-col--brand">
+        <a class="ftr-brand" href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;" aria-label="Volver al inicio">
+          <img src="/logo-white.svg" alt="Decentralize" width="214" height="40" />
+        </a>
+        <p class="ftr-tagline">Bitcoin · Educación · Comunidad · Compra y Venta</p>
+        <div class="ftr-mini-social">
+          {socials.map((s) => (
+            <a
+              class="ftr-mini"
+              href={s.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={s.name}
+            >
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+                <path d={s.path} />
+              </svg>
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <!-- Col 2: Curso -->
+      <nav class="ftr-col" aria-label="Curso">
+        <h3 class="ftr-col-h">Curso</h3>
+        <a href="#masterclass">Bitcoin Masterclass</a>
+        <a href="#comunidad">Comunidad Discord</a>
+        <a href="#testimonios">Testimonios</a>
+        <a href="#precio">Comprar ahora</a>
+      </nav>
+
+      <!-- Col 3: Contacto -->
+      <nav class="ftr-col" aria-label="Contacto">
+        <h3 class="ftr-col-h">Contacto</h3>
+        <a href="/form?opcion=llamada">Llamada gratis 30 min</a>
+        <a href="https://instagram.com/decentralizecr" target="_blank" rel="noopener noreferrer">@decentralizecr</a>
+        <a href="mailto:admin@decentralizecr.com">admin@decentralizecr.com</a>
+        <a href="#alberto">Sobre Alberto</a>
+      </nav>
+
+      <!-- Col 4: Legal -->
+      <nav class="ftr-col" aria-label="Legal">
+        <h3 class="ftr-col-h">Legal</h3>
+        <a href="/privacidad">Política de Privacidad</a>
+        <a href="/terminos">Términos y Condiciones</a>
+        <a href="/reembolso">Política de Reembolso</a>
+      </nav>
+    </div>
+
+    <!-- Disclaimer (verbatim SUGEF/Ley 7786) + copyright -->
+    <p class="ftr-disclaimer ftr-reveal">
+      Este contenido es únicamente educativo y no constituye asesoría financiera, legal ni fiscal.
+      Las rentabilidades pasadas no garantizan resultados futuros. Invertir en Bitcoin implica
+      riesgos. El servicio de compra/venta de BTC es provisto por <a class="ftr-kribatta" href="https://web.kribatta.com/" target="_blank" rel="noopener noreferrer">Kribatta</a>,
+      entidad financiera regulada por SUGEF en Costa Rica.
+    </p>
+    <p class="ftr-copy ftr-reveal">© 2026 Decentralize · Costa Rica. Todos los derechos reservados.</p>
+  </div>
+</section>
+
+<style>
+.ftr {
+  position: relative;
+  z-index: 10;              /* sobre el Globo fijo (z1); opaco para no dejarlo filtrar detrás */
+  overflow: hidden;
+  background: var(--bg-deep);
+  padding: clamp(26px, 4.5vh, 52px) 24px clamp(22px, 3.5vh, 40px);
+}
+
+/* ---------- Fondo edge-of-universe ---------- */
+.ftr-bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+
+.ftr-stars-static,
+.ftr-stars-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.ftr-stars-static circle { transform-origin: center; transform-box: fill-box; }
+/* Cuando el canvas toma el control (motion ok), se oculta el SVG para no duplicar estrellas. */
+.ftr.canvas-on .ftr-stars-static { opacity: 0; }
+
+/* Galaxias distantes: smudges elípticos muy tenues que se desvanecen en el negro (CSS, estáticas) */
+.ftr-galaxy {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(14px);
+  opacity: 0.5;
+}
+.ftr-galaxy--a {
+  top: 8%; left: 14%;
+  width: 260px; height: 120px;
+  transform: rotate(-18deg);
+  background: radial-gradient(ellipse 50% 50% at 50% 50%,
+    rgba(180,170,220,0.12), rgba(120,110,180,0.05) 45%, transparent 72%);
+}
+.ftr-galaxy--b {
+  top: 20%; right: 10%;
+  width: 180px; height: 90px;
+  transform: rotate(22deg);
+  background: radial-gradient(ellipse 50% 50% at 50% 50%,
+    rgba(247,147,26,0.08), rgba(247,147,26,0.03) 45%, transparent 72%);
+}
+
+/* Fade: oscurece SOLO la costura con §12 (borde superior) para continuar la transición oscura
+   desde §12 arriba. El resto queda transparente: las estrellas pueblan el medio y el amanecer
+   (.ftr-sunrise) ocupa el borde inferior sin ser tapado por negro. */
+.ftr-fade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg,
+    rgba(4,4,5,0.62) 0%,
+    rgba(4,4,5,0) 15%,
+    rgba(4,4,5,0) 100%);
+}
+
+/* ---- Amanecer en el borde INFERIOR (overlay, no WebGL): arco de luz cyan->gold ancho y bajo,
+   con el pico ~94% (cerca del borde inferior) => el sol se pone en el horizonte al final de la
+   página y su resplandor sube hacia las estrellas. mix-blend screen aclara sobre el fondo oscuro. */
+.ftr-sunrise {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 200vw;             /* muy ancho => horizonte plano, no un domo */
+  height: 54vh;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background:
+    radial-gradient(ellipse 50% 90% at 50% 94%,
+      rgba(247,147,26,0.42), rgba(247,147,26,0.15) 34%, transparent 62%),
+    radial-gradient(ellipse 96% 95% at 50% 94%,
+      rgba(0,229,255,0.24), rgba(0,229,255,0.07) 44%, transparent 76%);
+}
+
+/* Lens-flare: destello sutil en el punto más brillante del horizonte inferior (CSS) con dos rayos
+   cruzados finos */
+.ftr-flare {
+  position: absolute;
+  left: 50%;
+  bottom: 3vh;
+  transform: translateX(-50%);
+  width: 160px;
+  height: 160px;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: radial-gradient(circle,
+    rgba(255,240,210,0.5), rgba(255,200,120,0.16) 28%, transparent 60%);
+}
+.ftr-flare::before,
+.ftr-flare::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+.ftr-flare::before {
+  width: 320px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255,224,170,0.5), transparent);
+}
+.ftr-flare::after {
+  width: 2px;
+  height: 200px;
+  background: linear-gradient(180deg, transparent, rgba(255,224,170,0.38), transparent);
+}
+
+/* ---------- Contenido ---------- */
+.ftr-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+/* BLOQUE A: redes */
+.ftr-social {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: 16px;
+}
+.ftr-h2 {
+  margin: 4px 0 0;
+  font: 700 clamp(1.7rem, 4.4vw, 2.6rem)/1.12 var(--font-display);
+  letter-spacing: -0.02em;
+  color: var(--txt-hi);
+}
+.ftr-h2 .alt {
+  background: linear-gradient(135deg, #F7931A 0%, #FFB347 45%, #F7931A 75%, #CC7A00 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+.ftr-sub {
+  margin: 0;
+  max-width: 56ch;
+  font: 400 clamp(0.92rem, 2vw, 1.02rem)/1.65 var(--font-body);
+  color: var(--txt-mid);
+}
+
+/* Nodos de redes: círculos glass de 48px con borde e icono naranja, que laten como nodos de energía
+   (glow naranja parpadeante, desfasado entre los 4). Hover intensifica el glow + lift. */
+.ftr-nodes { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin-top: 10px; }
+.ftr-node {
+  width: 48px; height: 48px;
+  display: grid; place-items: center;
+  color: var(--btc);
+  border-radius: 50%;
+  border: 1px solid var(--btc);
+  background: rgba(247,147,26,0.06);
+  transition: transform 0.3s var(--ease-out), border-color 0.3s ease,
+              box-shadow 0.3s ease, background 0.3s ease, color 0.3s ease;
+  animation: ftrNodePulse 2.5s ease-in-out infinite;
+}
+/* Desfase escalonado: los 4 nodos no laten idénticos */
+.ftr-node:nth-child(1) { animation-delay: 0s; }
+.ftr-node:nth-child(2) { animation-delay: 0.6s; }
+.ftr-node:nth-child(3) { animation-delay: 1.2s; }
+.ftr-node:nth-child(4) { animation-delay: 1.8s; }
+@keyframes ftrNodePulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(247,147,26,0.25), 0 0 12px rgba(247,147,26,0.10); }
+  50%      { box-shadow: 0 0 16px rgba(247,147,26,0.60), 0 0 30px rgba(247,147,26,0.30); }
+}
+.ftr-node:hover {
+  transform: translateY(-3px);
+  border-color: var(--btc);
+  background: rgba(247,147,26,0.14);
+  box-shadow: 0 0 22px rgba(247,147,26,0.75), 0 8px 26px rgba(247,147,26,0.45);
+  animation: none;   /* al hover: glow fijo intenso (no compite con el latido) */
+}
+.ftr-node:focus-visible {
+  outline: 2px solid var(--btc);
+  outline-offset: 3px;
+}
+
+/* Divider */
+.ftr-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.06);
+  margin: clamp(36px, 6vh, 60px) 0 clamp(28px, 4vh, 44px);
+}
+
+/* BLOQUE B: footer 4 columnas en fila (marca | Curso | Contacto | Legal) */
+.ftr-cols {
+  display: grid;
+  grid-template-columns: 1.7fr 1fr 1.2fr 1fr;
+  gap: 48px;
+  align-items: start;
+}
+.ftr-col { display: flex; flex-direction: column; gap: 11px; min-width: 0; }
+/* Título de columna: naranja, mono uppercase, con línea naranja debajo */
+.ftr-col-h {
+  margin: 0 0 14px;
+  padding-bottom: 8px;
+  font: 600 0.72rem/1.4 var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--btc);
+  border-bottom: 1px solid var(--btc);
+  width: fit-content;
+}
+.ftr-col a {
+  font: 400 13px/1.5 var(--font-body);
+  /* Subido de --txt-low a gris claro para leerse sobre el resplandor del amanecer inferior */
+  color: rgba(255,255,255,0.72);
+  text-decoration: none;
+  transition: color 0.25s ease;
+  width: fit-content;
+}
+.ftr-col a:hover { color: #fff; }
+.ftr-col a:focus-visible { outline: 2px solid var(--btc); outline-offset: 2px; border-radius: 3px; }
+
+/* Col marca: logo grande (clickeable al inicio) + tagline + redes chicas */
+.ftr-brand { display: inline-block; width: fit-content; cursor: pointer; }
+.ftr-brand img { display: block; height: 40px; width: auto; opacity: 0.95; }
+.ftr-tagline {
+  margin: 16px 0 0;
+  font: 400 13px/1.6 var(--font-body);
+  color: var(--txt-low);
+  max-width: 30ch;
+}
+/* Redes chicas monocromáticas (gris, hover naranja) bajo el tagline */
+.ftr-mini-social { display: flex; gap: 16px; margin-top: 18px; }
+.ftr-mini {
+  display: inline-flex;
+  color: var(--txt-low);
+  transition: color 0.25s ease, transform 0.25s ease;
+}
+.ftr-mini:hover { color: var(--btc); transform: translateY(-2px); }
+.ftr-mini:focus-visible { outline: 2px solid var(--btc); outline-offset: 3px; border-radius: 3px; }
+
+/* Disclaimer + copyright */
+.ftr-disclaimer {
+  margin: clamp(36px, 6vh, 60px) auto 0;
+  max-width: 760px;
+  text-align: center;
+  font: 400 12px/1.7 var(--font-body);
+  /* Blanco tenue + sombra: legible sobre el amanecer inferior (antes --txt-ghost, se perdia) */
+  color: rgba(255,255,255,0.85);
+  text-shadow: 0 1px 8px rgba(0,0,0,0.65);
+}
+.ftr-kribatta {
+  color: var(--btc);
+  text-decoration: underline;
+  text-decoration-color: rgba(247,147,26,0.45);
+  text-underline-offset: 2px;
+  font-weight: 600;
+  transition: text-decoration-color 0.3s ease, color 0.3s ease;
+}
+.ftr-kribatta:hover { text-decoration-color: var(--btc); }
+.ftr-copy {
+  margin: 18px 0 0;
+  text-align: center;
+  font: 400 11px/1.5 var(--font-mono);
+  letter-spacing: 0.04em;
+  /* Gris claro + sombra: legible sobre el amanecer inferior (antes --txt-ghost) */
+  color: rgba(255,255,255,0.72);
+  text-shadow: 0 1px 8px rgba(0,0,0,0.6);
+}
+
+/* ---------- Reveal al entrar ---------- */
+.ftr-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
+}
+.ftr.in .ftr-reveal { opacity: 1; transform: none; }
+.ftr.in .ftr-reveal:nth-child(1) { transition-delay: 0.05s; }
+.ftr.in .ftr-cols { transition-delay: 0.12s; }
+.ftr.in .ftr-disclaimer { transition-delay: 0.18s; }
+.ftr.in .ftr-copy { transition-delay: 0.24s; }
+
+/* ---------- Mobile (1 columna, sin desbordes a 390px) ---------- */
+@media (max-width: 768px) {
+  .ftr { padding: clamp(20px, 4vh, 40px) 18px 28px; }
+  /* Amanecer SUBIDO: en mobile el horizonte luminoso cae JUSTO DEBAJO de los iconos de redes
+     (~28% desde el tope = zona del divisor), como una linea que separa [redes] de [columnas].
+     Banda ancha y baja anclada desde arriba (no en el borde inferior como en desktop). */
+  .ftr-sunrise {
+    top: 16%;
+    bottom: auto;
+    height: 40%;
+    background:
+      radial-gradient(ellipse 50% 40% at 50% 30%,
+        rgba(247,147,26,0.44), rgba(247,147,26,0.16) 34%, transparent 62%),
+      radial-gradient(ellipse 96% 48% at 50% 30%,
+        rgba(0,229,255,0.24), rgba(0,229,255,0.07) 46%, transparent 78%);
+  }
+  .ftr-flare { width: 130px; height: 130px; top: 23%; bottom: auto; }
+  .ftr-flare::before { width: 240px; }
+  .ftr-flare::after { height: 150px; }
+  /* Grilla mobile: marca (fila 1, centrada) -> [CURSO | CONTACTO] lado a lado -> LEGAL centrado.
+     La marca y Legal ocupan todo el ancho y su contenido queda centrado en el eje 50% (alineado
+     con el flare del amanecer). Curso y Contacto comparten fila, cada uno en su mitad. */
+  .ftr-cols {
+    grid-template-columns: 1fr 1fr;
+    gap: 30px 18px;
+    text-align: center;
+  }
+  .ftr-col { align-items: center; }
+  .ftr-col a { width: auto; }
+  .ftr-col-h { margin-left: auto; margin-right: auto; }
+  .ftr-mini-social { justify-content: center; }
+  .ftr-brand, .ftr-tagline { margin-left: auto; margin-right: auto; }
+  .ftr-tagline { max-width: 40ch; }
+  /* Marca a todo el ancho (fila 1): logo + tagline + redes chicas centrados con el flare (50%) */
+  .ftr-col--brand { grid-column: 1 / -1; }
+  /* Legal a todo el ancho, debajo de CURSO|CONTACTO, centrado */
+  .ftr-col[aria-label="Legal"] { grid-column: 1 / -1; }
+}
+
+/* ---------- Reduced motion: SVG estático visible, sin titileo; fade y galaxias presentes ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .ftr-reveal { opacity: 1; transform: none; transition: none; }
+  .ftr.canvas-on .ftr-stars-static { opacity: 1; }   /* nunca se oculta el SVG */
+  /* Glow naranja fijo (sin parpadeo) en los nodos */
+  .ftr-node { animation: none; box-shadow: 0 0 12px rgba(247,147,26,0.40); }
+  .ftr-node:hover { transform: none; }
+  .ftr-mini:hover { transform: none; }
+}
+</style>
+
+<script is:inline>
+(function () {
+  const root = document.getElementById('footer-sect');
+  if (!root) return;
+
+  // Pixel diferido: NO se dispara todavía (se cableará en la fase del Pixel).
+  const ig = document.getElementById('ftr-ig');
+  if (ig) ig.addEventListener('click', function () {
+    // TODO Pixel: track('Contact')
+  });
+
+  function run() {
+    // Reveal al entrar en viewport
+    const revObs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { root.classList.add('in'); revObs.disconnect(); }
+      });
+    }, { threshold: 0.15 });
+    revObs.observe(root);
+
+    // Reduced motion: sin canvas (queda el starfield SVG estático). Galaxias y fade son CSS.
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return;
+
+    const canvas = root.querySelector('.ftr-stars-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    root.classList.add('canvas-on');   // oculta el SVG: el canvas dibuja el campo con titileo
+
+    const DPR = Math.min(window.devicePixelRatio || 1, 1.5);
+    let W = 0, H = 0, stars = [], rafId = null, running = false;
+
+    function build() {
+      // Campo adelgazado hacia abajo: y sesgada arriba; brillo decae con la profundidad.
+      const isMobile = window.matchMedia('(max-width: 768px)').matches;
+      const count = isMobile ? 48 : 84;
+      stars = Array.from({ length: count }, function () {
+        const yf = 0.04 + Math.pow(Math.random(), 1.7) * 0.86;   // 4%..90%, denso arriba
+        const depth = 1 - yf;
+        return {
+          x: Math.random() * W,
+          y: yf * H,
+          r: 0.5 + Math.random() * 1.1,
+          base: (0.22 + Math.random() * 0.5) * (0.22 + 0.78 * depth),
+          tw: 0.3 + Math.random() * 0.6,           // amplitud de titileo
+          ph: Math.random() * Math.PI * 2,         // fase
+          sp: 0.6 + Math.random() * 1.1,           // velocidad
+          orange: Math.random() < 0.15,
+        };
+      });
+    }
+
+    function resize() {
+      const rect = canvas.getBoundingClientRect();
+      W = rect.width; H = rect.height;
+      canvas.width = Math.floor(W * DPR);
+      canvas.height = Math.floor(H * DPR);
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+      build();
+    }
+
+    function frame(now) {
+      if (!running) return;
+      const t = now / 1000;
+      ctx.clearRect(0, 0, W, H);
+      for (let i = 0; i < stars.length; i++) {
+        const s = stars[i];
+        const a = Math.max(0, Math.min(1, s.base * (1 + s.tw * Math.sin(t * s.sp + s.ph) * 0.5)));
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = s.orange
+          ? 'rgba(247,147,26,' + a.toFixed(3) + ')'
+          : 'rgba(255,255,255,' + a.toFixed(3) + ')';
+        ctx.fill();
+      }
+      rafId = requestAnimationFrame(frame);
+    }
+
+    function start() {
+      if (running) return;
+      running = true;
+      if (W === 0) resize();
+      rafId = requestAnimationFrame(frame);
+    }
+    function stop() {
+      running = false;
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+
+    window.addEventListener('resize', function () { if (running) resize(); }, { passive: true });
+
+    // Pausa fuera de viewport (cumple cap de canvas y ahorra batería)
+    const io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) start(); else stop(); });
+    }, { rootMargin: '200px' });
+    io.observe(root);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+  else run();
+})();
+</script>
