@@ -145,7 +145,7 @@ const faqs: Faq[] = [
     <div class="faq-final faq-reveal" style="--del:0.1s">
       <h2 class="faq-final-title">Nadie va a <span class="ff-accent">proteger tu dinero</span> por vos.</h2>
       <p class="faq-final-sub">Dentro de cinco años, vas a agradecer haber empezado hoy.</p>
-      <a href="#form" class="btn btn-glass btn-primary btn-hero faq-final-cta" id="cf-cta">
+      <a href="/empezar" class="btn btn-glass btn-primary btn-hero faq-final-cta" id="cf-cta">
         <span class="liquid"></span>
         <span class="t">Empezar ahora →</span>
       </a>
@@ -615,7 +615,11 @@ const faqs: Faq[] = [
     const area = W * H;
     STAR_COUNT = Math.max(FEATURED + 40, Math.round(area * STAR_DENSITY));
     ASTEROIDS  = Math.round(area * AST_DENSITY);
-    MAX_COMETS = Math.max(2, Math.round(area * COMET_DENSITY));
+    // Cometas: en DESKTOP (>768px) se baja el cap a la mitad => menos cometas simultaneos y
+    // ~50% menos frecuencia (el burst de scheduleComet es proporcional al cap, asi que acompana).
+    // Mobile (<=768px) queda INTACTO: factor 1, mismo floor 2 y misma cadencia que antes.
+    const cometFactor = window.innerWidth > 768 ? 0.5 : 1;
+    MAX_COMETS = Math.max(2, Math.round(area * COMET_DENSITY * cometFactor));
     // Estrellas: las primeras FEATURED son las destacadas (más grandes/brillantes, con glow).
     stars = [];
     for (let i = 0; i < STAR_COUNT; i++) {

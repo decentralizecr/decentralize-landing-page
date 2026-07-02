@@ -3,6 +3,13 @@
 // Globe.GL + Three.js + estrellas + liquid glass + nav
 ---
 
+<!-- CSS critico anti-flash: aplica en el primer paint (dev y prod) para que el
+     menu movil nunca aparezca antes de que carguen los estilos con scope. -->
+<style is:inline>
+  .menu-wrap { display: none; }
+  @media (max-width: 900px) { .menu-wrap { display: flex; } }
+</style>
+
 <!-- Capas de fondo -->
 <canvas id="space"></canvas>
 <div id="globe-stage"></div>
@@ -27,21 +34,23 @@
       <li><a href="#alberto">Alberto</a></li>
       <li><a href="#testimonios">Testimonios</a></li>
     </ul>
-    <a href="#form" class="btn btn-glass btn-primary btn-sm btn-hero">
+    <a href="#precio" class="btn btn-glass btn-primary btn-sm btn-hero">
       <span class="liquid"></span>
       <span class="t"><span class="txt-desktop">Empezá ahora</span><span class="txt-mobile">Empezá Ya</span></span>
     </a>
-    <button id="hamburger" class="btn btn-glass btn-primary btn-sm btn-hamburger" aria-label="Abrir menú" aria-expanded="false" aria-controls="nav-menu">
-      <span class="liquid"></span><span class="t">☰</span>
-    </button>
+    <div class="menu-wrap">
+      <button id="hamburger" class="btn btn-glass btn-primary btn-sm btn-hamburger" aria-label="Abrir menú" aria-expanded="false" aria-controls="nav-menu">
+        <span class="liquid"></span><span class="t">☰</span>
+      </button>
+      <nav id="nav-menu" aria-label="Menú móvil">
+        <a href="#masterclass">El Masterclass</a>
+        <a href="#comunidad">Comunidad</a>
+        <a href="#alberto">Alberto</a>
+        <a href="#testimonios">Testimonios</a>
+      </nav>
+    </div>
   </nav>
 </header>
-<nav id="nav-menu" aria-label="Menú móvil">
-  <a href="#masterclass">El Masterclass</a>
-  <a href="#comunidad">Comunidad</a>
-  <a href="#alberto">Alberto</a>
-  <a href="#testimonios">Testimonios</a>
-</nav>
 
 <!-- Hero -->
 <main>
@@ -62,7 +71,7 @@
     </div>
 
     <div class="cta-row">
-      <a href="#form" class="btn btn-glass btn-primary btn-hero">
+      <a href="#precio" class="btn btn-glass btn-primary btn-hero">
         <span class="liquid"></span>
         <span class="t">Unirme al Bitcoin Masterclass</span>
       </a>
@@ -129,19 +138,21 @@
   .nav-links a::after { content:"";position:absolute;left:0;bottom:-6px;height:1px;width:0;background:var(--gold);transition:width .3s }
   .nav-links a:hover::after { width:100% }
   .txt-mobile { display:none }
+  .menu-wrap { display:none;position:relative;align-items:center;flex-shrink:0 }
   .btn-hamburger { display:none;align-items:center;justify-content:center;width:38px;height:38px;padding:0;border-radius:10px;font-size:18px;line-height:1;flex-shrink:0 }
   @media(max-width:900px) {
     .nav-links { display:none }
     .txt-desktop { display:none }
     .txt-mobile { display:inline }
+    .menu-wrap { display:flex }
     .btn-hamburger { display:inline-flex }
     .nav .btn-hero { font-size:12px;padding:6px 12px;white-space:nowrap }
   }
-  #nav-menu { position:fixed;top:68px;right:clamp(16px,4vw,44px);min-width:200px;background:rgba(10,10,10,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(247,147,26,0.3);border-radius:12px;overflow:hidden;z-index:100;transform:translateY(-10px);opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s ease }
+  #nav-menu { position:absolute;top:calc(100% + 12px);right:0;min-width:210px;background:rgba(10,10,10,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(247,147,26,0.3);border-radius:12px;overflow:hidden;z-index:100;box-shadow:0 12px 34px rgba(0,0,0,0.5),0 0 24px rgba(247,147,26,0.15);transform:translateY(-10px);opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s ease }
   #nav-menu.open { opacity:1;transform:translateY(0);pointer-events:auto }
-  #nav-menu a { display:block;padding:14px 20px;color:#fff;text-decoration:none;font-size:15px;font-weight:500;border-bottom:1px solid rgba(255,255,255,0.06);transition:color .2s }
+  #nav-menu a { display:block;text-align:center;padding:14px 22px;color:#F7931A;text-decoration:none;font-size:15px;font-weight:600;border-bottom:1px solid rgba(255,255,255,0.06);text-shadow:0 0 12px rgba(247,147,26,0.35);transition:color .2s,text-shadow .2s }
   #nav-menu a:last-child { border-bottom:none }
-  #nav-menu a:hover { color:#F7931A }
+  #nav-menu a:hover { color:#ffb454;text-shadow:0 0 18px rgba(247,147,26,0.6) }
 
   /* ---- Botones ---- */
   .btn { font-family:var(--font-sans);font-size:15px;font-weight:550;border:none;cursor:pointer;text-decoration:none;padding:13px 22px;border-radius:14px;display:inline-flex;align-items:center;gap:9px;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .3s,background .3s,border-color .3s;will-change:transform }

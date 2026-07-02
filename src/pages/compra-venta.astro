@@ -1,0 +1,18 @@
+---
+// Politica de Compra y Venta. Pagina INDEXABLE (sin noindex), mismo formato que las demas
+// legales via LegalLayout (fondo de estrellas + cometas, header, footer compartido, panel glass).
+// El panel del medio queda VACIO a proposito: el copy aun no esta listo y se agrega despues
+// dentro del <LegalLayout>...</LegalLayout> (h1, h2, p, ul con las clases legal-h1 / legal-date).
+import LegalLayout from '../layouts/LegalLayout.astro';
+---
+<LegalLayout
+  title="Política de Compra y Venta | Decentralize"
+  description="Política de Compra y Venta de Bitcoin de Decentralize CR S.R.L. El servicio de compra/venta de BTC es provisto por Kribatta, entidad regulada por SUGEF en Costa Rica."
+>
+  {/* Panel intencionalmente vacio: pegar aca el copy cuando este listo.
+      Estructura de referencia (misma que reembolso.astro / privacidad.astro):
+      <h1 class="legal-h1">Política de Compra y Venta</h1>
+      <p class="legal-date">Última actualización: julio 2026</p>
+      <h2>...</h2>
+      <p>...</p> */}
+</LegalLayout>

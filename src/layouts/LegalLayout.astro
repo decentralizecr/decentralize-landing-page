@@ -1,0 +1,531 @@
+---
+// Layout compartido de las 3 paginas legales (privacidad, terminos, reembolso).
+// Un solo ajuste de diseno aca se propaga a las tres.
+//
+// Fondo: MISMO efecto de la seccion FAQ (§11): campo de estrellas + cometas/fugaces.
+// Aca vive como capa FIJA a viewport completo (position:fixed, z-0); el contenido scrollea
+// encima con normalidad. Canvas 2D, DPR <= 1.5, pausa via IntersectionObserver (sale de
+// viewport) y visibilitychange (pestana oculta). prefers-reduced-motion: solo el SVG estatico.
+//
+// Header/Footer: se reutiliza el Footer del sitio (Footer.astro) y un header propio consistente
+// con el nav del sitio (logo -> /, boton "Empeza ahora" -> /empezar). Paginas INDEXABLES (sin noindex).
+import BaseLayout from './BaseLayout.astro';
+import Footer from '../components/sections/Footer.astro';
+
+interface Props {
+  title: string;
+  description: string;
+}
+const { title, description } = Astro.props;
+
+// --- Star map estatico (build time): mulberry32 sembrado => posiciones estables (patron de §11) ---
+function mulberry32(a: number) {
+  return function () {
+    a |= 0; a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const rand = mulberry32(20260701);
+type Star = { x: number; y: number; r: number; op: number; c: string; feat: boolean };
+const stars: Star[] = Array.from({ length: 90 }, () => {
+  const x = +(rand() * 1000).toFixed(1);
+  const y = +(rand() * 1000).toFixed(1);
+  const r = +(rand() * 1.5 + 0.5).toFixed(2);
+  const op = +(rand() * 0.5 + 0.35).toFixed(2);
+  const c = rand() > 0.85 ? '#F7931A' : '#FFFFFF';
+  return { x, y, r, op, c, feat: false };
+});
+const featured: Star[] = Array.from({ length: 7 }, () => {
+  const x = +(rand() * 1000).toFixed(1);
+  const y = +(rand() * 1000).toFixed(1);
+  const r = +(rand() * 1.6 + 2.4).toFixed(2);
+  const op = +(rand() * 0.18 + 0.8).toFixed(2);
+  const c = rand() > 0.5 ? '#F7931A' : '#FFFFFF';
+  return { x, y, r, op, c, feat: true };
+});
+const allStars: Star[] = stars.concat(featured);
+---
+<BaseLayout title={title} description={description}>
+  <!-- Fondo fijo a viewport completo (estrellas + cometas). z-0, detras de todo. -->
+  <div class="legal-bg" aria-hidden="true">
+    <svg class="legal-stars" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice">
+      {allStars.map((s) => <circle class={s.feat ? 'star-feat' : undefined} cx={s.x} cy={s.y} r={s.r} fill={s.c} opacity={s.op} />)}
+    </svg>
+    <canvas class="legal-canvas"></canvas>
+  </div>
+
+  <!-- Header: logo -> inicio, boton "Empeza ahora" -> /empezar -->
+  <header class="legal-nav">
+    <a href="/" class="legal-brand" aria-label="Volver al inicio">
+      <img src="/logo-white.svg" alt="Decentralize" class="legal-logo" width="200" height="38" />
+    </a>
+    <a href="/empezar" class="legal-cta">
+      <span class="legal-cta-liquid" aria-hidden="true"></span>
+      <span class="legal-cta-t">Empezá ahora <span aria-hidden="true">→</span></span>
+    </a>
+  </header>
+
+  <main class="legal-main">
+    <article class="legal-panel">
+      <slot />
+    </article>
+  </main>
+
+  <!-- Footer compartido con el home. Lo envolvemos para acercarlo al panel SOLO en legales
+       (override local del padding-top de .ftr), sin tocar el espaciado global del home. -->
+  <div class="legal-foot">
+    <Footer />
+  </div>
+</BaseLayout>
+
+<style>
+  /* ---- Fondo fijo (estrellas) ---- */
+  .legal-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: var(--bg-tech);
+  }
+  .legal-stars,
+  .legal-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .legal-stars {
+    opacity: 0.75;
+    mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, black 40%, transparent 92%);
+    -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, black 40%, transparent 92%);
+  }
+  .legal-stars .star-feat {
+    filter: drop-shadow(0 0 2.5px rgba(255,220,180,0.85)) drop-shadow(0 0 6px rgba(255,200,140,0.4));
+  }
+  .legal-canvas {
+    opacity: 1;
+    mask-image: radial-gradient(ellipse 98% 92% at 50% 42%, black 52%, transparent 98%);
+    -webkit-mask-image: radial-gradient(ellipse 98% 92% at 50% 42%, black 52%, transparent 98%);
+  }
+  /* Cuando el canvas anima, ocultamos el SVG base (evita doble estrella) */
+  :global(body.legal-canvas-on) .legal-stars { display: none; }
+
+  /* ---- Header ---- */
+  .legal-nav {
+    position: relative;
+    z-index: 2;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 20px clamp(18px, 4vw, 44px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .legal-brand { display: inline-flex; }
+  .legal-logo { height: 40px; width: auto; display: block; opacity: 0.96; }
+  @media (max-width: 640px) { .legal-logo { height: 34px; } }
+
+  /* CTA glass naranja autocontenida (los .btn globales solo se inyectan con el Hero del home) */
+  .legal-cta {
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font: 600 14.5px/1 var(--font-body);
+    color: #fff;
+    text-decoration: none;
+    white-space: nowrap;
+    padding: 12px 22px;
+    border-radius: var(--r-pill);
+    border: 1.5px solid #F7931A;
+    background: rgba(247, 147, 26, 0.15);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.4),
+      inset 0 0 22px rgba(247, 147, 26, 0.18),
+      0 0 24px -4px rgba(247, 147, 26, 0.45),
+      0 14px 38px -14px rgba(247, 147, 26, 0.55);
+    transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+  .legal-cta-t { position: relative; z-index: 2; }
+  .legal-cta-liquid {
+    position: absolute;
+    left: var(--mx, 50%);
+    top: var(--my, 50%);
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 60%);
+    filter: blur(8px);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1;
+    mix-blend-mode: screen;
+    transition: opacity 0.35s ease;
+  }
+  .legal-cta:hover {
+    transform: translateY(-2px);
+    background: rgba(247, 147, 26, 0.22);
+    border-color: #F7931A;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.5),
+      inset 0 0 28px rgba(247, 147, 26, 0.26),
+      0 0 34px -2px rgba(247, 147, 26, 0.6),
+      0 18px 46px -14px rgba(247, 147, 26, 0.6);
+  }
+  .legal-cta:hover .legal-cta-liquid { opacity: 0.9; }
+  .legal-cta:focus-visible { outline: 2px solid var(--btc); outline-offset: 3px; }
+  @media (max-width: 640px) { .legal-cta { padding: 10px 16px; font-size: 13.5px; } }
+
+  /* ---- Main + panel glass ---- */
+  .legal-main {
+    position: relative;
+    z-index: 1;
+    /* Bottom acotado: acerca el cierre del panel a la seccion de redes del footer (menos aire) */
+    padding: clamp(24px, 4vw, 40px) 16px clamp(8px, 1.5vh, 20px);
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Gap panel -> "Seguime en redes": el hueco lo sumaban el padding-bottom del main Y el
+     padding-top del footer (.ftr, hasta 52px). Recortamos el top del footer SOLO en legales
+     (via el wrapper .legal-foot). El home no se toca: alli el Footer no va envuelto. */
+  .legal-foot { position: relative; z-index: 1; }
+  .legal-foot :global(.ftr) { padding-top: clamp(10px, 1.6vh, 20px); }
+  /* MISMO liquid glass de la tarjeta del form /empezar (.glass-card): fondo oscuro semiopaco +
+     backdrop-blur + borde naranja tenue + sombra + radio. Alpha del fondo bajado (0.72 -> 0.42)
+     para que las estrellas titilantes y los cometas se perciban vivos y difuminados por detras
+     (z-index del fondo fijo = 0, panel = 1: el backdrop-filter los suaviza, no los tapa). Sigue
+     legible: el blur + saturate y las sombras de texto sostienen el contraste. */
+  .legal-panel {
+    width: 100%;
+    max-width: 720px;
+    padding: clamp(28px, 5vw, 56px) clamp(22px, 4vw, 52px);
+    border-radius: var(--r-big);
+    background: rgba(9, 11, 16, 0.42);
+    border: 1px solid rgba(247, 147, 26, 0.25);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.05),
+      0 0 12px rgba(247, 147, 26, 0.08),
+      var(--shadow-deep);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    backdrop-filter: blur(16px) saturate(140%);
+  }
+  @media (max-width: 640px) {
+    .legal-main { padding: 16px 12px 56px; }
+    .legal-panel { border-radius: var(--r-card); }
+  }
+
+  /* ---- Tipografia del contenido (slot). :global() porque el slot no lleva el scope del layout ---- */
+  .legal-panel :global(.legal-h1) {
+    margin: 0 0 8px;
+    font: 700 clamp(2rem, 5.5vw, 2.8rem)/1.12 var(--font-display);
+    letter-spacing: -0.02em;
+    color: var(--txt-hi);
+  }
+  .legal-panel :global(.legal-date) {
+    margin: 0 0 clamp(28px, 5vw, 44px);
+    font: 400 13px/1.5 var(--font-mono);
+    letter-spacing: 0.04em;
+    color: var(--txt-low);
+  }
+  .legal-panel :global(h2) {
+    margin: clamp(30px, 5vw, 44px) 0 14px;
+    font: 700 clamp(1.15rem, 2.6vw, 1.35rem)/1.3 var(--font-display);
+    letter-spacing: -0.01em;
+    color: var(--txt-hi);
+  }
+  .legal-panel :global(.sec-num) { color: var(--btc); }
+  .legal-panel :global(p) {
+    margin: 0 0 14px;
+    font: 400 clamp(1.02rem, 2.2vw, 1.12rem)/1.7 var(--font-body);
+    color: var(--txt-mid);
+  }
+  .legal-panel :global(strong) { color: var(--txt-hi); font-weight: 600; }
+  .legal-panel :global(ul) {
+    margin: 0 0 14px;
+    padding-left: 22px;
+    font: 400 clamp(1.02rem, 2.2vw, 1.12rem)/1.7 var(--font-body);
+    color: var(--txt-mid);
+  }
+  .legal-panel :global(li) { margin-bottom: 8px; }
+  .legal-panel :global(li::marker) { color: var(--btc); }
+  .legal-panel :global(a) {
+    color: var(--btc);
+    text-decoration: underline;
+    text-decoration-color: rgba(247, 147, 26, 0.45);
+    text-underline-offset: 2px;
+    font-weight: 600;
+    transition: text-decoration-color 0.3s ease, color 0.3s ease;
+    overflow-wrap: anywhere;
+  }
+  .legal-panel :global(a:hover) { text-decoration-color: var(--btc); color: var(--btc-light); }
+  .legal-panel :global(a:focus-visible) { outline: 2px solid var(--btc); outline-offset: 2px; border-radius: 3px; }
+</style>
+
+<script is:inline>
+/* Fondo animado (Canvas 2D, sin WebGL): estrellas titilantes (sprite pre-bakeado) + cometas/
+   fugaces con trail. DPR capeado a 1.5. Pausa via IntersectionObserver (sale de viewport) y
+   visibilitychange (pestana oculta). prefers-reduced-motion: no corre (queda el SVG estatico). */
+(function () {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Scroll al tope al cargar (cada pagina legal arranca desde arriba)
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  window.scrollTo(0, 0);
+
+  if (reduce) return; // queda el star map SVG estatico
+
+  const canvas = document.querySelector('.legal-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  document.body.classList.add('legal-canvas-on'); // oculta el SVG base
+
+  const DPR = Math.min(window.devicePixelRatio || 1, 1.5);
+  const FEATURED = 12;
+  // Configuracion IDENTICA a la seccion FAQ (§11): misma densidad por area de estrellas,
+  // asteroides y cometas => experiencia visual consistente entre FAQ y las paginas legales.
+  const STAR_DENSITY  = 130 / 487271;
+  const AST_DENSITY   = 6 / 487271;
+  const COMET_DENSITY = 2 / 487271;
+  let STAR_COUNT = 130, ASTEROIDS = 6, MAX_COMETS = 2;
+
+  function makeSprite(r, g, b) {
+    const s = 64, c = document.createElement('canvas');
+    c.width = c.height = s;
+    const gx = c.getContext('2d');
+    const grd = gx.createRadialGradient(s/2, s/2, 0, s/2, s/2, s/2);
+    grd.addColorStop(0,    'rgba(' + r + ',' + g + ',' + b + ',1)');
+    grd.addColorStop(0.35, 'rgba(' + r + ',' + g + ',' + b + ',0.55)');
+    grd.addColorStop(1,    'rgba(' + r + ',' + g + ',' + b + ',0)');
+    gx.fillStyle = grd;
+    gx.beginPath();
+    gx.arc(s/2, s/2, s/2, 0, Math.PI * 2);
+    gx.fill();
+    return c;
+  }
+  const spriteW = makeSprite(255, 255, 255);
+  const spriteO = makeSprite(247, 147, 26);
+
+  let W = 0, H = 0, stars = [], asteroids = [], edges = [];
+  let rafId = null, running = false, comets = [], cometTimer = null;
+
+  function rnd(min, max) { return min + Math.random() * (max - min); }
+
+  function build() {
+    const area = W * H;
+    STAR_COUNT = Math.max(FEATURED + 40, Math.round(area * STAR_DENSITY));
+    ASTEROIDS  = Math.round(area * AST_DENSITY);
+    // Cometas: mismo factor que FAQ => DESKTOP (>768px) al 0.5, mobile intacto (factor 1).
+    const cometFactor = window.innerWidth > 768 ? 0.5 : 1;
+    MAX_COMETS = Math.max(2, Math.round(area * COMET_DENSITY * cometFactor));
+    stars = [];
+    for (let i = 0; i < STAR_COUNT; i++) {
+      const feat = i < FEATURED;
+      const orange = Math.random() < 0.26;
+      const twinkle = !feat && Math.random() < 0.50; // ~50% titilan (igual que FAQ)
+      stars.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: feat ? rnd(2.4, 4.0) : rnd(0.5, 2.0),
+        baseAlpha: feat ? rnd(0.85, 1) : rnd(0.30, 0.80),
+        amp: twinkle ? rnd(0.25, 0.6) : 0,
+        phase: Math.random() * Math.PI * 2,
+        twSpeed: rnd(0.6, 2.2),
+        orange: orange,
+        feat: feat,
+      });
+    }
+    // Asteroides: puntos que driftan lento y constante (wrap en bordes). Igual que FAQ.
+    asteroids = [];
+    for (let k = 0; k < ASTEROIDS; k++) {
+      let vx = rnd(-0.45, 0.45), vy = rnd(-0.30, 0.30);
+      if (Math.abs(vx) < 0.12) vx = vx < 0 ? -0.12 : 0.12;
+      asteroids.push({
+        x: Math.random() * W, y: Math.random() * H, vx: vx, vy: vy,
+        r: rnd(1.5, 2.6), alpha: rnd(0.4, 0.7), orange: Math.random() < 0.4,
+      });
+    }
+    edges = [];
+    const seen = {};
+    for (let i = 0; i < FEATURED; i++) {
+      const dist = [];
+      for (let j = 0; j < FEATURED; j++) {
+        if (j === i) continue;
+        const dx = stars[i].x - stars[j].x, dy = stars[i].y - stars[j].y;
+        dist.push([dx*dx + dy*dy, j]);
+      }
+      dist.sort(function (p, q) { return p[0] - q[0]; });
+      for (let n = 0; n < Math.min(2, dist.length); n++) {
+        const j = dist[n][1];
+        const a = Math.min(i, j), b = Math.max(i, j), key = a + '-' + b;
+        if (!seen[key]) { seen[key] = 1; edges.push([a, b]); }
+      }
+    }
+  }
+
+  function resize() {
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = Math.floor(W * DPR);
+    canvas.height = Math.floor(H * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    build();
+  }
+
+  function drawSprite(sprite, x, y, diameter, alpha) {
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(sprite, x - diameter/2, y - diameter/2, diameter, diameter);
+  }
+
+  const DIRS = [[200,230],[310,340],[255,285],[225,315]];
+  function spawnComet() {
+    if (comets.length >= MAX_COMETS) return;
+    const d = DIRS[(Math.random() * DIRS.length) | 0];
+    const angle = (d[0] + Math.random() * (d[1] - d[0])) * Math.PI / 180;
+    const speed = 5 + Math.random() * 3;
+    const vx = Math.cos(angle) * speed;
+    const vy = Math.abs(Math.sin(angle) * speed);
+    let x, y;
+    if (vx > 0.5)      { x = -60; y = Math.random() * H * 0.6; }
+    else if (vx < -0.5){ x = W + 60; y = Math.random() * H * 0.6; }
+    else               { y = -60; x = W * 0.2 + Math.random() * W * 0.6; }
+    const orange = Math.random() < 0.7;
+    comets.push({
+      x: x, y: y, vx: vx, vy: vy, life: 0, maxLife: 220,
+      head: orange ? '#FFB347' : '#FFFFFF',
+      ts: orange ? 'rgba(255,179,71,0.9)' : 'rgba(255,255,255,0.85)',
+      tm: orange ? 'rgba(247,147,26,0.5)' : 'rgba(200,210,220,0.4)',
+      te: orange ? 'rgba(247,147,26,0)'   : 'rgba(200,210,220,0)',
+      shadow: orange ? '#F7931A' : '#FFFFFF',
+    });
+  }
+  function scheduleComet() {
+    cometTimer = window.setTimeout(function () {
+      if (running) {
+        const burst = Math.max(1, Math.round(MAX_COMETS / 3));
+        for (let b = 0; b < burst; b++) spawnComet();
+        if (Math.random() < 0.35) spawnComet();
+        scheduleComet();
+      }
+    }, 1500 + Math.random() * 1500); // 1.5-3s (igual que FAQ)
+  }
+
+  function frame(now) {
+    if (!running) return;
+    const t = now / 1000;
+    ctx.clearRect(0, 0, W, H);
+
+    if (edges.length) {
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(247,147,26,' + (0.08 + Math.sin(t * 0.4) * 0.03).toFixed(3) + ')';
+      ctx.beginPath();
+      for (let e = 0; e < edges.length; e++) {
+        const a = stars[edges[e][0]], b = stars[edges[e][1]];
+        ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+      }
+      ctx.stroke();
+    }
+
+    for (let i = 0; i < stars.length; i++) {
+      const s = stars[i];
+      let a = s.baseAlpha + (s.amp ? Math.sin(t * s.twSpeed + s.phase) * s.amp : 0);
+      if (a < 0) a = 0; else if (a > 1) a = 1;
+      const dia = s.r * (s.feat ? 4.4 : 2.4);
+      drawSprite(s.orange ? spriteO : spriteW, s.x, s.y, dia, a);
+    }
+
+    // Asteroides: drift lento y constante, wrap en bordes (igual que FAQ)
+    for (let k = 0; k < asteroids.length; k++) {
+      const ast = asteroids[k];
+      ast.x += ast.vx; ast.y += ast.vy;
+      if (ast.x < -10) ast.x = W + 10; else if (ast.x > W + 10) ast.x = -10;
+      if (ast.y < -10) ast.y = H + 10; else if (ast.y > H + 10) ast.y = -10;
+      drawSprite(ast.orange ? spriteO : spriteW, ast.x, ast.y, ast.r * 3, ast.alpha);
+    }
+    ctx.globalAlpha = 1;
+
+    for (let m = comets.length - 1; m >= 0; m--) {
+      const comet = comets[m];
+      comet.x += comet.vx; comet.y += comet.vy; comet.life++;
+      const tx = comet.x - comet.vx * 14, ty = comet.y - comet.vy * 14;
+      const grad = ctx.createLinearGradient(comet.x, comet.y, tx, ty);
+      grad.addColorStop(0, comet.ts);
+      grad.addColorStop(0.4, comet.tm);
+      grad.addColorStop(1, comet.te);
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 2.4;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(comet.x, comet.y); ctx.lineTo(tx, ty);
+      ctx.stroke();
+
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.fillStyle = comet.head;
+      ctx.shadowColor = comet.shadow;
+      ctx.shadowBlur = 14;
+      ctx.beginPath();
+      ctx.arc(comet.x, comet.y, 2.6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.globalCompositeOperation = 'source-over';
+
+      if (comet.x < -80 || comet.x > W + 80 || comet.y > H + 80 || comet.life > comet.maxLife) {
+        comets.splice(m, 1);
+      }
+    }
+
+    rafId = requestAnimationFrame(frame);
+  }
+
+  function start() {
+    if (running || document.hidden) return;
+    running = true;
+    if (W === 0) resize();
+    if (!cometTimer) scheduleComet();
+    rafId = requestAnimationFrame(frame);
+  }
+  function stop() {
+    running = false;
+    if (rafId) cancelAnimationFrame(rafId);
+    if (cometTimer) { clearTimeout(cometTimer); cometTimer = null; }
+    rafId = null;
+  }
+
+  resize();
+  let resizeT;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeT);
+    resizeT = setTimeout(function () { if (running) resize(); }, 200);
+  }, { passive: true });
+
+  // Pausa al ocultar la pestana; reanuda al volver
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) stop(); else start();
+  });
+
+  // IntersectionObserver: pausa si el fondo sale de viewport (fixed => casi siempre visible,
+  // pero cumple el guard de perf pedido).
+  const io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) { if (e.isIntersecting) start(); else stop(); });
+  }, { rootMargin: '200px' });
+  io.observe(canvas);
+
+  // Efecto liquid del boton CTA (sigue al puntero), consistente con el resto del sitio.
+  const cta = document.querySelector('.legal-cta');
+  if (cta) cta.addEventListener('pointermove', function (ev) {
+    const r = cta.getBoundingClientRect();
+    cta.style.setProperty('--mx', (ev.clientX - r.left) + 'px');
+    cta.style.setProperty('--my', (ev.clientY - r.top) + 'px');
+  });
+})();
+</script>
