@@ -497,12 +497,8 @@
     }
   }
 
-  /* Pixel CTA */
-  const cta = document.getElementById('histCta');
-  if (cta) {
-    cta.addEventListener('click', () => {
-      if (window.fbq) fbq('track', 'Lead', { origen: 'historia' });
-    });
-  }
+  // Pixel: esta sección queda cubierta por SectionView {section:'alberto'}. El
+  // histCta (-> /empezar) dispara CTAClick + ClickEmpezar por delegación central.
+  // Lead NO se dispara en el landing: vive solo en el submit exitoso del form.
 })();
 </script>

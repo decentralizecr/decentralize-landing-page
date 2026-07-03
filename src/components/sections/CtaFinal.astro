@@ -138,12 +138,8 @@
       });
     }, { threshold: 0.25 });
     io.observe(section);
-
-    // Pixel diferido: NO se dispara todavía (se cableará en la fase del Pixel).
-    const cta = document.getElementById('cf-cta');
-    if (cta) cta.addEventListener('click', function () {
-      // TODO Pixel: track('InitiateCheckout', {origen:'cta_final'})
-    });
+    // Nota: este componente quedo fusionado en FAQ y no se monta. El pixel del
+    // CTA final (CTAClick + ClickEmpezar) vive en la delegacion de PixelLanding.
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);

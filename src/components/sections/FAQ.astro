@@ -81,7 +81,7 @@ const faqs: Faq[] = [
     id: 'DCR-008',
     q: '¿Cómo funciona la garantía de 15 días?',
     html: true,
-    a: 'Probás el contenido los primeros 15 días. Si no cumple tus expectativas, te devolvemos el 100% de tu dinero. Sin preguntas, sin riesgo. Solo escribinos a <a href="mailto:admin@decentralizecr.com">admin@decentralizecr.com</a> o por Instagram <a href="https://instagram.com/decentralizecr" target="_blank" rel="noopener noreferrer">@decentralizecr</a>.',
+    a: 'Probás el contenido los primeros 15 días. Si no cumple tus expectativas, te devolvemos el 100% de tu dinero. Sin preguntas, sin riesgo. Solo escribinos a <a href="mailto:admin@decentralizecr.com">admin@decentralizecr.com</a> o por Instagram <a href="https://ig.me/m/decentralizecr" target="_blank" rel="noopener noreferrer">@decentralizecr</a>.',
   },
 ];
 ---
@@ -544,17 +544,13 @@ const faqs: Faq[] = [
       if (willOpen) {
         const q = btn.querySelector('.faq-q');
         const pregunta = q ? q.textContent.trim() : '';
-        void pregunta;
-        // TODO Pixel: track('FAQAbierto', { pregunta }) cuando exista src/lib/pixel.ts
+        // Helper central (expuesto por PixelLanding). FAQ es is:inline: no importa modulos.
+        if (window.dzPixel) window.dzPixel.track('FAQOpen', { question: pregunta });
       }
     });
   });
-
-  // CTA final integrado (ex-seccion 12): pixel diferido, NO se dispara todavia.
-  const cfCta = document.getElementById('cf-cta');
-  if (cfCta) cfCta.addEventListener('click', function () {
-    // TODO Pixel: track('InitiateCheckout', {origen:'cta_final'})
-  });
+  // El CTA final (#cf-cta -> /empezar) dispara CTAClick + ClickEmpezar por
+  // delegacion central en PixelLanding; no hace falta cablearlo aca.
 })();
 </script>
 

@@ -1,0 +1,220 @@
+---
+// Instrumentación central del Meta Pixel para el LANDING (index).
+// Un solo script bundled: importa el helper src/lib/pixel.ts, lo expone en
+// window.dzPixel para las islas is:inline (FAQ, Historia, Footer...) y cablea
+// los eventos que se pueden resolver por delegación / observers desde acá:
+// ScrollDepth, SectionView, ViewContent, Video, CTAClick, ClickEmpezar y
+// Contact. Los eventos con estado interno (FAQOpen, los de
+// la Calculadora) los dispara cada componente llamando al mismo helper.
+---
+<script>
+  import { track, trackOnce, setUserData } from '../lib/pixel';
+
+  // Exponer el helper para las islas is:inline (nunca fbq suelto).
+  (window as any).dzPixel = { track, trackOnce, setUserData };
+
+  /* ── SectionView + ViewContent (IntersectionObserver) ──
+     Mapa key -> selector con los IDs/clases reales del index. */
+  const SECTION_TARGETS: Array<[string, string]> = [
+    ['hero', '.hero'],
+    ['problema', '#problema'],
+    ['solucion', '#transformacion'],
+    ['masterclass', '#masterclass'],
+    ['comunidad', '#comunidad'],
+    ['alberto', '#alberto'],
+    ['testimonios', '#testimonios'],
+    ['precio', '#precio'],
+    ['faq', '#faq'],
+    ['cta_final', '.faq-final'],
+  ];
+  // Secciones núcleo de la oferta -> ViewContent (estándar), una sola vez.
+  const VIEW_CONTENT_KEYS = new Set(['masterclass', 'precio']);
+
+  const secObserver = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      const key = (e.target as HTMLElement).dataset.pixelSection || '';
+      trackOnce('section-' + key, 'SectionView', { section: key });
+      if (VIEW_CONTENT_KEYS.has(key)) {
+        trackOnce('viewcontent-' + key, 'ViewContent', {
+          content_name: 'masterclass',
+          content_category: 'landing',
+        }, { standard: true });
+      }
+      secObserver.unobserve(e.target);
+    });
+  }, { threshold: 0.25 });
+
+  SECTION_TARGETS.forEach(([key, sel]) => {
+    const el = document.querySelector<HTMLElement>(sel);
+    if (el) {
+      el.dataset.pixelSection = key;
+      secObserver.observe(el);
+    }
+  });
+
+  /* ── ScrollDepth: 25/50/75/90/100 %, cada umbral una sola vez ── */
+  const THRESHOLDS = [25, 50, 75, 90, 100];
+  let ticking = false;
+  function checkScroll() {
+    ticking = false;
+    const doc = document.documentElement;
+    const max = doc.scrollHeight - window.innerHeight;
+    const percent = max <= 0 ? 100 : (window.scrollY / max) * 100;
+    THRESHOLDS.forEach((t) => {
+      if (percent >= t) trackOnce('scroll-' + t, 'ScrollDepth', { percent: t });
+    });
+  }
+  window.addEventListener('scroll', () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(checkScroll);
+  }, { passive: true });
+  checkScroll();
+
+  /* ── Video (VSL del héroe) · facade / lite embed ──
+     El panel arranca como glass con botón play: NO se descarga nada de YouTube
+     hasta el clic (clave para el trafico movil de Reels). VideoVisible dispara al
+     entrar al viewport. Al hacer play recien se inyecta el reproductor de
+     youtube-nocookie con autoplay y se carga la IFrame API para escuchar
+     progreso (25/50/75) y fin del video. Se carga una sola vez. */
+  const vsl = document.getElementById('vsl');
+  if (vsl) {
+    const panel: HTMLElement = vsl;
+    const vObs = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        trackOnce('video-visible', 'VideoVisible', {});
+        vObs.unobserve(e.target);
+      });
+    }, { threshold: 0.5 });
+    vObs.observe(vsl);
+
+    const VIDEO_ID = '8qDk17XCfOs';
+    let playerLoaded = false;
+    let player: any = null;
+    let progressTimer: number | null = null;
+    const progressFired = new Set<number>();
+
+    // Carga la IFrame API de YouTube solo cuando se pide (nunca al cargar la pagina).
+    function loadIframeApi(onReady: () => void): void {
+      const w = window as any;
+      if (w.YT && w.YT.Player) { onReady(); return; }
+      const prev = w.onYouTubeIframeAPIReady;
+      w.onYouTubeIframeAPIReady = () => {
+        if (typeof prev === 'function') prev();
+        onReady();
+      };
+      if (!document.getElementById('yt-iframe-api')) {
+        const s = document.createElement('script');
+        s.id = 'yt-iframe-api';
+        s.src = 'https://www.youtube.com/iframe_api';
+        document.head.appendChild(s);
+      }
+    }
+
+    // Sondeo del avance: VideoProgress en 25/50/75 %, cada umbral una sola vez.
+    function startProgressPolling(): void {
+      if (progressTimer !== null) return;
+      progressTimer = window.setInterval(() => {
+        if (!player || typeof player.getDuration !== 'function') return;
+        const dur = player.getDuration();
+        if (!dur) return;
+        const pct = (player.getCurrentTime() / dur) * 100;
+        [25, 50, 75].forEach((m) => {
+          if (pct >= m && !progressFired.has(m)) {
+            progressFired.add(m);
+            track('VideoProgress', { percent: m });
+          }
+        });
+      }, 500);
+    }
+
+    function playVsl(): void {
+      if (playerLoaded) return; // inyectar el reproductor una sola vez
+      playerLoaded = true;
+      trackOnce('video-play', 'VideoPlay', {});
+      const mount = document.createElement('div');
+      mount.className = 'vsl-player';
+      panel.appendChild(mount);
+      panel.classList.add('vsl-playing');
+      loadIframeApi(() => {
+        const w = window as any;
+        player = new w.YT.Player(mount, {
+          videoId: VIDEO_ID,
+          host: 'https://www.youtube-nocookie.com',
+          playerVars: { autoplay: 1, rel: 0, modestbranding: 1, playsinline: 1 },
+          events: {
+            onReady: (ev: any) => { ev.target.playVideo(); startProgressPolling(); },
+            onStateChange: (ev: any) => {
+              if (ev.data === w.YT.PlayerState.ENDED) {
+                track('VideoComplete', {});
+                if (progressTimer !== null) { clearInterval(progressTimer); progressTimer = null; }
+              }
+            },
+          },
+        });
+      });
+    }
+
+    vsl.addEventListener('click', playVsl);
+  }
+
+  /* ── Delegación de clicks: CTAClick + ClickEmpezar + Contact ── */
+  const SOCIAL: Array<[RegExp, string]> = [
+    [/instagram\.com/i, 'instagram'],
+    [/facebook\.com/i, 'facebook'],
+    [/tiktok\.com/i, 'tiktok'],
+    [/(?:^|\.)x\.com|twitter\.com/i, 'x'],
+  ];
+
+  function ctaLabel(el: HTMLElement): string {
+    const explicit = el.dataset.ctaLabel;
+    const raw = explicit || el.getAttribute('aria-label') || el.textContent || '';
+    return raw.replace(/\s+/g, ' ').trim().slice(0, 60);
+  }
+  function ctaLocation(el: HTMLElement): string {
+    if (el.dataset.ctaLocation) return el.dataset.ctaLocation;
+    if (el.closest('#hdr')) return 'nav';
+    if (el.closest('.ftr, #footer-sect')) return 'footer';
+    const sec = el.closest<HTMLElement>('section[id]');
+    if (sec) return sec.id;
+    if (el.closest('.hero')) return 'hero';
+    return 'other';
+  }
+
+  document.addEventListener('click', (ev) => {
+    const target = ev.target as HTMLElement | null;
+    if (!target) return;
+    const el = target.closest<HTMLElement>('a, button');
+    if (!el) return;
+    // La Calculadora tiene sus propios eventos; no duplicar sus clics internos.
+    if (el.closest('#calc-backdrop') || el.id === 'calc-fab') return;
+
+    const isLink = el.tagName === 'A';
+    const isCtaButton = el.tagName === 'BUTTON' &&
+      (/\b(btn|cta)\b/i.test(el.className) || el.hasAttribute('data-cta'));
+    if (!isLink && !isCtaButton) return; // toggles/acordeones sin clase btn quedan fuera
+
+    const label = ctaLabel(el);
+    const location = ctaLocation(el);
+    track('CTAClick', { cta_label: label, cta_location: location });
+
+    if (isLink) {
+      const a = el as HTMLAnchorElement;
+      // ClickEmpezar: señal de intención del landing (el lead va al form).
+      // InitiateCheckout NO se dispara acá: ocurre en el form al elegir 'pago'.
+      if (a.pathname === '/empezar') {
+        track('ClickEmpezar', { source: location });
+      }
+      // Contact para redes sociales.
+      const href = a.href || '';
+      for (const [re, channel] of SOCIAL) {
+        if (re.test(href)) {
+          track('Contact', { channel }, { standard: true });
+          break;
+        }
+      }
+    }
+  }, true);
+</script>

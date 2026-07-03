@@ -5,24 +5,78 @@ interface Props {
   title?: string;
   description?: string;
   noindex?: boolean;
+  ogImageAlt?: string;
 }
 
 const {
   title = 'Bitcoin Masterclass — Decentralize',
   description = 'Aprendé cómo funciona el dinero de verdad. 7 horas, un solo pago, acceso de por vida.',
   noindex = false,
+  ogImageAlt = 'Bitcoin Masterclass de Decentralize: educación en Bitcoin desde Costa Rica.',
 } = Astro.props;
+
+// Dominio de producción (Cloudflare Pages). Canonical y og:url siempre absolutos a este dominio,
+// nunca al host de preview/local. Se deriva la ruta de Astro.url y se normaliza la barra final.
+const SITE = 'https://decentralizecr.com';
+const OG_IMAGE = `${SITE}/og-image.jpg`;
+let pathname = Astro.url.pathname;
+if (pathname.length > 1 && pathname.endsWith('/')) pathname = pathname.slice(0, -1);
+const canonical = SITE + pathname;
+
+// Meta Pixel: snippet base oficial. Solo en producción; en local todo va por
+// console.log vía src/lib/pixel.ts. Init + PageView automático. ID 871601738724161.
+const PIXEL_BASE = `<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '871601738724161');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=871601738724161&ev=PageView&noscript=1" alt="" /></noscript>`;
 ---
 <!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  {import.meta.env.PROD && <Fragment set:html={PIXEL_BASE} />}
   <meta name="generator" content={Astro.generator} />
   <title>{title}</title>
   <meta name="description" content={description} />
+  <link rel="canonical" href={canonical} />
   {noindex && <meta name="robots" content="noindex, nofollow" />}
-  <link rel="icon" type="image/png" href="/favicons/favicon.png" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:image" content={OG_IMAGE} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content={ogImageAlt} />
+  <meta property="og:locale" content="es_CR" />
+  <meta property="og:site_name" content="Decentralize" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={OG_IMAGE} />
+
+  <!-- Iconos + theme (fondo oscuro) -->
+  <meta name="theme-color" content="#070708" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon1.png" />
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+  <slot name="head" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link

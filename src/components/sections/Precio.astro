@@ -589,16 +589,15 @@ a.price-badge:hover { color: rgba(255,255,255,0.85); }
   }, { threshold: reduce ? 0 : 0.35 });
   enterObs.observe(root);
 
-  /* ---- CTA: blob liquid glass que sigue el puntero + hook de Pixel diferido ---- */
+  /* ---- CTA: blob liquid glass que sigue el puntero ----
+     El .price-cta (-> /empezar) dispara CTAClick + ClickEmpezar por delegación
+     central en PixelLanding; no se cablea acá. */
   const cta = root.querySelector('.price-cta');
   if (cta) {
     cta.addEventListener('pointermove', e => {
       const r = cta.getBoundingClientRect();
       cta.style.setProperty('--mx', (e.clientX - r.left) + 'px');
       cta.style.setProperty('--my', (e.clientY - r.top) + 'px');
-    });
-    cta.addEventListener('click', () => {
-      // TODO Pixel: track('InitiateCheckout')  (pixel.ts aún no existe; no disparar)
     });
   }
 

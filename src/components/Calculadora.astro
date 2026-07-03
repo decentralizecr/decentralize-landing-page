@@ -1,0 +1,541 @@
+---
+// Calculadora Bitcoin (M10): FAB flotante + modal.
+// Lógica pura y testeada en src/lib/dca.ts (calcularDCA + cagrRecomendado).
+// Precio en vivo desde CoinGecko = única fuente de verdad del módulo.
+// TradingView Advanced Chart se carga SOLO al abrir el modal por primera vez.
+---
+
+<!-- FAB flotante: alineado al borde derecho del CTA en desktop, margen cómodo en móvil -->
+<button id="calc-fab" class="calc-fab" type="button" aria-haspopup="dialog" aria-controls="calc-backdrop" hidden>
+  <span class="liquid"></span>
+  <span class="calc-fab__ico" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 3v18h18"/><path d="M7 15l3.5-4 3 2.5L21 6"/>
+    </svg>
+  </span>
+  <span class="calc-fab__txt"><span class="calc-fab__l1">Calculadora</span> <span class="calc-fab__l2">Bitcoin</span></span>
+</button>
+
+<!-- Modal -->
+<div id="calc-backdrop" class="calc-backdrop" role="dialog" aria-modal="true" aria-labelledby="calc-title" aria-hidden="true">
+  <div class="calc-modal" role="document">
+    <!-- X: fija en la esquina superior derecha del modal, nunca inline -->
+    <button id="calc-close" class="calc-close" type="button" aria-label="Cerrar calculadora">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+
+    <!-- Encabezado apilado y centrado: pill, título, precio en vivo -->
+    <div class="calc-modal__head">
+      <span class="eyebrow calc-modal__eyebrow">Simulá tu inversión</span>
+      <h2 id="calc-title" class="calc-modal__title">Calculadora Bitcoin</h2>
+      <div class="calc-modal__price">
+        <span class="calc-dot" aria-hidden="true"></span>
+        <span class="calc-price__label">Precio actual:</span>
+        <span class="calc-price__value" id="calc-precio-actual">…</span>
+      </div>
+    </div>
+
+    <!-- Botones de timeframe custom (D / S / M / 1A) -->
+    <div class="calc-tf" id="calc-tf" role="group" aria-label="Rango de tiempo del gráfico">
+      <button class="calc-tf__btn" type="button" data-tf="D">D</button>
+      <button class="calc-tf__btn" type="button" data-tf="S">S</button>
+      <button class="calc-tf__btn" type="button" data-tf="M">M</button>
+      <button class="calc-tf__btn calc-tf__btn--active" type="button" data-tf="1A">1A</button>
+    </div>
+
+    <!-- Gráfica TradingView (inyectada por JS al abrir) -->
+    <div class="calc-chart-wrap">
+      <div class="calc-chart" id="calc-chart">
+        <div class="calc-chart__loading">Cargando gráfica…</div>
+      </div>
+      <!-- Máscara que tapa la barra flotante de íconos nativa del widget -->
+      <div class="calc-chart__mask" aria-hidden="true"></div>
+    </div>
+
+    <!-- Inputs -->
+    <div class="calc-form">
+      <div class="calc-field calc-field--inicial">
+        <label class="calc-label" for="calc-inicial">Inversión inicial (USD)</label>
+        <input id="calc-inicial" class="calc-input" type="number" min="0" step="50" inputmode="numeric" placeholder="0" />
+      </div>
+      <div class="calc-field calc-field--half">
+        <label class="calc-label" for="calc-mensual">Inversión mensual (USD)</label>
+        <input id="calc-mensual" class="calc-input" type="number" min="0" step="25" inputmode="numeric" placeholder="0" />
+      </div>
+      <div class="calc-field calc-field--half">
+        <label class="calc-label" for="calc-plazo">Plazo (años)</label>
+        <input id="calc-plazo" class="calc-input" type="number" min="1" step="1" inputmode="numeric" placeholder="0" />
+      </div>
+      <div class="calc-field calc-field--cagr">
+        <label class="calc-label" for="calc-cagr">Rendimiento anual estimado (CAGR %). Usá nuestra recomendación o ingresá tu propia estimación.</label>
+        <input id="calc-cagr" class="calc-input" type="number" step="1" inputmode="decimal" />
+        <span class="calc-cagr-note" id="calc-cagr-note" hidden></span>
+        <span class="calc-cagr-cap" id="calc-cagr-cap" hidden></span>
+      </div>
+    </div>
+
+    <button id="calc-run" class="btn btn-glass btn-primary calc-run" type="button">
+      <span class="liquid"></span>
+      <span class="t">Calcular proyección</span>
+    </button>
+
+    <!-- Resultados: grilla 2x2 -->
+    <div class="calc-results" id="calc-results" hidden>
+      <div class="calc-grid">
+        <!-- Fila 1: Total invertido | Precio estimado de 1 BTC -->
+        <div class="calc-card">
+          <span class="calc-card__label">Total invertido</span>
+          <span class="calc-card__value" id="calc-total">···</span>
+        </div>
+
+        <div class="calc-card">
+          <span class="calc-card__label" id="calc-precio-label">Precio estimado de 1 BTC</span>
+          <span class="calc-card__value calc-card__value--btc" id="calc-precio-futuro">···</span>
+        </div>
+
+        <!-- Fila 2: Valor estimado (destacado) | Ganancia estimada -->
+        <div class="calc-card calc-card--hero">
+          <span class="calc-card__label" id="calc-valor-label">Valor estimado de tu inversión</span>
+          <span class="calc-card__value calc-card__value--hero" id="calc-valor">···</span>
+        </div>
+
+        <div class="calc-card">
+          <span class="calc-card__label">Ganancia estimada</span>
+          <span class="calc-card__value" id="calc-ganancia">···</span>
+        </div>
+      </div>
+
+      <!-- Precio actual en vivo, centrado a todo el ancho (línea destacada, no card) -->
+      <p class="calc-precio-live" id="calc-precio-nota"></p>
+      <p class="calc-note">Estimaciones basadas en el plazo y CAGR elegidos.</p>
+      <p class="calc-disclaimer">
+        Contenido educativo. Bitcoin es un activo volátil y su rendimiento pasado no garantiza resultados futuros.
+        Esto no es asesoría financiera. Invertí solo lo que estés dispuesto a mantener.
+      </p>
+    </div>
+  </div>
+</div>
+
+<style is:global>
+  /* ─────────────  FAB flotante  ───────────── */
+  .calc-fab {
+    position: fixed;
+    bottom: 22px;
+    right: 24px; /* fallback; JS lo alinea al CTA en desktop */
+    z-index: 48;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 12px 18px;
+    border-radius: 999px;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    overflow: hidden;
+    background: rgba(247,147,26,0.16);
+    border: 1.5px solid #F7931A;
+    -webkit-backdrop-filter: blur(10px) saturate(160%);
+    backdrop-filter: blur(10px) saturate(160%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.45), inset 0 0 22px rgba(247,147,26,.20),
+                0 0 26px -4px rgba(247,147,26,.55), 0 14px 38px -14px rgba(247,147,26,.6);
+    opacity: 0;
+    transform: translateY(14px);
+    pointer-events: none;
+    transition: opacity .45s ease, transform .45s ease, box-shadow .3s, background .3s, border-color .3s;
+  }
+  .calc-fab.is-visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  .calc-fab:hover { background: rgba(247,147,26,0.24); transform: translateY(-2px); }
+  .calc-fab .liquid {
+    position: absolute; left: var(--mx,50%); top: var(--my,50%); width: 120px; height: 120px;
+    border-radius: 50%; transform: translate(-50%,-50%);
+    background: radial-gradient(circle, rgba(255,255,255,.5), rgba(255,255,255,0) 60%);
+    filter: blur(8px); opacity: 0; transition: opacity .35s; pointer-events: none; mix-blend-mode: screen;
+  }
+  .calc-fab:hover .liquid { opacity: .85; }
+  .calc-fab__ico { position: relative; z-index: 3; display: inline-flex; }
+  .calc-fab__ico svg { width: 20px; height: 20px; }
+  .calc-fab__txt { position: relative; z-index: 3; white-space: nowrap; }
+  @media (max-width: 768px) {
+    /* Pill compacto (no círculo, no full width): ícono a la izquierda + texto en dos líneas. */
+    .calc-fab { right: 16px; bottom: 16px; gap: 9px; padding: 9px 15px; width: auto; height: auto; justify-content: flex-start; border-radius: 16px; font-size: 13px; }
+    .calc-fab__txt { display: flex; flex-direction: column; align-items: flex-start; text-align: left; white-space: nowrap; line-height: 1.12; font-weight: 600; }
+    .calc-fab__ico svg { width: 22px; height: 22px; }
+  }
+
+  /* ─────────────  Backdrop + modal  ───────────── */
+  .calc-backdrop {
+    position: fixed; inset: 0; z-index: 200; display: flex; align-items: flex-start; justify-content: center;
+    padding: clamp(12px, 4vh, 48px) 16px; overflow-y: auto;
+    background: rgba(3,4,7,0.72); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    opacity: 0; pointer-events: none; transition: opacity .3s ease;
+  }
+  .calc-backdrop.is-open { opacity: 1; pointer-events: auto; }
+  .calc-modal {
+    position: relative; width: min(760px, 100%); margin: 0 auto;
+    background: linear-gradient(180deg, rgba(14,16,22,.94), rgba(7,8,12,.96));
+    border: 1px solid var(--btc-border); border-radius: var(--r-big);
+    box-shadow: var(--shadow-deep), 0 0 60px -12px rgba(247,147,26,.28);
+    padding: clamp(18px, 3vw, 28px);
+    transform: translateY(16px) scale(.985); transition: transform .35s var(--ease-out);
+  }
+  .calc-backdrop.is-open .calc-modal { transform: translateY(0) scale(1); }
+
+  /* Encabezado apilado + centrado, idéntico en PC y móvil. El padding lateral
+     reserva las esquinas para que el contenido centrado nunca choque con la X. */
+  .calc-modal__head { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 6px 46px 0; margin-bottom: 18px; }
+  .calc-modal__eyebrow {
+    align-self: center; width: fit-content; display: inline-block; margin: 0;
+    padding: 5px 14px; border-radius: 999px;
+    background: rgba(247,147,26,.10); border: 1px solid var(--btc-border);
+    font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--btc-light);
+  }
+  .calc-modal__title { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.3rem, 3vw, 1.9rem); color: var(--txt-hi); margin: 0; letter-spacing: -.02em; }
+  .calc-modal__price { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: rgba(255,255,255,.04); border: 1px solid var(--border); font-family: var(--font-mono); font-size: 13px; }
+  .calc-price__label { color: var(--txt-low); }
+  .calc-price__value { color: var(--btc); font-weight: 500; }
+  .calc-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green-live); box-shadow: 0 0 8px 1px rgba(52,211,153,.7); animation: calcPulse 1.8s ease-in-out infinite; }
+  @keyframes calcPulse { 0%,100% { opacity: 1; transform: scale(1);} 50% { opacity: .4; transform: scale(.8);} }
+
+  .calc-close { position: absolute; top: clamp(12px, 2.2vw, 18px); right: clamp(12px, 2.2vw, 18px); z-index: 5; width: 38px; height: 38px; display: grid; place-items: center; border-radius: 10px; background: rgba(255,255,255,.05); border: 1px solid var(--border); color: var(--txt-mid); cursor: pointer; transition: background .25s, color .25s, border-color .25s; }
+  .calc-close:hover { background: rgba(247,147,26,.12); color: #fff; border-color: var(--btc-border-hover); }
+  .calc-close svg { width: 18px; height: 18px; }
+
+  /* ─────────────  Timeframe buttons (D / S / M / 1A)  ───────────── */
+  .calc-tf { display: flex; gap: 8px; margin-bottom: 10px; }
+  .calc-tf__btn {
+    flex: 0 0 auto; min-width: 46px; padding: 7px 14px; border-radius: 10px; cursor: pointer;
+    font-family: var(--font-mono); font-size: 13px; font-weight: 500; letter-spacing: .02em;
+    color: var(--txt-mid); background: rgba(255,255,255,.04); border: 1px solid var(--border);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    transition: color .2s, background .2s, border-color .2s, box-shadow .2s;
+  }
+  .calc-tf__btn:hover { color: var(--txt-hi); border-color: var(--btc-border); }
+  .calc-tf__btn--active {
+    color: #fff; background: rgba(247,147,26,.16); border-color: #F7931A;
+    box-shadow: inset 0 0 14px rgba(247,147,26,.18), 0 0 16px -4px rgba(247,147,26,.5);
+  }
+
+  /* ─────────────  Chart  ───────────── */
+  .calc-chart-wrap { position: relative; margin-bottom: 18px; }
+  .calc-chart { height: 300px; border-radius: var(--r-card); overflow: hidden; border: 1px solid var(--border); background: rgba(13,13,13,1); }
+  .calc-chart__loading { height: 100%; display: grid; place-items: center; color: var(--txt-low); font-family: var(--font-mono); font-size: 13px; }
+  /* Máscara que tapa la barra flotante de íconos nativa del widget (abajo a la derecha) */
+  .calc-chart__mask {
+    position: absolute; right: 1px; bottom: 1px; width: 150px; height: 34px;
+    background: rgba(13,13,13,1); border-bottom-right-radius: var(--r-card); pointer-events: none;
+  }
+  @media (max-width: 640px) { .calc-chart { height: 220px; } }
+
+  /* ─────────────  Inputs  ───────────── */
+  /* PC: los 3 primeros campos en una línea (3 columnas iguales); CAGR full width.
+     align-items: end alinea la BASE de cada campo, así los inputs quedan a la
+     misma altura aunque un label ocupe 2 líneas y el otro 1 (PC y móvil). */
+  .calc-form { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px 16px; margin-bottom: 18px; align-items: end; }
+  .calc-field { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+  .calc-field--cagr { grid-column: 1 / -1; }
+  .calc-label { font-family: var(--font-sans); font-size: 13px; color: var(--txt-mid); line-height: 1.4; }
+  .calc-input { width: 100%; padding: 12px 14px; border-radius: 12px; background: rgba(255,255,255,.04); border: 1px solid var(--border); color: var(--txt-hi); font-family: var(--font-mono); font-size: 15px; transition: border-color .25s, box-shadow .25s; }
+  .calc-input:focus { outline: none; border-color: var(--btc-border-hover); box-shadow: 0 0 0 3px rgba(247,147,26,.15); }
+  /* Placeholder "0" en gris muted (no es un valor real escrito) */
+  .calc-input::placeholder { color: var(--txt-low); opacity: 1; }
+  /* Sin flechitas (spinners) en ningún navegador */
+  .calc-input[type="number"]::-webkit-inner-spin-button,
+  .calc-input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; appearance: none; margin: 0; }
+  .calc-input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+  .calc-cagr-note { font-family: var(--font-mono); font-size: 12px; color: var(--btc-light); }
+  .calc-cagr-cap { font-family: var(--font-mono); font-size: 11px; color: var(--txt-low); }
+  /* Móvil: Inversión inicial sola (full width); Mensual + Plazo comparten línea; CAGR full width. */
+  @media (max-width: 560px) {
+    .calc-form { grid-template-columns: 1fr 1fr; }
+    .calc-field--inicial { grid-column: 1 / -1; }
+  }
+
+  .calc-run { width: 100%; justify-content: center; border-radius: 14px; font-weight: 600; }
+
+  /* ─────────────  Resultados  ───────────── */
+  .calc-results { margin-top: 22px; }
+  .calc-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .calc-card {
+    position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 16px 18px;
+    border-radius: var(--r-card); background: var(--bg-glass); border: 1px solid var(--border);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 12px 30px -20px rgba(0,0,0,.9);
+  }
+  .calc-card--hero {
+    background: linear-gradient(180deg, rgba(247,147,26,.12), rgba(247,147,26,.03));
+    border-color: var(--btc-border-hover);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.10), inset 0 0 30px rgba(247,147,26,.10), 0 0 34px -10px rgba(247,147,26,.5);
+  }
+  .calc-card__label { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .04em; text-transform: uppercase; color: var(--txt-low); }
+  .calc-card__value { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.1rem, 2.4vw, 1.4rem); color: var(--txt-hi); font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+  .calc-card__value--hero { font-size: clamp(1.5rem, 4.2vw, 2.1rem); color: var(--btc); text-shadow: 0 0 22px rgba(247,147,26,.5); }
+  .calc-card__value--btc { color: var(--btc-light); }
+  .calc-card__value--green { color: var(--green-live); }
+  .calc-card__value--red { color: #F26D6D; }
+  /* En móvil la 2x2 apila a 1 columna (mismo orden DOM: Total, Precio 1 BTC, Valor, Ganancia) */
+  @media (max-width: 560px) { .calc-grid { grid-template-columns: 1fr; } }
+
+  /* Precio actual en vivo: línea centrada destacada (no card) */
+  .calc-precio-live {
+    text-align: center; margin: 16px 0 0; font-family: var(--font-mono); font-size: 14px;
+    color: var(--btc-light); font-weight: 500; letter-spacing: .01em;
+  }
+  .calc-note { font-family: var(--font-mono); font-size: 12px; color: var(--txt-low); margin: 8px 0 0; text-align: center; }
+  .calc-disclaimer { font-family: var(--font-sans); font-size: 12px; color: var(--txt-ghost); line-height: 1.55; margin: 12px 0 0; border-top: 1px solid var(--border); padding-top: 12px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .calc-fab, .calc-backdrop, .calc-modal, .calc-dot { transition: none !important; animation: none !important; }
+  }
+</style>
+
+<script>
+  import { calcularDCA, cagrRecomendado } from '../lib/dca';
+  import { track } from '../lib/pixel';
+
+  const backdrop = document.getElementById('calc-backdrop');
+  const fab = document.getElementById('calc-fab');
+  if (backdrop && fab) {
+    const modal = backdrop.querySelector('.calc-modal') as HTMLElement;
+    const closeBtn = document.getElementById('calc-close')!;
+    const chartWrap = document.getElementById('calc-chart')!;
+    const runBtn = document.getElementById('calc-run')!;
+    const results = document.getElementById('calc-results')!;
+
+    const inicialEl = document.getElementById('calc-inicial') as HTMLInputElement;
+    const mensualEl = document.getElementById('calc-mensual') as HTMLInputElement;
+    const plazoEl = document.getElementById('calc-plazo') as HTMLInputElement;
+    const cagrEl = document.getElementById('calc-cagr') as HTMLInputElement;
+    const cagrNote = document.getElementById('calc-cagr-note')!;
+    const cagrCap = document.getElementById('calc-cagr-cap')!;
+    const precioActualEl = document.getElementById('calc-precio-actual')!;
+
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const gsap = () => (window as any).gsap;
+
+    let precioActual: number | null = null;
+    let precioAprox = false;
+    let chartLoaded = false;
+    const FALLBACK = 95000;
+
+    /* ── Formatters ── */
+    const fmtUSD = (n: number) => {
+      const abs = Math.abs(n);
+      if (abs >= 1e9) return '$' + (n / 1e9).toFixed(2) + 'B';
+      if (abs >= 1e6) return '$' + (n / 1e6).toFixed(2) + 'M';
+      return '$' + Math.round(n).toLocaleString('en-US');
+    };
+
+    /* ── Precio en vivo (CoinGecko = única fuente de verdad) ── */
+    function updatePrecioHeader() {
+      const p = precioActual ?? FALLBACK;
+      precioActualEl.textContent = '$' + p.toLocaleString('en-US');
+    }
+    function fetchPrecio() {
+      fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd')
+        .then((r) => r.json())
+        .then((d) => {
+          if (d?.bitcoin?.usd) { precioActual = d.bitcoin.usd; precioAprox = false; }
+          else throw new Error('bad data');
+          updatePrecioHeader();
+          refreshCagr();
+        })
+        .catch(() => { precioActual = FALLBACK; precioAprox = true; updatePrecioHeader(); refreshCagr(); });
+    }
+
+    /* ── CAGR recomendado dinámico por plazo ── */
+    function refreshCagr() {
+      const plazo = parseInt(plazoEl.value, 10);
+      if (isNaN(plazo) || plazo < 1) { cagrNote.hidden = true; cagrCap.hidden = true; return; }
+      const precio = precioActual ?? FALLBACK;
+      const rec = cagrRecomendado(plazo, precio);
+      cagrEl.value = String(rec.pct);
+      cagrNote.textContent = `CAGR real de Bitcoin en los últimos ${rec.nEfectivo} años: ${rec.pct}% basado en el histórico.`;
+      cagrNote.hidden = false;
+      if (rec.capped) {
+        cagrCap.textContent = 'Usamos el máximo histórico disponible (13 años) para la recomendación.';
+        cagrCap.hidden = false;
+      } else {
+        cagrCap.hidden = true;
+      }
+    }
+    // Al cambiar el plazo se reescribe la recomendación (el lead puede volver a editarla).
+    plazoEl.addEventListener('input', refreshCagr);
+
+    /* ── TradingView (lazy, solo al abrir por primera vez) ──
+     * 4 timeframes custom. Cada click reconstruye el widget desde cero.
+     * El widget gratis respeta el `interval` tal cual (incluido "12M" = vela
+     * anual, igual que el landing viejo, cuya leyenda muestra "12M · Bitstamp").
+     * DECISIÓN VERIFICADA: NO pasar `range` junto al `interval`, porque el range
+     * pisa al interval y cambia la vela real. Solo usamos `interval`, así cada
+     * botón muestra su tamaño de vela correcto. Con "12M" el historial completo
+     * son ~14 velas anuales, se ven solas sin necesidad de range.
+     *   D  → interval "D"    (vela diaria)
+     *   S  → interval "W"    (vela semanal)
+     *   M  → interval "M"    (vela mensual)
+     *   1A → interval "12M"  (vela anual / 12 meses, historial completo)
+     */
+    type TF = 'D' | 'S' | 'M' | '1A';
+    const TF_CFG: Record<TF, { interval: string }> = {
+      D:   { interval: 'D' },
+      S:   { interval: 'W' },
+      M:   { interval: 'M' },
+      '1A': { interval: '12M' },
+    };
+    let tfActual: TF = '1A';
+
+    function loadChart(tf: TF = '1A') {
+      tfActual = tf;
+      chartWrap.innerHTML = '<div class="calc-chart__loading">Cargando gráfica…</div>';
+      setTimeout(() => {
+        const cfg = TF_CFG[tf];
+        const container = document.createElement('div');
+        container.className = 'tradingview-widget-container';
+        container.style.cssText = 'height:100%;width:100%;';
+        const widget = document.createElement('div');
+        widget.className = 'tradingview-widget-container__widget';
+        widget.style.cssText = 'height:100%;width:100%;';
+        container.appendChild(widget);
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.async = true;
+        script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+        script.text = JSON.stringify({
+          autosize: true, symbol: 'BITSTAMP:BTCUSD', interval: cfg.interval,
+          timezone: 'America/Costa_Rica', theme: 'dark', style: '1', locale: 'es',
+          enable_publishing: false, allow_symbol_change: false, withdateranges: false,
+          hide_side_toolbar: true, hide_top_toolbar: true, hide_volume: true,
+          save_image: false, backgroundColor: 'rgba(13,13,13,1)',
+          gridColor: 'rgba(247,147,26,0.06)', support_host: 'https://www.tradingview.com',
+        });
+        container.appendChild(script);
+        chartWrap.innerHTML = '';
+        chartWrap.appendChild(container);
+      }, 250);
+    }
+
+    /* Botones de timeframe */
+    document.querySelectorAll<HTMLButtonElement>('.calc-tf__btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const tf = btn.dataset.tf as TF;
+        if (tf === tfActual) return;
+        document.querySelectorAll('.calc-tf__btn').forEach((b) => b.classList.remove('calc-tf__btn--active'));
+        btn.classList.add('calc-tf__btn--active');
+        loadChart(tf);
+        track('ChartTimeframe', { timeframe: tf });
+      });
+    });
+
+    /* ── Abrir / cerrar ── */
+    function open() {
+      backdrop!.setAttribute('aria-hidden', 'false');
+      backdrop!.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+      if (!chartLoaded) { chartLoaded = true; loadChart(); }
+      if (precioActual === null) fetchPrecio();
+      // Poblar el CAGR recomendado de una (con precio vivo o fallback); si el
+      // precio llega después, fetchPrecio lo vuelve a refrescar. Así el input
+      // nunca queda vacío aunque el lead calcule al toque.
+      refreshCagr();
+      track('CalculadoraOpen');
+    }
+    function close() {
+      backdrop!.setAttribute('aria-hidden', 'true');
+      backdrop!.classList.remove('is-open');
+      document.body.style.overflow = '';
+      track('CalculadoraClose');
+    }
+    fab!.addEventListener('click', open);
+    closeBtn.addEventListener('click', close);
+    backdrop!.addEventListener('click', (e) => { if (e.target === backdrop) close(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && backdrop!.classList.contains('is-open')) close(); });
+
+    /* ── Count-up ── */
+    function animateValue(el: HTMLElement, to: number, fmt: (n: number) => string, duration = 0.6) {
+      if (reduce || !gsap()) { el.textContent = fmt(to); return; }
+      const o = { v: 0 };
+      gsap().to(o, { v: to, duration, ease: 'power2.out', onUpdate: () => { el.textContent = fmt(o.v); } });
+    }
+
+    /* ── Calcular ── */
+    runBtn.addEventListener('click', () => {
+      // Campos vacíos se interpretan como 0 para que el cálculo no se rompa.
+      const inicial = parseFloat(inicialEl.value) || 0;
+      const mensual = parseFloat(mensualEl.value) || 0;
+      const plazo = parseInt(plazoEl.value, 10) || 0;
+      const cagr = parseFloat(cagrEl.value) || 0;
+
+      if (inicial <= 0 && mensual <= 0) {
+        alert('Ingresá al menos una inversión inicial o mensual.');
+        return;
+      }
+
+      const precio = precioActual ?? FALLBACK;
+      const r = calcularDCA({ inicial, mensual, plazoAnios: plazo, cagrPct: cagr, precioActual: precio });
+
+      (document.getElementById('calc-valor-label') as HTMLElement).textContent = `Valor estimado de tu inversión en ${plazo} años`;
+      (document.getElementById('calc-precio-label') as HTMLElement).textContent = `Precio estimado de 1 BTC en ${plazo} años`;
+
+      const gananciaEl = document.getElementById('calc-ganancia') as HTMLElement;
+      gananciaEl.className = 'calc-card__value ' + (r.ganancia >= 0 ? 'calc-card__value--green' : 'calc-card__value--red');
+
+      results.hidden = false;
+
+      animateValue(document.getElementById('calc-total') as HTMLElement, r.totalInvertido, fmtUSD);
+      animateValue(document.getElementById('calc-precio-futuro') as HTMLElement, r.precioFuturoBtc, fmtUSD);
+      // El valor estimado es el número héroe: count-up más largo y notorio.
+      animateValue(document.getElementById('calc-valor') as HTMLElement, r.valorFinal, fmtUSD, 1.1);
+      animateValue(gananciaEl, r.ganancia, (n) => (n >= 0 ? '+' : '') + fmtUSD(n));
+
+      (document.getElementById('calc-precio-nota') as HTMLElement).textContent = precioAprox
+        ? `Precio BTC aproximado: $${FALLBACK.toLocaleString('en-US')} USD (cotización en vivo no disponible).`
+        : `Precio BTC actual: $${precio.toLocaleString('en-US')} USD.`;
+
+      // Entrada escalonada de las cards
+      if (!reduce && gsap()) {
+        gsap().fromTo('.calc-card', { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, stagger: 0.06, ease: 'power2.out' });
+      }
+
+      track('CalculadoraCalculo', {
+        inversion_inicial: inicial,
+        inversion_mensual: mensual,
+        plazo,
+        cagr,
+      });
+      track('CalculadoraResult', {
+        valor_estimado: Math.round(r.valorFinal),
+        ganancia: Math.round(r.ganancia),
+        precio_btc: Math.round(precio),
+      });
+    });
+
+    /* ── FAB: visibilidad (oculto en héroe) + alineación al CTA ── */
+    fab!.hidden = false;
+
+    function alignFab() {
+      if (window.innerWidth <= 768) { fab!.style.right = ''; return; }
+      const cta = document.querySelector('#hdr .btn-hero') as HTMLElement | null;
+      if (!cta) return;
+      const rect = cta.getBoundingClientRect();
+      // clientWidth excluye la scrollbar, igual que getBoundingClientRect,
+      // para que el borde derecho del FAB caiga exactamente sobre el del CTA.
+      const viewportRight = document.documentElement.clientWidth;
+      fab!.style.right = (viewportRight - rect.right) + 'px';
+    }
+    alignFab();
+    let rTimer: number;
+    window.addEventListener('resize', () => { clearTimeout(rTimer); rTimer = window.setTimeout(alignFab, 80); });
+
+    // FAB siempre visible: presente desde que carga la página y en todo el scroll.
+    fab!.classList.add('is-visible');
+
+    /* Liquid blob en el FAB */
+    fab!.addEventListener('pointermove', (e) => {
+      const r = fab!.getBoundingClientRect();
+      fab!.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      fab!.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    });
+  }
+</script>

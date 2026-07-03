@@ -13,8 +13,46 @@ import Garantia from '../components/sections/Garantia.astro';
 import FAQ from '../components/sections/FAQ.astro';
 // CtaFinal (seccion 12) fusionada dentro de FAQ.astro; se conserva el archivo sin montar.
 import Footer from '../components/sections/Footer.astro';
+import Calculadora from '../components/Calculadora.astro';
+import PixelLanding from '../components/PixelLanding.astro';
+
+// --- Datos estructurados (JSON-LD). Datos reales, sin afirmaciones de retorno/ganancia. ---
+const SITE = 'https://decentralizecr.com';
+const organizationLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Decentralize',
+  url: SITE,
+  logo: `${SITE}/logo-white.png`,
+  sameAs: [
+    'https://www.instagram.com/decentralizecr',
+    'https://www.tiktok.com/@decentralizecr',
+    'https://www.facebook.com/decentralizecr',
+    'https://x.com/decentralizecr',
+  ],
+};
+const courseLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Course',
+  name: 'Bitcoin Masterclass',
+  description:
+    'Curso de educación en Bitcoin: 5 módulos y más de 7 horas para entender cómo funciona el dinero, la red Bitcoin y la autocustodia. Un solo pago, acceso de por vida.',
+  inLanguage: 'es',
+  provider: {
+    '@type': 'Organization',
+    name: 'Decentralize',
+    url: SITE,
+  },
+};
 ---
-<BaseLayout>
+<BaseLayout
+  title="Bitcoin Masterclass | Decentralize"
+  description="Aprendé Bitcoin desde cero en Costa Rica con el Bitcoin Masterclass de Decentralize. 5 módulos, más de 7 horas, un solo pago y acceso de por vida. Educación clara, sin promesas de rendimiento."
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(organizationLd)} />
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(courseLd)} />
+  </Fragment>
   <Hero />
   <Problema />
   <Historia />
@@ -27,4 +65,6 @@ import Footer from '../components/sections/Footer.astro';
   <Garantia />
   <FAQ />
   <Footer />
+  <Calculadora />
+  <PixelLanding />
 </BaseLayout>

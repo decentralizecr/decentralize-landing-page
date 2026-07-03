@@ -34,7 +34,7 @@
       <li><a href="#alberto">Alberto</a></li>
       <li><a href="#testimonios">Testimonios</a></li>
     </ul>
-    <a href="#precio" class="btn btn-glass btn-primary btn-sm btn-hero">
+    <a href="#precio" class="btn btn-glass btn-primary btn-sm btn-hero" data-cta-label="Empezá ahora">
       <span class="liquid"></span>
       <span class="t"><span class="txt-desktop">Empezá ahora</span><span class="txt-mobile">Empezá Ya</span></span>
     </a>
@@ -67,7 +67,7 @@
       <div class="pp">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 3v18l15-9z"/></svg>
       </div>
-      <span class="vlabel">VSL · 7 min</span>
+      <span class="vlabel">MIRÁ ESTOS 6 MIN QUE PUEDEN CAMBIAR TU FORMA DE VER EL DINERO</span>
     </div>
 
     <div class="cta-row">
@@ -189,7 +189,13 @@
   .vsl:hover { transform:scale(1.015);box-shadow:0 40px 100px -34px rgba(0,0,0,.95),0 0 0 1px rgba(247,147,26,.24),0 0 84px -8px rgba(247,147,26,.34) }
   .vsl .pp { width:76px;height:76px;border-radius:50%;display:grid;place-items:center;background:rgba(247,147,26,0.18);border:1px solid rgba(247,147,26,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 0 32px -4px rgba(247,147,26,.65),inset 0 1px 0 rgba(255,255,255,.45) }
   .vsl .pp svg { width:25px;height:25px;margin-left:3px;color:#FFE9CC }
-  .vsl .vlabel { position:absolute;bottom:12px;left:14px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#cfd6e2 }
+  .vsl .vlabel { position:absolute;bottom:12px;left:14px;right:14px;font-family:var(--font-mono);font-size:11px;line-height:1.45;letter-spacing:.12em;text-transform:uppercase;color:#cfd6e2;text-shadow:0 1px 6px rgba(0,0,0,.8) }
+
+  /* ---- VSL reproduciendo: el iframe de YouTube reemplaza el glass (facade) ---- */
+  .vsl.vsl-playing { cursor:default }
+  .vsl.vsl-playing:hover { transform:none }
+  .vsl .vsl-player, .vsl iframe { position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:inherit;display:block }
+  .vsl.vsl-playing .pp, .vsl.vsl-playing .vlabel { display:none }
 
   /* ---- CTA row ---- */
   .cta-row { display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin:32px 0 30px;pointer-events:none }

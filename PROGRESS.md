@@ -4,59 +4,23 @@
 > No avances de fase sin confirmación del cliente.
 
 ## Dónde vamos
-- Fase del framework: **Fase 3 — Desarrollo** (Fase 2 cerrada y aprobada)
-- Milestone: scaffold de Astro + build del landing completo con todas las secciones
-- Archivo de referencia aprobado: `prototipo/hero-hibrido.html`
+- Fase del framework: **Fase 3 — Desarrollo** (landing armado; entrando a QA final y cutover)
+- Milestone: landing completo + formulario + calculadora + pixel + SEO integrados y en verde
+- Verificación al último guardado: astro check 0 errores, Vitest 31/31, build 6 páginas OK
 
-## Estado de la Fase 2 — CERRADA ✓
-Dirección visual Híbrido A+B aprobada por el cliente. Hero listo para implementar en producción.
+## Landing (13 secciones) — COMPLETADO ✓
+Hero (Globe.GL + nav + stats), Problema, Historia (Alberto), Transformación, Módulos, Recibís (link Kribatta), Discord, Testimonios (testi-1 a 6), Precio ($147→$97, garantía 15 días), Garantía (force field), FAQ, CTA Final, Footer. Voseo, fondo oscuro, sin guion largo.
 
-### Todo lo aprobado en Fase 2
-- **Concepto visual global:** fondo espacio negro, estrellas pulsantes + cometas, planeta Tierra nocturno gigante (Globe.GL + Three.js), nodos Bitcoin, arcos de conexión animados, ₿ viajando por arcos
-- **Botones:** liquid glass con efecto blob naranja al hover, breathing animation en CTA principal
-- **Tipografía:** Space Grotesk (display) + JetBrains Mono (mono), título blanco con text-shadow negro profundo para legibilidad sobre el globo
-- **Pill "Bitcoin Masterclass":** fondo `rgba(247,147,26,0.18)`, texto `#ffffff`, `font-weight: 600`, dot pulsante naranja
-- **VSL placeholder:** panel 16:9 con play button glass, posicionado debajo del título; `margin-top: 1px` en móvil
-- **Stats:** 3 tarjetas estilo satélite flotante con LED pulsante (9 000 hs / 7 hs de contenido / 1 solo pago)
-- **CTA principal:** "Unirme al Bitcoin Masterclass", pill naranja con breathing glow
-- **Nav desktop:** logo + links + botón "Empezá ahora" glass naranja
-- **Nav móvil:** botón "Empezá Ya" + hamburger (☰→✕) con dropdown glass oscuro, blur 20px, borde naranja, 4 opciones
-- **Paleta:** fondo `#070708`, naranja Bitcoin `#F7931A`, texto `#FFFFFF`, muted `#8892a4`
-- **Modo oscuro fijo, sin framework SPA, sin dependencias pesadas**
+## Bloques aprobados esta sesión — COMPLETADO ✓
+- **Formulario /empezar** punta a punta: shell glass sobre el globo, validación requerida + restricción de tipo, "¿cómo te enteraste?" con iconos de marca (Referido con nombre embebido en `comoSeEntero`), dos caminos pago/llamada, envío real con mock local, pantallas de éxito (logo BTC + check), error, y camino llamada con Calendly embebido + confirmación (widget se mantiene visible). CTAs a /empezar desde Precio y FAQ.
+- **Legales:** privacidad, términos, reembolso con `LegalLayout` compartido, fondo estrellas/cometas, glass translúcido, copy corregido (15 días unificado, sin JotForm, sin guion largo, fecha julio 2026). `compra-venta` scaffold creado.
+- **Footer/nav:** sin "Llamada gratis 30 min", agregado "Compra y Venta" en Legal, links de Curso `/#seccion` funcionando desde todas las páginas.
+- **Calculadora Bitcoin:** precio en vivo CoinGecko, chart TradingView D/S/M/1A (1A = velas anuales "12M"), CAGR dinámico por plazo con tope a 2013 (editable), resultados 2x2 centrados, FAB flotante siempre visible (PC alineado al CTA, móvil pill en dos líneas), inputs sin spinners con placeholder 0.
+- **Meta Pixel** (871601738724161): helper central `pixel.ts` con DEV guard, base solo en producción, advanced matching. Eventos de landing (ScrollDepth, SectionView, ViewContent, Video*, CTAClick, ClickEmpezar, FAQOpen, Contact), calculadora (CalculadoraOpen/Calculo/Result/Close, ChartTimeframe) y form (FormStart, FormFieldComplete, OpcionSeleccionada, InitiateCheckout, Lead, Purchase, CalendlyVisto, Schedule, FormError, FormAbandono en beforeunload).
+- **SEO:** meta + canonical + OG/Twitter por página, og-image 1200x630, sitemap.xml (sin /empezar), robots.txt (bloquea /empezar), JSON-LD Organization + Course, favicon de marca (favicon1.png), redes unificadas (perfil www en footer/JSON-LD, ig.me/m en contacto).
+- **VSL del héroe:** YouTube (8qDk17XCfOs) con facade de carga diferida (nada de YouTube hasta el play), label "MIRÁ ESTOS 6 MIN...".
 
-## Historial de iteraciones del hero
-- Iter 1: moneda dorada flotante con órbita de luz
-- Iter 2: planeta Tierra con nodos, primera versión
-- Iter 3: textura NASA real, tipografía Bodoni, liquid glass
-- Iter 4: degradado acero en título, layout reorganizado
-- Iter 5: planeta full-bleed, DM Serif Display, VSL flotante
-- Iter 6: Outfit 800, título 3 líneas, planeta fondo completo, drag manual, satélites
-- Iter 7: Space Grotesk acero frío, menos actividad y más elegante, stats satélite flotantes, luces 4x, glow naranja Bitcoin puro
-- Iter 8: planeta calcado a fotos de referencia (luces ámbar en manchas, océanos oscuros), glow Fresnel naranja #F7931A propio, título plateado más luminoso, un solo CTA
-- Iter 9: atmosphere celeste #87CEEB built-in (suave, difuminado), retirado el Fresnel naranja
-- Iter 10 (polish final aprobado): pill opacity 0.18, texto blanco 600, VSL margin-top 1px móvil, nav móvil con "Empezá Ya" + hamburger + dropdown
-
-## Secciones aprobadas — orden de construcción (una a la vez, sin avanzar sin confirmación)
-
-| # | Sección | Estado | Notas |
-|---|---------|--------|-------|
-| 1 | Hero | ✅ Aprobado | Globe.GL + nav + stats + copy final |
-| 2 | El Problema | 🔨 En construcción | Oscuro, tenso, sin planeta. Miedos + inflación/colón/bancos. |
-| 3 | Mi Historia (Alberto) | Pendiente | Íntimo, glass, foto alberto.png, $100K, +9 000 horas |
-| 4 | La Transformación | Pendiente | Antes/después con ❌ y ✅, caos gris a naranja al scroll |
-| 5 | Módulos | Pendiente | 5 módulos, habilidades adquiridas, limpio |
-| 6 | Todo lo que recibís | Pendiente | Inventario premium glass, prepara el precio |
-| 7 | Comunidad Discord | Pendiente | Servidor.png + canales colapsables + beneficios |
-| 8 | Testimonios | Pendiente | testi-1 a 6, sin cifras ROI, cerca del precio |
-| 9 | Precio | ✅ Aprobado | Anillo Saturno denso + planeta ₿ giratorio con glow + rayos eléctricos; border beam en card y CTA, glows. Copy final: eyebrow "TU INVERSIÓN", $147→$97, ancla +$1,000, 6 incluidos (Kribatta link), garantía 15 días, badges 2x2. Verificado 7/7 (build, anclas, fps, reduced-motion, 390px, Kribatta). |
-| 10 | Garantía | 🔨 Próxima | Force field shield. 15 días, limpio, escudo |
-| 11 | FAQ | Pendiente | Acordeón oscuro |
-| 12 | CTA Final | Pendiente | Vuelve el planeta, cierre del viaje |
-| 13 | Redes + Footer | Pendiente | Cierre limpio |
-
-## Próximos pasos inmediatos
-1. Sección 10 (Garantía, force field shield): próxima a construir
-2. Continuar en orden hasta cerrar el landing (FAQ, CTA final, footer)
-
-## Pendientes / decisiones para Fase 3
-- Confirmar si el VSL tendrá video real o sigue como placeholder al arrancar
+## Pendientes
+1. **Página compra-venta:** copy + análisis regulatorio SUGEF (en curso).
+2. **Cutover a producción** (decentralizecr.com) + verificación del Pixel en prod (Meta Pixel Helper + Test Events) + validación de share-cards (Facebook Sharing Debugger).
+3. Reemplazar VSL placeholder si aplica / QA final móvil (PageSpeed).

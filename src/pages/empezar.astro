@@ -836,6 +836,17 @@ const paises = [
      <script is:inline> de abajo, que no se type-checkea (código vanilla aprobado en Etapa 1). -->
 <script>
   import { buildFormPayload, type FormPayload } from '../lib/form-payload';
+  import { track, trackOnce, setUserData } from '../lib/pixel';
+
+  // Helper central expuesto para el <script is:inline> de abajo (no importa modulos).
+  // Todo disparo del form pasa por acá; en local solo console.log.
+  (window as any).dzPixel = { track, trackOnce, setUserData };
+
+  // ViewContent (estándar) al cargar /empezar. Una sola vez.
+  trackOnce('viewcontent-form', 'ViewContent', {
+    content_name: 'formulario',
+    content_category: 'lead_form',
+  }, { standard: true });
 
   const WORKER_URL = 'https://decentralize-form.decentralizecr.workers.dev';
   const isLocal = import.meta.env.DEV ||
@@ -989,6 +1000,42 @@ const paises = [
   pais.addEventListener('change', () => revalidate('pais', 'err-pais'));
   referidoInput.addEventListener('input', () => revalidate('referido', 'err-referido'));
 
+  /* ---- Pixel: eventos del formulario (todo por el helper central window.dzPixel) ---- */
+  let formStarted = false;
+  let leadFired = false;
+  let ultimoCampo = '';
+  function dzTrack(name, params, opts) { if (window.dzPixel) window.dzPixel.track(name, params || {}, opts || {}); }
+  function dzOnce(key, name, params, opts) { if (window.dzPixel) window.dzPixel.trackOnce(key, name, params || {}, opts || {}); }
+
+  // FormStart: primer contacto con nombre o email. Una vez por sesión de página.
+  function formStart() {
+    if (formStarted) return;
+    formStarted = true;
+    dzOnce('form-start', 'FormStart', {});
+  }
+  nombre.addEventListener('focus', formStart);
+  email.addEventListener('focus', formStart);
+
+  // Último campo tocado (para el retargeting de abandono).
+  [['nombre', nombre], ['email', email], ['telefono', telefono], ['pais', pais], ['referido', referidoInput]]
+    .forEach(pair => pair[1].addEventListener('focus', () => { ultimoCampo = pair[0]; }));
+
+  // FormFieldComplete: al salir de un campo clave con valor válido. Una vez por campo.
+  nombre.addEventListener('blur', () => { if (nombre.value.trim()) dzOnce('field-nombre', 'FormFieldComplete', { field: 'nombre' }); });
+  email.addEventListener('blur', () => { if (emailRe.test(email.value.trim())) dzOnce('field-email', 'FormFieldComplete', { field: 'email' }); });
+  telefono.addEventListener('blur', () => { if (telefono.value.trim()) dzOnce('field-telefono', 'FormFieldComplete', { field: 'telefono' }); });
+
+  // FormAbandono: arrancó el form (FormStart) pero se va sin Lead exitoso. Una vez.
+  // Solo en beforeunload (cerrar pestaña o navegar fuera): cambiar de pestaña un
+  // momento NO es abandono real, por eso no se usa visibilitychange:hidden.
+  let abandonoFired = false;
+  function formAbandono() {
+    if (!formStarted || leadFired || abandonoFired) return;
+    abandonoFired = true;
+    dzTrack('FormAbandono', ultimoCampo ? { ultimo_campo: ultimoCampo } : {});
+  }
+  window.addEventListener('beforeunload', formAbandono);
+
   /* Pills: selección única + campo Referido condicional */
   const pills = Array.from(document.querySelectorAll('.pill'));
   pills.forEach(pill => {
@@ -1018,6 +1065,7 @@ const paises = [
       opt.classList.add('is-active');
       opt.setAttribute('aria-checked', 'true');
       opcion = opt.dataset.value;
+      dzTrack('OpcionSeleccionada', { opcion });
       revalidate('opcion', 'err-opcion');
     });
   });
@@ -1081,7 +1129,7 @@ const paises = [
     s.src = CALENDLY_SRC;
     s.async = true;
     document.head.appendChild(s);
-    // TODO(pixel): track('CalendlyVisto') cuando se cablee la etapa de píxeles.
+    dzOnce('calendly-visto', 'CalendlyVisto', {}); // widget inyectado (camino llamada)
   }
 
   /* ---- Camino llamada: pantalla de agendar con widget Calendly ---- */
@@ -1104,7 +1152,7 @@ const paises = [
     $('agendar-head').hidden = true;
     $('agendar-confirm').hidden = false;
     window.scrollTo(0, 0); // se ve primero la confirmación; el widget queda scrolleando abajo
-    // TODO(pixel): track('Schedule') / Purchase-equivalente al cablear píxeles.
+    dzOnce('schedule', 'Schedule', { content_name: 'llamada_gratis' }, { standard: true });
   }
 
   /* Detección de cita agendada vía postMessage de Calendly. */
@@ -1123,7 +1171,10 @@ const paises = [
     } else {
       $('success-nombre').textContent = primerNombre();
       $('success-email').textContent = email.value.trim();
-      crossFade(formCard, $('success-pago'));
+      crossFade(formCard, $('success-pago'), () => {
+        // Purchase (estándar): solo camino pago, una sola vez, al mostrarse el éxito.
+        dzOnce('purchase', 'Purchase', { value: 97, currency: 'USD', content_name: 'masterclass' }, { standard: true });
+      });
     }
   }
 
@@ -1154,14 +1205,31 @@ const paises = [
       opcion: opcion,
     });
 
+    // InitiateCheckout (estándar): solo camino pago, al presionar enviar (arranca el checkout).
+    if (payload.opcion === 'pago') {
+      dzTrack('InitiateCheckout', { value: 97, currency: 'USD' }, { standard: true });
+    }
+
     setLoading(true);
     try {
       await bridge.submitForm(payload);
       setLoading(false);
+      // Advanced matching ANTES del Lead (el pixel hashea solo). firstName/lastName del nombre.
+      const partesNombre = nombre.value.trim().split(/\s+/);
+      if (window.dzPixel) window.dzPixel.setUserData({
+        email: email.value,
+        phone: payload.telefono,
+        firstName: partesNombre[0] || '',
+        lastName: partesNombre.slice(1).join(' '),
+      });
+      // Lead (estándar): submit exitoso, AMBOS caminos. Marca leadFired (corta FormAbandono).
+      leadFired = true;
+      dzTrack('Lead', { value: 97, currency: 'USD', content_name: 'masterclass', opcion: payload.opcion }, { standard: true });
       showSuccess(payload.opcion);
     } catch (err) {
       console.error('[submit] fallo el envío:', err);
       setLoading(false);
+      dzTrack('FormError', {}); // en local no salta (el mock siempre resuelve OK)
       crossFade(formCard, $('error-card'));
     }
   });
