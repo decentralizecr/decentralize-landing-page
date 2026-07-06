@@ -270,7 +270,12 @@
     const globeVisible = new Set();
     const heroMain = document.querySelector('main');
     const syncGlobe = () => {
-      stageEl.style.opacity = globeVisible.size > 0 ? '1' : '0';
+      const active = globeVisible.size > 0;
+      stageEl.style.opacity = active ? '1' : '0';
+      if (window.__globeActive !== active) {
+        window.__globeActive = active;
+        window.dispatchEvent(new CustomEvent('globe:visibility', { detail: active }));
+      }
     };
     const globeObs = new IntersectionObserver(entries => {
       entries.forEach(e => e.isIntersecting
@@ -324,7 +329,7 @@
     let W, H, DPR, stars, shoots, nextShoot = 0;
 
     function init() {
-      DPR = Math.min(devicePixelRatio || 1, 2);
+      DPR = Math.min(devicePixelRatio || 1, 1.5);
       W = innerWidth; H = innerHeight;
       cv.width  = W * DPR; cv.height = H * DPR;
       cv.style.width = W + 'px'; cv.style.height = H + 'px';
@@ -381,12 +386,37 @@
           if (s.x < -60 || s.x > W + 60 || s.y > H + 60) shoots.splice(i, 1);
         }
       }
-      if (!reduce) requestAnimationFrame(draw);
+    }
+
+    let rafId = null, running = false;
+    function frame(t) {
+      draw(t);
+      if (running) rafId = requestAnimationFrame(frame);
+    }
+    function start() {
+      if (running || reduce) return;
+      running = true;
+      rafId = requestAnimationFrame(frame);
+    }
+    function stop() {
+      running = false;
+      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    }
+    // Mismo gate que el globo: fuera de viewport (evento del observer) o pestaña oculta => se detiene.
+    function syncSpace() {
+      if (window.__globeActive !== false && !document.hidden) start();
+      else stop();
     }
 
     init();
     addEventListener('resize', init);
-    requestAnimationFrame(draw);
+    if (reduce) {
+      requestAnimationFrame(draw);          // un solo frame estático
+    } else {
+      start();
+      window.addEventListener('globe:visibility', syncSpace);
+      document.addEventListener('visibilitychange', syncSpace);
+    }
   })();
 })();
 </script>
@@ -497,6 +527,7 @@
   }
   updateGlobeView();
   world.renderer().setClearAlpha(0);
+  world.renderer().setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
   world.controls().autoRotate      = !reduce;
   world.controls().autoRotateSpeed = 0.35;
   world.controls().enableZoom      = false;
@@ -508,6 +539,20 @@
   });
 
   /* Nubes */
+  let cloudsMesh = null, cloudRaf = null, cloudRunning = false;
+  function cloudStep() {
+    if (cloudsMesh) cloudsMesh.rotation.y -= 0.006 * Math.PI / 180;
+    if (cloudRunning) cloudRaf = requestAnimationFrame(cloudStep);
+  }
+  function startClouds() {
+    if (cloudRunning || !cloudsMesh) return;
+    cloudRunning = true;
+    cloudRaf = requestAnimationFrame(cloudStep);
+  }
+  function stopClouds() {
+    cloudRunning = false;
+    if (cloudRaf) { cancelAnimationFrame(cloudRaf); cloudRaf = null; }
+  }
   const CLOUDS_URL = 'https://raw.githubusercontent.com/vasturiano/globe.gl/master/example/clouds/clouds.png';
   new THREE.TextureLoader().load(CLOUDS_URL, tex => {
     const clouds = new THREE.Mesh(
@@ -515,10 +560,8 @@
       new THREE.MeshPhongMaterial({ map: tex, transparent: true })
     );
     world.scene().add(clouds);
-    (function rotateClouds() {
-      clouds.rotation.y -= 0.006 * Math.PI / 180;
-      requestAnimationFrame(rotateClouds);
-    })();
+    cloudsMesh = clouds;
+    if (globeActive()) startClouds();
   });
 
   /* ₿ viajando por arcos */
@@ -556,7 +599,8 @@
     return a + d * t;
   }
 
-  (function flyLoop() {
+  let flyRaf = null, flyRunning = false;
+  function flyStep() {
     for (const f of flyers) {
       if (!reduce) f.t += f.speed;
       if (f.t > 1) { f.t = 0; f.arc = pickArc(f.pacBias); }
@@ -567,8 +611,37 @@
       const p = world.getCoords(lat, lng, alt);
       f.sp.position.set(p.x, p.y, p.z);
     }
-    requestAnimationFrame(flyLoop);
-  })();
+    if (flyRunning) flyRaf = requestAnimationFrame(flyStep);
+  }
+  function startFly() {
+    if (flyRunning) return;
+    flyRunning = true;
+    flyRaf = requestAnimationFrame(flyStep);
+  }
+  function stopFly() {
+    flyRunning = false;
+    if (flyRaf) { cancelAnimationFrame(flyRaf); flyRaf = null; }
+  }
+
+  /* Pausa/reanuda todo el render del globo segun el viewport (evento del observer) y la visibilidad de la pestana.
+     Cuando el globo esta fuera de vista ya se muestra con opacity 0, asi que pausarlo aca es imperceptible. */
+  function globeActive() {
+    return window.__globeActive !== false && !document.hidden;
+  }
+  function syncGlobeAnim() {
+    if (globeActive()) {
+      world.resumeAnimation();
+      startFly();
+      startClouds();
+    } else {
+      world.pauseAnimation();
+      stopFly();
+      stopClouds();
+    }
+  }
+  window.addEventListener('globe:visibility', syncGlobeAnim);
+  document.addEventListener('visibilitychange', syncGlobeAnim);
+  syncGlobeAnim();
 </script>
 
 <!-- Hamburger móvil -->

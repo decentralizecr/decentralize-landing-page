@@ -229,6 +229,20 @@
   });
 
   /* Nubes */
+  let cloudsMesh = null, cloudRaf = null, cloudRunning = false;
+  function cloudStep() {
+    if (cloudsMesh) cloudsMesh.rotation.y -= 0.006 * Math.PI / 180;
+    if (cloudRunning) cloudRaf = requestAnimationFrame(cloudStep);
+  }
+  function startClouds() {
+    if (cloudRunning || !cloudsMesh) return;
+    cloudRunning = true;
+    cloudRaf = requestAnimationFrame(cloudStep);
+  }
+  function stopClouds() {
+    cloudRunning = false;
+    if (cloudRaf) { cancelAnimationFrame(cloudRaf); cloudRaf = null; }
+  }
   const CLOUDS_URL = 'https://raw.githubusercontent.com/vasturiano/globe.gl/master/example/clouds/clouds.png';
   new THREE.TextureLoader().load(CLOUDS_URL, tex => {
     const clouds = new THREE.Mesh(
@@ -236,10 +250,8 @@
       new THREE.MeshPhongMaterial({ map: tex, transparent: true })
     );
     world.scene().add(clouds);
-    (function rotateClouds() {
-      clouds.rotation.y -= 0.006 * Math.PI / 180;
-      requestAnimationFrame(rotateClouds);
-    })();
+    cloudsMesh = clouds;
+    if (globeActive()) startClouds();
   });
 
   /* ₿ viajando por arcos */
@@ -277,7 +289,8 @@
     return a + d * t;
   }
 
-  (function flyLoop() {
+  let flyRaf = null, flyRunning = false;
+  function flyStep() {
     for (const f of flyers) {
       if (!reduce) f.t += f.speed;
       if (f.t > 1) { f.t = 0; f.arc = pickArc(f.pacBias); }
@@ -288,8 +301,36 @@
       const p = world.getCoords(lat, lng, alt);
       f.sp.position.set(p.x, p.y, p.z);
     }
-    requestAnimationFrame(flyLoop);
-  })();
+    if (flyRunning) flyRaf = requestAnimationFrame(flyStep);
+  }
+  function startFly() {
+    if (flyRunning) return;
+    flyRunning = true;
+    flyRaf = requestAnimationFrame(flyStep);
+  }
+  function stopFly() {
+    flyRunning = false;
+    if (flyRaf) { cancelAnimationFrame(flyRaf); flyRaf = null; }
+  }
+
+  /* En /empezar el globo siempre esta en viewport, asi que solo se pausa cuando la pestana
+     esta oculta (mismo patron que LegalLayout). Imperceptible: al volver, reanuda igual. */
+  function globeActive() {
+    return !document.hidden;
+  }
+  function syncGlobeAnim() {
+    if (globeActive()) {
+      world.resumeAnimation();
+      startFly();
+      startClouds();
+    } else {
+      world.pauseAnimation();
+      stopFly();
+      stopClouds();
+    }
+  }
+  document.addEventListener('visibilitychange', syncGlobeAnim);
+  syncGlobeAnim();
 
   }
 </script>

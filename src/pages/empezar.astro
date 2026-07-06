@@ -1026,15 +1026,16 @@ const paises = [
   telefono.addEventListener('blur', () => { if (telefono.value.trim()) dzOnce('field-telefono', 'FormFieldComplete', { field: 'telefono' }); });
 
   // FormAbandono: arrancó el form (FormStart) pero se va sin Lead exitoso. Una vez.
-  // Solo en beforeunload (cerrar pestaña o navegar fuera): cambiar de pestaña un
+  // Solo en pagehide (cerrar pestaña o navegar fuera): cambiar de pestaña un
   // momento NO es abandono real, por eso no se usa visibilitychange:hidden.
+  // pagehide (en vez de beforeunload) no rompe el bfcache: volver atrás restaura la página.
   let abandonoFired = false;
   function formAbandono() {
     if (!formStarted || leadFired || abandonoFired) return;
     abandonoFired = true;
     dzTrack('FormAbandono', ultimoCampo ? { ultimo_campo: ultimoCampo } : {});
   }
-  window.addEventListener('beforeunload', formAbandono);
+  window.addEventListener('pagehide', formAbandono);
 
   /* Pills: selección única + campo Referido condicional */
   const pills = Array.from(document.querySelectorAll('.pill'));

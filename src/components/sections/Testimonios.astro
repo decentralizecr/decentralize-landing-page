@@ -869,6 +869,13 @@ const glowDelays = ['0s', '-1.2s', '-2.4s', '-0.6s', '-3.6s', '-1.8s',
         pointerStartX = point.clientX;
         pointerStartY = point.clientY;
         dragStartTranslate = translateX;
+        // Registrar los listeners de movimiento/fin solo durante un drag real. Un touchmove
+        // no pasivo permanente en window bloquea el scroll de TODA la página en cada gesto.
+        window.addEventListener('pointermove', moveDrag, { passive: false });
+        window.addEventListener('touchmove', moveDrag, { passive: false });
+        window.addEventListener('pointerup', endDrag);
+        window.addEventListener('pointercancel', endDrag);
+        window.addEventListener('touchend', endDrag);
       }
 
       function moveDrag(e) {
@@ -899,6 +906,11 @@ const glowDelays = ['0s', '-1.2s', '-2.4s', '-0.6s', '-3.6s', '-1.8s',
       function endDrag() {
         if (!isDragging) return;
         isDragging = false;
+        window.removeEventListener('pointermove', moveDrag);
+        window.removeEventListener('touchmove', moveDrag);
+        window.removeEventListener('pointerup', endDrag);
+        window.removeEventListener('pointercancel', endDrag);
+        window.removeEventListener('touchend', endDrag);
         marquee.classList.remove('dragging');
         // Tras un drag real, suprimir el próximo click (que abriría el lightbox).
         if (didDrag) {
@@ -919,14 +931,10 @@ const glowDelays = ['0s', '-1.2s', '-2.4s', '-0.6s', '-3.6s', '-1.8s',
       marquee.addEventListener('mouseleave', () => { isHovering = false; });
 
       marquee.addEventListener('pointerdown', startDrag);
-      window.addEventListener('pointermove', moveDrag, { passive: false });
-      window.addEventListener('pointerup', endDrag);
-      window.addEventListener('pointercancel', endDrag);
-
       // Fallback touch (Safari iOS viejo sin Pointer Events).
       marquee.addEventListener('touchstart', startDrag, { passive: true });
-      window.addEventListener('touchmove', moveDrag, { passive: false });
-      window.addEventListener('touchend', endDrag);
+      // Los listeners de pointermove/touchmove/pointerup/touchend se registran en startDrag
+      // y se remueven en endDrag (no permanentes en window).
 
       requestAnimationFrame(() => {
         measure();
