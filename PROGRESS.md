@@ -4,24 +4,30 @@
 > No avances de fase sin confirmación del cliente.
 
 ## Dónde vamos
-- Fase del framework: **Fase 3 — Desarrollo** (landing armado; entrando a QA final y cutover)
-- Milestone: landing completo + formulario + calculadora + pixel + SEO integrados y en verde
+- Fase: **Fase 3 — Desarrollo** (cutover completado; entrando a optimización de rendimiento)
+- Milestone: Lote 4 FABLE_REVIEW.md — rendimiento móvil
 - Verificación al último guardado: astro check 0 errores, Vitest 31/31, build 6 páginas OK
 
-## Landing (13 secciones) — COMPLETADO ✓
-Hero (Globe.GL + nav + stats), Problema, Historia (Alberto), Transformación, Módulos, Recibís (link Kribatta), Discord, Testimonios (testi-1 a 6), Precio ($147→$97, garantía 15 días), Garantía (force field), FAQ, CTA Final, Footer. Voseo, fondo oscuro, sin guion largo.
+## COMPLETADO ✓
+- Landing 13 secciones: Hero (Globe.GL), Problema, Historia, Transformación, Módulos, Recibís (Kribatta), Discord, Testimonios (testi-1 a 6), Precio ($147→$97, 15 días), Garantía, FAQ, CTA Final, Footer.
+- Formulario /empezar: glass sobre globo, validación, dos caminos pago/llamada, Calendly embebido, pantallas éxito/error. CTAs desde Precio y FAQ.
+- Legales: privacidad, términos, reembolso, compra-venta — LegalLayout, fondo estrellas, glass, copy unificado (15 días, sin guion largo, jul 2026, Kribatta hipervinculado, Ley 10961).
+- Calculadora: precio vivo CoinGecko, chart TradingView (D/S/M/1A), CAGR dinámico, FAB flotante.
+- Meta Pixel (871601738724161): pixel.ts con DEV guard, advanced matching; eventos landing + calculadora + form completos.
+- SEO: meta/canonical/OG por página, og-image 1200×630, sitemap.xml, robots.txt, JSON-LD Organization+Course, favicon.
+- VSL héroe: YouTube (8qDk17XCfOs) con facade de carga diferida.
+- **Cutover a producción (jul 6 2026):** dominio decentralizecr.com (apex + www) movido a decentralize-landing-page en Cloudflare Pages. Verificado: form funciona en ambos dominios, lead cae en Google Sheet, correos Resend con "15 días" y logo correcto, camino llamada+Calendly OK, Pixel dispara eventos reales, share-cards correctos (og:title, og:description, og:image).
+- **Worker (decentralize-form, fuera del repo):** CORS apex+www, garantía 15 días, logo, validación de inputs, escape anti-inyección, manejo de errores desacoplado (Resend no tumba el éxito), token Google validado y cacheado, guiones largos corregidos.
 
-## Bloques aprobados esta sesión — COMPLETADO ✓
-- **Formulario /empezar** punta a punta: shell glass sobre el globo, validación requerida + restricción de tipo, "¿cómo te enteraste?" con iconos de marca (Referido con nombre embebido en `comoSeEntero`), dos caminos pago/llamada, envío real con mock local, pantallas de éxito (logo BTC + check), error, y camino llamada con Calendly embebido + confirmación (widget se mantiene visible). CTAs a /empezar desde Precio y FAQ.
-- **Legales:** privacidad, términos, reembolso y **compra-venta** con `LegalLayout` compartido, fondo estrellas/cometas, glass translúcido, copy corregido (15 días unificado, sin JotForm, sin guion largo, fecha julio 2026). Copy de la Política de Compra y Venta montado en `compra-venta.astro`, fundamentado en el análisis de la Ley 10961 (reforma a Ley 7786, art. 15 quater / PSAV): indexable, Kribatta hipervinculado, voseo, sin guion largo.
-- **Footer/nav:** sin "Llamada gratis 30 min", agregado "Compra y Venta" en Legal, links de Curso `/#seccion` funcionando desde todas las páginas.
-- **Calculadora Bitcoin:** precio en vivo CoinGecko, chart TradingView D/S/M/1A (1A = velas anuales "12M"), CAGR dinámico por plazo con tope a 2013 (editable), resultados 2x2 centrados, FAB flotante siempre visible (PC alineado al CTA, móvil pill en dos líneas), inputs sin spinners con placeholder 0.
-- **Meta Pixel** (871601738724161): helper central `pixel.ts` con DEV guard, base solo en producción, advanced matching. Eventos de landing (ScrollDepth, SectionView, ViewContent, Video*, CTAClick, ClickEmpezar, FAQOpen, Contact), calculadora (CalculadoraOpen/Calculo/Result/Close, ChartTimeframe) y form (FormStart, FormFieldComplete, OpcionSeleccionada, InitiateCheckout, Lead, Purchase, CalendlyVisto, Schedule, FormError, FormAbandono en beforeunload).
-- **SEO:** meta + canonical + OG/Twitter por página, og-image 1200x630, sitemap.xml (sin /empezar), robots.txt (bloquea /empezar), JSON-LD Organization + Course, favicon de marca (favicon1.png), redes unificadas (perfil www en footer/JSON-LD, ig.me/m en contacto).
-- **VSL del héroe:** YouTube (8qDk17XCfOs) con facade de carga diferida (nada de YouTube hasta el play), label "MIRÁ ESTOS 6 MIN...".
+## BASELINE DE RENDIMIENTO (PageSpeed, jul 6 2026, pre-optimización)
+- Móvil: Performance 26, Accesibilidad 100, Best Practices 100, SEO 100. LCP 10.5s, TBT 6460ms, FCP 6.4s, Speed Index 12.7s, CLS 0.
+- Desktop: Performance 56, Accesibilidad 100, Best Practices 100, SEO 100. LCP 1.3s, TBT 1580ms, FCP 0.8s, CLS 0.009.
+- Causas identificadas (FABLE_REVIEW.md): 169 elementos animados sin pausar (B-02), scripts CDN sin defer (B-05), sin headers de caché (B-12), imágenes sin optimizar (B-06/B-07), 8396 KiB payload total.
+- Objetivo Lote 4: reducir LCP y TBT en móvil sin tocar diseño.
 
 ## Pendientes
-1. **VALIDACIÓN LEGAL de /compra-venta** por abogado costarricense colegiado ANTES de publicar (el copy es un insumo fundamentado, no asesoría legal; requiere visto bueno profesional).
-2. **Formalizar la alianza con Kribatta por escrito** (carta/convenio que confirme que Kribatta ejecuta el 100% de las operaciones).
-3. **Cutover a producción** (decentralizecr.com) + verificación del Pixel en prod (Meta Pixel Helper + Test Events) + validación de share-cards (Facebook Sharing Debugger).
-4. **QA final móvil** (PageSpeed).
+1. **Lote 4 FABLE_REVIEW.md** — rendimiento móvil (en curso).
+2. **Lotes 5-7 FABLE_REVIEW.md** — tracking/calidad, accesibilidad, estructural (después del Lote 4).
+3. **Medir PageSpeed** al cerrar el Lote 4 y comparar contra esta baseline.
+4. **Validación legal de /compra-venta** por abogado costarricense colegiado.
+5. **Formalizar alianza con Kribatta** por escrito (carta/convenio).
