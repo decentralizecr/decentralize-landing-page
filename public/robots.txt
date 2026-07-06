@@ -1,5 +1,4 @@
 User-agent: *
 Allow: /
-Disallow: /empezar
 
 Sitemap: https://decentralizecr.com/sitemap.xml

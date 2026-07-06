@@ -836,7 +836,7 @@ const paises = [
      <script is:inline> de abajo, que no se type-checkea (código vanilla aprobado en Etapa 1). -->
 <script>
   import { buildFormPayload, type FormPayload } from '../lib/form-payload';
-  import { track, trackOnce, setUserData } from '../lib/pixel';
+  import { track, trackOnce, setUserData, detectIsLocal } from '../lib/pixel';
 
   // Helper central expuesto para el <script is:inline> de abajo (no importa modulos).
   // Todo disparo del form pasa por acá; en local solo console.log.
@@ -849,8 +849,8 @@ const paises = [
   }, { standard: true });
 
   const WORKER_URL = 'https://decentralize-form.decentralizecr.workers.dev';
-  const isLocal = import.meta.env.DEV ||
-    ['localhost', '127.0.0.1'].includes(location.hostname);
+  // Fuente única de verdad para local/no-producción (incluye previews *.pages.dev).
+  const isLocal = detectIsLocal();
 
   async function submitForm(payload: FormPayload) {
     if (isLocal) {

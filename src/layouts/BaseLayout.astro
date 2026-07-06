@@ -25,7 +25,11 @@ const canonical = SITE + pathname;
 
 // Meta Pixel: snippet base oficial. Solo en producción; en local todo va por
 // console.log vía src/lib/pixel.ts. Init + PageView automático. ID 871601738724161.
+// El guard runtime evita inicializar fbq en localhost/127.0.0.1 y en previews de
+// Cloudflare Pages (*.pages.dev), que se buildean con PROD=true. Solo corre en
+// producción real (decentralizecr.com), alineado con detectIsLocal() de pixel.ts.
 const PIXEL_BASE = `<script>
+if(!/(^localhost$)|(^127\\.0\\.0\\.1$)|(\\.pages\\.dev$)/.test(location.hostname)){
 !function(f,b,e,v,n,t,s)
 {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
 n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -36,6 +40,7 @@ s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
 fbq('init', '871601738724161');
 fbq('track', 'PageView');
+}
 </script>
 <noscript><img height="1" width="1" style="display:none"
 src="https://www.facebook.com/tr?id=871601738724161&ev=PageView&noscript=1" alt="" /></noscript>`;

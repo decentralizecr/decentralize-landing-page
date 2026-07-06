@@ -8,15 +8,17 @@ export const PIXEL_ID = '871601738724161';
 
 const LOCAL_HOSTS = ['localhost', '127.0.0.1'];
 
-/** import.meta.env.DEV o hostname local. Sin acceso a window/location, cae en DEV. */
+/**
+ * import.meta.env.DEV, hostname local (localhost/127.0.0.1), o preview de
+ * Cloudflare Pages (*.pages.dev). Los previews se buildean con PROD=true, así
+ * que sin este chequeo dispararían el pixel real y ensuciarían la data de ads.
+ * Sin acceso a window/location, cae en DEV.
+ */
 export function detectIsLocal(): boolean {
   const dev = Boolean(import.meta.env && import.meta.env.DEV);
   const host = typeof location !== 'undefined' ? location.hostname : '';
-  return dev || LOCAL_HOSTS.includes(host);
+  return dev || LOCAL_HOSTS.includes(host) || host.endsWith('.pages.dev');
 }
-
-/** Valor resuelto al cargar el módulo; útil para consumidores que quieran ramificar. */
-export const isLocal = detectIsLocal();
 
 // Semilla de tests: forzar local/prod. null = detección real.
 let localOverride: boolean | null = null;
