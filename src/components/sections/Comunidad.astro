@@ -1223,7 +1223,9 @@ const avatares = [
           if (orbitRunning) { orbitRunning = false; cancelAnimationFrame(orbitRaf); }
         }
       });
-    }, { rootMargin: '200px' });
+    // Móvil: rootMargin 0px para pausar la galaxia apenas sale del viewport real
+    // (no precargar vecinos). Baja el pico de memoria en la zona previa a Precio.
+    }, { rootMargin: (window.matchMedia('(max-width: 768px)').matches || window.matchMedia('(pointer: coarse)').matches) ? '0px' : '200px' });
     obs.observe(target);
   }
 

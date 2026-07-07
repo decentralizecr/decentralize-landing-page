@@ -450,7 +450,9 @@
             cancelAnimationFrame(rafId);
           }
         });
-      }, { rootMargin: '200px' });
+      // Móvil: rootMargin 0px para pausar el canvas apenas sale del viewport real
+      // (no precargar vecinos), bajando el pico de memoria previo a la zona de Precio.
+      }, { rootMargin: (window.matchMedia('(max-width: 768px)').matches || window.matchMedia('(pointer: coarse)').matches) ? '0px' : '200px' });
       canvasObs.observe(canvas);
     }
   }

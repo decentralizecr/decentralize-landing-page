@@ -594,7 +594,8 @@ const socials = [
     // Pausa fuera de viewport (cumple cap de canvas y ahorra batería)
     const io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) { if (e.isIntersecting) start(); else stop(); });
-    }, { rootMargin: '200px' });
+    // Móvil: rootMargin 0px para pausar el canvas apenas sale del viewport real (no precargar vecinos).
+    }, { rootMargin: (window.matchMedia('(max-width: 768px)').matches || window.matchMedia('(pointer: coarse)').matches) ? '0px' : '200px' });
     io.observe(root);
   }
 

@@ -532,6 +532,7 @@ a.price-badge:hover { color: rgba(255,255,255,0.85); }
   .price-new { font-size: clamp(3rem, 14vw, 3.6rem); }
   .price-incl li { font-size: 13px; }
   .price-cta { font-size: 14px; padding: 14px 20px; }
+  .price-card { -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
 
   /* Badges en grilla 2x2: cada uno en su celda, alineados y centrados. Cuadrícula con
      líneas divisorias apenas perceptibles (blanco alpha bajo) que separan los 4 sin
@@ -611,12 +612,14 @@ a.price-badge:hover { color: rgba(255,255,255,0.85); }
   const ctxFront = cvFront.getContext('2d');
   if (!ctxBack || !ctxFront) return;
 
-  const DPR  = Math.min(window.devicePixelRatio || 1, 1.5);
+  const mqMobile = () => window.matchMedia('(max-width: 768px)').matches
+    || window.matchMedia('(pointer: coarse)').matches;
+  let isMobile = mqMobile();
+  const DPR  = Math.min(window.devicePixelRatio || 1, isMobile ? 1.0 : 1.5);
   const TILT = 15 * Math.PI / 180;           // anillo visto en ángulo (Saturno)
   const cosT = Math.cos(TILT), sinT = Math.sin(TILT);
 
   let W = 0, H = 0, cx = 0, cy = 0, rx = 320, ry = 180;
-  let isMobile = window.matchMedia('(max-width: 768px)').matches;
 
   /* Sprite naranja pre-renderizado (glow horneado, evita shadowBlur por partícula) */
   const S = 32;
@@ -665,13 +668,22 @@ a.price-badge:hover { color: rgba(255,255,255,0.85); }
   }
 
   function resize() {
-    isMobile = window.matchMedia('(max-width: 768px)').matches;
+    isMobile = mqMobile();
     W = stage.offsetWidth;
     H = stage.offsetHeight;
-    cvBack.width  = cvFront.width  = Math.floor(W * DPR);
-    cvBack.height = cvFront.height = Math.floor(H * DPR);
+    cvBack.width  = Math.floor(W * DPR);
+    cvBack.height = Math.floor(H * DPR);
     ctxBack.setTransform(DPR, 0, 0, DPR, 0, 0);
-    ctxFront.setTransform(DPR, 0, 0, DPR, 0, 0);
+    if (isMobile) {
+      // Móvil: 1 solo canvas (el planeta ₿ en cvBack). El anillo Saturno (partículas +
+      // canvas delantero) se omite; liberamos el backing store del canvas front para
+      // bajar el pico de memoria que dispara el OOM en iPhone.
+      cvFront.width = cvFront.height = 0;
+    } else {
+      cvFront.width  = Math.floor(W * DPR);
+      cvFront.height = Math.floor(H * DPR);
+      ctxFront.setTransform(DPR, 0, 0, DPR, 0, 0);
+    }
     cx = card.offsetLeft + card.offsetWidth / 2;
     cy = card.offsetTop  + card.offsetHeight / 2;
     // Elipse ceñida a la card: rx un poco mayor que su media-anchura (bordes apenas por
@@ -679,7 +691,8 @@ a.price-badge:hover { color: rgba(255,255,255,0.85); }
     const cw = card.offsetWidth, ch = card.offsetHeight;
     if (isMobile) { rx = cw * 0.60; ry = ch * 0.34; }
     else          { rx = cw * 0.62; ry = ch * 0.38; }
-    if (!parts.length) buildParts();
+    // Móvil: no construimos partículas (el anillo no se dibuja).
+    if (!isMobile && !parts.length) buildParts();
 
     // Planeta ₿: alto ~la mitad de la card, centrado en la zona media (precio arriba y CTA
     // abajo despejados). El ancho sigue el ratio real del logo. Glow contenido alrededor del
@@ -705,7 +718,7 @@ a.price-badge:hover { color: rgba(255,255,255,0.85); }
     // En mobile la card es casi del ancho del viewport: atenuamos un poco para no lavar el
     // texto, pero lo suficientemente alto para que la B translúcida se perciba como en desktop
     // (antes 0.62 la dejaba casi invisible tras el blur del glass del panel).
-    const aMul = isMobile ? 0.85 : 1;
+    const aMul = 1;
     ctxBack.save();
     ctxBack.translate(cx, cy);
     ctxBack.globalAlpha = (0.16 + 0.16 * pulse) * aMul; // resplandor sube y baja (tenue)
@@ -851,8 +864,10 @@ a.price-badge:hover { color: rgba(255,255,255,0.85); }
 
   function render() {
     ctxBack.clearRect(0, 0, W, H);
-    ctxFront.clearRect(0, 0, W, H);
     drawPlanet();   // planeta primero -> las partículas traseras quedan encima de él
+    // Móvil: solo el planeta ₿ (1 canvas). Sin anillo, sin partículas, sin rayos.
+    if (isMobile) { ctxBack.globalAlpha = 1; return; }
+    ctxFront.clearRect(0, 0, W, H);
     for (let i = 0; i < parts.length; i++) {
       const p = parts[i];
       const ca = Math.cos(p.angle), sa = Math.sin(p.angle);
@@ -881,18 +896,21 @@ a.price-badge:hover { color: rgba(255,255,255,0.85); }
     const dt = last ? Math.min((now - last) / 1000, 0.05) : 0.016;
     last = now;
     tNow = now;
-    for (let i = 0; i < parts.length; i++) parts[i].angle += parts[i].speed * dt;
     rotPhase  += ROT_SPEED  * dt;   // giro lento del planeta
     glowPhase += GLOW_SPEED * dt;   // latido del glow
-    // Rayos esporádicos: un evento cada ~1.5-3s. Por evento sale 1, 2 o 3 rayos con
-    // probabilidad IGUAL (~33% cada uno), en direcciones distintas: estallido radial desde la ₿.
-    if (nextBoltAt === 0) nextBoltAt = now + 900;
-    if (now >= nextBoltAt) {
-      const r = Math.random();
-      spawnBurst(now, r < 1 / 3 ? 1 : (r < 2 / 3 ? 2 : 3));
-      nextBoltAt = now + 1500 + Math.random() * 1500;
+    // Móvil: solo animamos el planeta ₿ (giro + latido). Sin partículas ni rayos.
+    if (!isMobile) {
+      for (let i = 0; i < parts.length; i++) parts[i].angle += parts[i].speed * dt;
+      // Rayos esporádicos: un evento cada ~1.5-3s. Por evento sale 1, 2 o 3 rayos con
+      // probabilidad IGUAL (~33% cada uno), en direcciones distintas: estallido radial desde la ₿.
+      if (nextBoltAt === 0) nextBoltAt = now + 900;
+      if (now >= nextBoltAt) {
+        const r = Math.random();
+        spawnBurst(now, r < 1 / 3 ? 1 : (r < 2 / 3 ? 2 : 3));
+        nextBoltAt = now + 1500 + Math.random() * 1500;
+      }
+      if (bolts.length) bolts = bolts.filter(b => now - b.start < b.dur);
     }
-    if (bolts.length) bolts = bolts.filter(b => now - b.start < b.dur);
     render();
     raf = requestAnimationFrame(tick);
   }
@@ -905,14 +923,23 @@ a.price-badge:hover { color: rgba(255,255,255,0.85); }
   window.addEventListener('load', () => { resize(); if (reduce) render(); });
 
   if (reduce) {
-    if (!parts.length) buildParts();
-    render();          // partículas estáticas, sin girar
+    if (!isMobile && !parts.length) buildParts();
+    render();          // partículas estáticas, sin girar (en móvil, solo el planeta ₿)
     return;
   }
 
+  let inView = false;
   const obs = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) start(); else stop(); });
-  }, { rootMargin: '200px' });
+    entries.forEach(e => {
+      inView = e.isIntersecting;
+      if (inView) start(); else stop();
+    });
+  }, { rootMargin: isMobile ? '0px' : '200px' });
   obs.observe(root);
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stop();
+    else if (inView) start();
+  });
 })();
 </script>

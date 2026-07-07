@@ -573,7 +573,11 @@ const faqs: Faq[] = [
   // El canvas toma el control: ocultamos el SVG base para no duplicar estrellas
   root.classList.add('canvas-on');
 
-  const DPR = Math.min(window.devicePixelRatio || 1, 1.5);
+  // Móvil: cap DPR a 1.0 (no 1.5) para bajar el backing store del canvas grande de FAQ,
+  // que queda co-activo con la cola de Precio en la zona de Garantía (pico de memoria en iPhone).
+  const isMobile = window.matchMedia('(max-width: 768px)').matches
+    || window.matchMedia('(pointer: coarse)').matches;
+  const DPR = Math.min(window.devicePixelRatio || 1, isMobile ? 1.0 : 1.5);
   const FEATURED = 12;
   // Densidad POR AREA tomada de la referencia mobile (390px: 375x1299 = 487271 px²). Los conteos se
   // recalculan segun el area real del canvas en build(): asi desktop (area ~3.75x la de mobile) recibe
@@ -809,7 +813,9 @@ const faqs: Faq[] = [
 
   const io = new IntersectionObserver(function (entries) {
     entries.forEach(function (e) { if (e.isIntersecting) start(); else stop(); });
-  }, { rootMargin: '200px' });
+  // Móvil: rootMargin 0px para pausar el canvas apenas sale del viewport real (no
+  // precargar vecinos). Evita que FAQ anime mientras Garantía/Precio están en pantalla.
+  }, { rootMargin: (window.matchMedia('(max-width: 768px)').matches || window.matchMedia('(pointer: coarse)').matches) ? '0px' : '200px' });
   io.observe(root);
 })();
 </script>

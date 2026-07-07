@@ -130,6 +130,7 @@
    :hover para ganar cuando ambos están activos (misma especificidad, decide el orden). */
 .shield-stage:hover   { transform: perspective(700px) translateZ(26px); }
 .shield-stage.pressed { --press: 1; transform: perspective(700px) translateZ(34px); }
+.shield-stage.paused  { animation-play-state: paused; }
 
 /* Glow exterior: box-shadow naranja que sobresale del círculo. Su opacidad late con --breath
    y sube fijo con --press (burbuja de energía irradiando luz hacia afuera). */
@@ -283,6 +284,7 @@
   .garantia { padding: 4px 0; }
   .g-wrap { min-height: 40vh; padding: 8px 18px; gap: 16px; }
   .shield { width: 72px; height: 72px; }
+  .shield-stage { will-change: auto; }
 }
 
 /* ---- Reduced motion: escudo dibujado, sin respiración, salto, ondas ni acercamiento ---- */
@@ -336,10 +338,17 @@
     function startWaves() { if (!rmq.matches && !waveTimer) waveTimer = setInterval(spawnWave, 1000); }
     function stopWaves()  { if (waveTimer) { clearInterval(waveTimer); waveTimer = null; } }
 
+    if (stage) stage.classList.add('paused');
     const io = new IntersectionObserver((entries) => {
       entries.forEach(e => {
-        if (e.isIntersecting) { root.classList.add('in'); startWaves(); }
-        else stopWaves();
+        if (e.isIntersecting) {
+          root.classList.add('in');
+          if (stage) stage.classList.remove('paused');
+          startWaves();
+        } else {
+          if (stage) stage.classList.add('paused');
+          stopWaves();
+        }
       });
     }, { threshold: 0.4 });
     io.observe(root);
