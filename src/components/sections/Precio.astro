@@ -702,8 +702,10 @@ a.price-badge:hover { color: rgba(255,255,255,0.85); }
     if (!btcReady || !glowGrad) return;
     // Glow naranja que late (modulado por globalAlpha, no recreando el gradiente)
     const pulse = 0.5 + 0.5 * Math.sin(glowPhase);   // 0..1
-    // En mobile la card es casi del ancho del viewport: atenuamos para no lavar el texto.
-    const aMul = isMobile ? 0.62 : 1;
+    // En mobile la card es casi del ancho del viewport: atenuamos un poco para no lavar el
+    // texto, pero lo suficientemente alto para que la B translúcida se perciba como en desktop
+    // (antes 0.62 la dejaba casi invisible tras el blur del glass del panel).
+    const aMul = isMobile ? 0.85 : 1;
     ctxBack.save();
     ctxBack.translate(cx, cy);
     ctxBack.globalAlpha = (0.16 + 0.16 * pulse) * aMul; // resplandor sube y baja (tenue)
