@@ -578,6 +578,34 @@ const glowDelays = ['0s', '-1.2s', '-2.4s', '-0.6s', '-3.6s', '-1.8s',
   .testi-card { width: 240px; }
 }
 
+/* ---------- Mitigacion movil OOM (C-04): apagar los efectos decorativos por-card ----------
+   En movil, el marquee (transform del .track por rAF, una sola capa) se mantiene identico. Se
+   apagan las animaciones infinitas por-slide/card/pill y el titileo de estrellas, que promovian
+   ~12 capas de compositor a DPR 3 y repintaban box-shadow/outline cada frame. Estados fijos =
+   mismo look, sin latido. Es el fallback reduced-motion ya aprobado, aplicado a todo el movil. */
+@media (max-width: 767px) {
+  /* Sin deriva satelital: elimina las 12 capas GPU por slide. */
+  .testi-slide { animation: none; }
+  /* Glow de card fijo (valor medio entre base y pico), sin repintar cada frame. */
+  .testi-card {
+    animation: none;
+    outline-color: rgba(247,147,26,0.85);
+    box-shadow: var(--shadow-card), 0 0 14px rgba(247,147,26,0.50);
+  }
+  /* Glow de pill fijo. */
+  .testi-pill {
+    animation: none;
+    border-color: rgba(247,147,26,0.85);
+    box-shadow: 0 0 14px rgba(247,147,26,0.45), 0 0 28px rgba(247,147,26,0.15);
+  }
+  /* Cielo estatico: sin titileo (el halo por drop-shadow estatico de :394 mantiene visibles las
+     estrellas). Apaga ~34 animaciones testiTwinkle que animaban transform + filter en SVG. */
+  .testi-stars circle { animation: none !important; }
+  /* El rAF del track ya mantiene viva la capa mientras anima: la pista will-change permanente
+     forzaba una capa extra a DPR nativo aunque el marquee estuviera quieto. */
+  .track { will-change: auto; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   /* Sin auto-scroll JS ni animaciones: grid estático centrado. width:auto es
      necesario para que flex-wrap envuelva (max-content lo impediría). */

@@ -474,6 +474,16 @@ const faqs: Faq[] = [
   }
   .faq-final { margin-top: clamp(36px, 6vh, 56px); gap: 16px; }
   .faq-final-cta { padding: 16px 32px; font-size: 16px; }
+
+  /* Mitigacion movil OOM (C-05): apagar los latidos de paint (box-shadow) en la zona critica.
+     Los 8 puntos naranjas dejan de pulsar (glow fijo); el item abierto tampoco pulsa su borde.
+     El CTA final conserva su respiracion (un solo elemento, es el boton de conversion). */
+  .faq-dot { animation: none; box-shadow: 0 0 5px rgba(247,147,26,0.7); }
+  .faq-item.open .faq-dot { animation: none; box-shadow: 0 0 10px rgba(247,147,26,1), 0 0 18px rgba(247,147,26,0.5); }
+  .faq-item.open {
+    animation: none;
+    box-shadow: 0 0 0 1px var(--btc), 0 0 22px rgba(247,147,26,0.30), 0 0 48px rgba(247,147,26,0.12);
+  }
 }
 
 /* ---- Reduced motion: encabezado visible, fondo estático (SVG, sin canvas/cometas). Cajas glass
@@ -802,6 +812,11 @@ const faqs: Faq[] = [
     if (rafId) cancelAnimationFrame(rafId);
     if (cometTimer) { clearTimeout(cometTimer); cometTimer = null; }
     rafId = null;
+    // Movil (C-05): liberar el backing store del canvas grande (375x1299 ~ 1.9 MB a DPR 1.0) al
+    // salir del viewport, no solo pausar el rAF. Asi FAQ no retiene memoria mientras Garantia y la
+    // cola de Precio estan en pantalla (pico de OOM en iPhone). W=0 hace que el proximo start()
+    // vuelva a asignar el canvas via resize(). En desktop se conserva el backing store (sin cambio).
+    if (isMobile) { comets = []; canvas.width = 0; canvas.height = 0; W = 0; H = 0; }
   }
 
   resize();

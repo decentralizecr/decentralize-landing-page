@@ -285,7 +285,23 @@
   .g-wrap { min-height: 40vh; padding: 8px 18px; gap: 16px; }
   .shield { width: 72px; height: 72px; }
   .shield-stage { will-change: auto; }
+
+  /* Mitigacion movil OOM (C-06): el latido caro se hace barato.
+     1) No animar --breath (propiedad registrada: recalcula el estilo de todo el subtree cada
+        frame). Se fija a 0.5 (brillo medio) y el latido pasa a la OPACITY de dos capas de glow
+        (ff-glow, ff-rim), que el compositor maneja sin tocar el main thread.
+     2) El escudo deja de animar el RADIO de su drop-shadow (re-render del filtro por frame, lo
+        mas caro): radio fijo, mismo halo aproximado. Por eso el escudo entra y late sin jank. */
+  .shield-stage { animation: none; --breath: 0.5; }
+  .shield { filter: drop-shadow(0 0 12px rgba(247,147,26,0.5)); }
+  .ff-glow { animation: ffGlowBreathM 3.6s ease-in-out infinite; }
+  .ff-rim  { animation: ffRimBreathM 3.6s ease-in-out infinite; }
+  /* Respetar la pausa fuera de viewport (el IO togglea .paused en el stage). */
+  .shield-stage.paused .ff-glow,
+  .shield-stage.paused .ff-rim { animation-play-state: paused; }
 }
+@keyframes ffGlowBreathM { 0%, 100% { opacity: 0.30; } 50% { opacity: 0.66; } }
+@keyframes ffRimBreathM  { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.90; } }
 
 /* ---- Reduced motion: escudo dibujado, sin respiración, salto, ondas ni acercamiento ---- */
 @media (prefers-reduced-motion: reduce) {
@@ -294,6 +310,8 @@
   .shield-stage { animation: none; --breath: 0.5; transition: none; transform: none; }
   .shield-stage:hover, .shield-stage.pressed { transform: none; }
   .ff-pulse, .ff-waves { display: none; }
+  /* Anula el latido movil de opacity (C-06) tambien bajo reduced-motion. */
+  .ff-glow, .ff-rim { animation: none; }
 }
 </style>
 
