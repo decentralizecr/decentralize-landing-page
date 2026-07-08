@@ -1165,7 +1165,12 @@ const glowDelays = ['0s', '-1.2s', '-2.4s', '-0.6s', '-3.6s', '-1.8s',
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   }
 
-  window.addEventListener('resize', () => { if (running) resize(); }, { passive: true });
+  let meteorLastW = window.innerWidth, meteorResizeT;
+  window.addEventListener('resize', () => {
+    if (window.innerWidth === meteorLastW) return;   // C-08: ignorar el resize de solo-alto (barra iOS)
+    meteorLastW = window.innerWidth;
+    clearTimeout(meteorResizeT); meteorResizeT = setTimeout(() => { if (running) resize(); }, 200);
+  }, { passive: true });
 
   let inView = false;
   const meteorObs = new IntersectionObserver(entries => {

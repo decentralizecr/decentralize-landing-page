@@ -635,15 +635,40 @@ a.price-badge:hover { color: rgba(255,255,255,0.85); }
 
   /* ---- Planeta ₿: logo Bitcoin del repo, dibujado en el canvas TRASERO (detrás de la card),
      centrado en el mismo centro que el anillo. Giro falso-3D por scaleX + glow naranja que late. */
+  // Planeta ₿: imagen liviana (640px webp, ~2 MB decodificados) en vez del PNG 4096x5422 que
+  // decodificaba 84.7 MB justo al entrar Precio y disparaba el OOM en iPhone. Se carga diferida
+  // (recién al primer start / render estático) y se pre-hornea UNA vez a un buffer offscreen del
+  // tamaño exacto de display: el rAF hace un blit 1:1 por frame, sin re-escalar la imagen cada cuadro.
   const btc = new Image();
   let btcReady = false;
+  let planetRequested = false;
+  let planetBuf = null, planetBufReady = false;
   let planetW = 0, planetH = 0, glowR = 0, glowGrad = null;
   btc.onload = () => {
     btcReady = true;
-    resize();              // recalcular dimensiones del planeta con el ratio real
+    resize();              // recalcular dimensiones del planeta con el ratio real + hornear buffer
     if (reduce) render();  // pintar el frame estático ahora que la imagen llegó
   };
-  btc.src = '/bitcoin-orange.png';
+  function loadPlanet() {
+    if (planetRequested) return;
+    planetRequested = true;
+    btc.src = '/bitcoin-orange-640.webp';
+  }
+  // Pre-hornea el glifo ₿ a un canvas offscreen del tamaño de display (px de dispositivo, con el
+  // DPR del canvas): drawPlanet dibuja este buffer 1:1 por frame en vez de re-muestrear la imagen
+  // fuente cada cuadro. Se re-hornea al cambiar las dimensiones (resize con cambio de ancho).
+  function bakePlanet() {
+    if (!btcReady || !planetW || !planetH) return;
+    const bw = Math.max(1, Math.round(planetW * DPR));
+    const bh = Math.max(1, Math.round(planetH * DPR));
+    if (!planetBuf) planetBuf = document.createElement('canvas');
+    planetBuf.width = bw; planetBuf.height = bh;
+    const bx = planetBuf.getContext('2d');
+    if (!bx) return;
+    bx.clearRect(0, 0, bw, bh);
+    bx.drawImage(btc, 0, 0, bw, bh);
+    planetBufReady = true;
+  }
 
   let rotPhase = 0;   // fase de rotación: scaleX = cos(rotPhase). Inicia en 1 (cara frontal)
   let glowPhase = 0;  // fase del latido del glow
@@ -706,13 +731,14 @@ a.price-badge:hover { color: rgba(255,255,255,0.85); }
       glowGrad.addColorStop(0,    'rgba(247,147,26,0.40)');
       glowGrad.addColorStop(0.45, 'rgba(247,147,26,0.16)');
       glowGrad.addColorStop(1,    'rgba(247,147,26,0)');
+      bakePlanet();   // re-hornear el buffer del planeta al nuevo tamaño de display
     }
   }
 
   /* Planeta ₿ + glow: se dibuja en ctxBack ANTES de las partículas traseras (planeta al fondo,
      partículas encima). El glow no rota (círculo estable); el glifo sí (scaleX = cos(rotPhase)). */
   function drawPlanet() {
-    if (!btcReady || !glowGrad) return;
+    if (!planetBufReady || !glowGrad) return;
     // Glow naranja que late (modulado por globalAlpha, no recreando el gradiente)
     const pulse = 0.5 + 0.5 * Math.sin(glowPhase);   // 0..1
     // En mobile la card es casi del ancho del viewport: atenuamos un poco para no lavar el
@@ -732,7 +758,7 @@ a.price-badge:hover { color: rgba(255,255,255,0.85); }
     // no por tamaño). Sigue siendo secundario al texto.
     ctxBack.globalAlpha = (0.24 + 0.10 * Math.abs(sx)) * aMul;
     ctxBack.scale(sx, 1);
-    ctxBack.drawImage(btc, -planetW / 2, -planetH / 2, planetW, planetH);
+    ctxBack.drawImage(planetBuf, -planetW / 2, -planetH / 2, planetW, planetH);
     ctxBack.restore();
     ctxBack.globalAlpha = 1;
   }
@@ -914,15 +940,22 @@ a.price-badge:hover { color: rgba(255,255,255,0.85); }
     render();
     raf = requestAnimationFrame(tick);
   }
-  function start() { if (running) return; running = true; last = 0; nextBoltAt = 0; bolts = []; raf = requestAnimationFrame(tick); }
+  function start() { if (running) return; loadPlanet(); running = true; last = 0; nextBoltAt = 0; bolts = []; raf = requestAnimationFrame(tick); }
   function stop()  { running = false; if (raf) cancelAnimationFrame(raf); raf = null; }
 
   resize();
-  window.addEventListener('resize', () => { resize(); if (reduce) render(); }, { passive: true });
+  let lastW = window.innerWidth, resizeT;
+  window.addEventListener('resize', () => {
+    if (window.innerWidth === lastW) return;   // C-08: ignorar el resize de solo-alto (barra iOS)
+    lastW = window.innerWidth;
+    clearTimeout(resizeT);
+    resizeT = setTimeout(() => { resize(); if (reduce) render(); }, 200);
+  }, { passive: true });
   // La altura de la card cambia al cargar las fuentes: recalcular centro/elipse.
   window.addEventListener('load', () => { resize(); if (reduce) render(); });
 
   if (reduce) {
+    loadPlanet();      // carga diferida del planeta; onload dispara el render estático
     if (!isMobile && !parts.length) buildParts();
     render();          // partículas estáticas, sin girar (en móvil, solo el planeta ₿)
     return;

@@ -1150,7 +1150,12 @@ const avatares = [
         const g = buildGalaxy();
         g.resize();
         g.renderStatic();
-        window.addEventListener('resize', () => { g.resize(); g.renderStatic(); }, { passive: true });
+        let lastW = window.innerWidth, resizeT;
+        window.addEventListener('resize', () => {
+          if (window.innerWidth === lastW) return;   // C-08: ignorar el resize de solo-alto (barra iOS)
+          lastW = window.innerWidth;
+          clearTimeout(resizeT); resizeT = setTimeout(() => { g.resize(); g.renderStatic(); }, 200);
+        }, { passive: true });
       }
       placeAvatars(0);
       return;
@@ -1209,7 +1214,12 @@ const avatares = [
         galaxyState.raf = requestAnimationFrame(galTick);
       };
       galaxyState.start = () => { galaxyState.last = 0; galTick(performance.now()); };
-      window.addEventListener('resize', () => { g.resize(); measureOrbit(); }, { passive: true });
+      let orbitLastW = window.innerWidth, orbitResizeT;
+      window.addEventListener('resize', () => {
+        if (window.innerWidth === orbitLastW) return;   // C-08: ignorar el resize de solo-alto (barra iOS)
+        orbitLastW = window.innerWidth;
+        clearTimeout(orbitResizeT); orbitResizeT = setTimeout(() => { g.resize(); measureOrbit(); }, 200);
+      }, { passive: true });
     }
 
     const target = bg || root;

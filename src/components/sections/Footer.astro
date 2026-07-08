@@ -589,7 +589,13 @@ const socials = [
       rafId = null;
     }
 
-    window.addEventListener('resize', function () { if (running) resize(); }, { passive: true });
+    let lastW = window.innerWidth, resizeT;
+    window.addEventListener('resize', function () {
+      if (window.innerWidth === lastW) return;   // C-08: ignorar el resize de solo-alto (barra iOS)
+      lastW = window.innerWidth;
+      clearTimeout(resizeT);
+      resizeT = setTimeout(function () { if (running) resize(); }, 200);
+    }, { passive: true });
 
     // Pausa fuera de viewport (cumple cap de canvas y ahorra batería)
     const io = new IntersectionObserver(function (entries) {

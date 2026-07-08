@@ -438,7 +438,12 @@
       }
 
       resize();
-      window.addEventListener('resize', resize, { passive: true });
+      let lastW = window.innerWidth, resizeT;
+      window.addEventListener('resize', () => {
+        if (window.innerWidth === lastW) return;   // C-08: ignorar el resize de solo-alto (barra iOS)
+        lastW = window.innerWidth;
+        clearTimeout(resizeT); resizeT = setTimeout(resize, 200);
+      }, { passive: true });
 
       const canvasObs = new IntersectionObserver(entries => {
         entries.forEach(e => {

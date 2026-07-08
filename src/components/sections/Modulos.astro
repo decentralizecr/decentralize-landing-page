@@ -897,7 +897,12 @@
         }));
       }
       resize();
-      window.addEventListener('resize', resize, { passive: true });
+      let lastW = window.innerWidth, resizeT;
+      window.addEventListener('resize', () => {
+        if (window.innerWidth === lastW) return;   // C-08: ignorar el resize de solo-alto (barra iOS)
+        lastW = window.innerWidth;
+        clearTimeout(resizeT); resizeT = setTimeout(resize, 200);
+      }, { passive: true });
 
       function spawnShooting() {
         shooting.push({
@@ -1102,8 +1107,10 @@
       }
 
       /* Recalcular en resize */
-      let laserResizeT;
+      let laserResizeT, laserLastW = window.innerWidth;
       window.addEventListener('resize', () => {
+        if (window.innerWidth === laserLastW) return;   // C-08: ignorar el resize de solo-alto (barra iOS)
+        laserLastW = window.innerWidth;
         clearTimeout(laserResizeT);
         laserResizeT = setTimeout(() => {
           buildLaser();

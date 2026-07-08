@@ -99,7 +99,12 @@
   }
 
   init();
-  addEventListener('resize', init);
+  let lastW = innerWidth, rzT;
+  addEventListener('resize', () => {
+    if (innerWidth === lastW) return;   // C-08: la barra de URL de iOS cambia solo el alto -> ignorar
+    lastW = innerWidth;
+    clearTimeout(rzT); rzT = setTimeout(init, 200);
+  });
   requestAnimationFrame(draw);
 })();
 </script>
@@ -173,7 +178,7 @@
   /* Globe.GL */
   const world = new Globe(stage, { animateIn: false })
     .backgroundColor('rgba(0,0,0,0)')
-    .globeImageUrl('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-blue-marble.jpg')
+    .globeImageUrl('/textures/earth-2048.webp')  /* self-host 2048x1024 (era 4096: 32->8 MB decode) */
     .bumpImageUrl('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-topology.png')
     .showAtmosphere(true)
     .atmosphereColor('#00E5FF')
@@ -223,9 +228,12 @@
   world.controls().noZoom          = true;
   world.controls().enablePan       = false;
 
+  let lastGlobeW = window.innerWidth, globeRzT;
   window.addEventListener('resize', () => {
-    world.width(window.innerWidth).height(window.innerHeight);
-    updateGlobeView();
+    if (window.innerWidth === lastGlobeW) return;   // C-08: ignorar cambios de solo-alto (barra iOS)
+    lastGlobeW = window.innerWidth;
+    clearTimeout(globeRzT);
+    globeRzT = setTimeout(() => { world.width(window.innerWidth).height(window.innerHeight); updateGlobeView(); }, 200);
   });
 
   /* Nubes */
@@ -243,7 +251,7 @@
     cloudRunning = false;
     if (cloudRaf) { cancelAnimationFrame(cloudRaf); cloudRaf = null; }
   }
-  const CLOUDS_URL = 'https://raw.githubusercontent.com/vasturiano/globe.gl/master/example/clouds/clouds.png';
+  const CLOUDS_URL = '/textures/clouds-1024.webp';  /* self-host 1024x512 (era 4096: 32->2 MB decode) */
   new THREE.TextureLoader().load(CLOUDS_URL, tex => {
     const clouds = new THREE.Mesh(
       new THREE.SphereGeometry(world.getGlobeRadius() * 1.004, 75, 75),

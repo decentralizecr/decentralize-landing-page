@@ -697,7 +697,12 @@ const cards = [
 
       function resizeAll() { nebResize(); partResize(); renderNebula(); }
       resizeAll();
-      window.addEventListener('resize', resizeAll, { passive: true });
+      let lastW = window.innerWidth, resizeT;
+      window.addEventListener('resize', () => {
+        if (window.innerWidth === lastW) return;   // C-08: ignorar el resize de solo-alto (barra iOS)
+        lastW = window.innerWidth;
+        clearTimeout(resizeT); resizeT = setTimeout(resizeAll, 200);
+      }, { passive: true });
 
       /* ---------- Loop compartido: partículas 60fps, nebulosa ~30fps ---------- */
       let raf = null, running = false, last = 0, nebAcc = 0;

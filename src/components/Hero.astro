@@ -409,7 +409,12 @@
     }
 
     init();
-    addEventListener('resize', init);
+    let lastW = innerWidth, rzT;
+    addEventListener('resize', () => {
+      if (innerWidth === lastW) return;   // C-08: la barra de URL de iOS cambia solo el alto -> ignorar
+      lastW = innerWidth;
+      clearTimeout(rzT); rzT = setTimeout(init, 200);
+    });
     if (reduce) {
       requestAnimationFrame(draw);          // un solo frame estático
     } else {
@@ -484,87 +489,8 @@
     g.fillStyle = rg; g.fillRect(0, 0, 64, 64);
     return new THREE.CanvasTexture(c);
   }
-  const glowTex = makeGlowTex();
 
-  /* Globe.GL */
-  const world = new Globe(stage, { animateIn: false })
-    .backgroundColor('rgba(0,0,0,0)')
-    .globeImageUrl('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-blue-marble.jpg')
-    .bumpImageUrl('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-topology.png')
-    .showAtmosphere(true)
-    .atmosphereColor('#00E5FF')
-    .atmosphereAltitude(0.162)
-    .customLayerData(hubs)
-    .customThreeObject(() => {
-      const group = new THREE.Group();
-      const glow = new THREE.Sprite(new THREE.SpriteMaterial({
-        map: glowTex, transparent: true,
-        blending: THREE.AdditiveBlending, depthWrite: false, depthTest: true
-      }));
-      glow.scale.set(6, 6, 1); glow.renderOrder = 1;
-      group.add(glow);
-      const core = new THREE.Mesh(
-        new THREE.SphereGeometry(0.9, 12, 12),
-        new THREE.MeshBasicMaterial({ color: 0xF7931A, depthWrite: true, depthTest: true })
-      );
-      core.renderOrder = 2; group.add(core);
-      return group;
-    })
-    .customThreeObjectUpdate((obj, d) => {
-      Object.assign(obj.position, world.getCoords(d.lat, d.lng, 0.02));
-    })
-    .arcsData(arcs)
-    .arcColor(() => ['rgba(247,147,26,0)', 'rgba(247,175,80,0.92)'])
-    .arcStroke(0.42)
-    .arcAltitudeAutoScale(0.5)
-    .arcDashLength(0.4)
-    .arcDashGap(1.6)
-    .arcDashInitialGap(() => Math.random() * 5)
-    .arcDashAnimateTime(2600);
-
-  function updateGlobeView() {
-    world.pointOfView({ altitude: window.innerWidth <= 768 ? 2.8 : 1.8 });
-  }
-  updateGlobeView();
-  world.renderer().setClearAlpha(0);
-  world.renderer().setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
-  world.controls().autoRotate      = !reduce;
-  world.controls().autoRotateSpeed = 0.35;
-  world.controls().enableZoom      = false;
-  world.controls().noZoom          = true;
-
-  window.addEventListener('resize', () => {
-    world.width(window.innerWidth).height(window.innerHeight);
-    updateGlobeView();
-  });
-
-  /* Nubes */
-  let cloudsMesh = null, cloudRaf = null, cloudRunning = false;
-  function cloudStep() {
-    if (cloudsMesh) cloudsMesh.rotation.y -= 0.006 * Math.PI / 180;
-    if (cloudRunning) cloudRaf = requestAnimationFrame(cloudStep);
-  }
-  function startClouds() {
-    if (cloudRunning || !cloudsMesh) return;
-    cloudRunning = true;
-    cloudRaf = requestAnimationFrame(cloudStep);
-  }
-  function stopClouds() {
-    cloudRunning = false;
-    if (cloudRaf) { cancelAnimationFrame(cloudRaf); cloudRaf = null; }
-  }
-  const CLOUDS_URL = 'https://raw.githubusercontent.com/vasturiano/globe.gl/master/example/clouds/clouds.png';
-  new THREE.TextureLoader().load(CLOUDS_URL, tex => {
-    const clouds = new THREE.Mesh(
-      new THREE.SphereGeometry(world.getGlobeRadius() * 1.004, 75, 75),
-      new THREE.MeshPhongMaterial({ map: tex, transparent: true })
-    );
-    world.scene().add(clouds);
-    cloudsMesh = clouds;
-    if (globeActive()) startClouds();
-  });
-
-  /* ₿ viajando por arcos */
+  /* ₿ viajando por arcos (factory) */
   function btcSprite() {
     const c = document.createElement('canvas'); c.width = c.height = 64;
     const g = c.getContext('2d');
@@ -579,15 +505,18 @@
     s.scale.set(8, 8, 1); return s;
   }
 
-  const flyers = [];
+  /* ---- Estado del globo. En MÓVIL se construye/destruye segun el viewport para liberar la
+     memoria GPU (texturas + contexto WebGL) al salir del hero; en DESKTOP se construye una vez
+     y solo se pausa/reanuda (comportamiento anterior sin cambios). ---- */
+  const isMobile = () => window.matchMedia('(max-width: 768px)').matches
+    || window.matchMedia('(pointer: coarse)').matches;
+  const CLOUDS_URL = '/textures/clouds-1024.webp';  /* self-host 1024x512 (era 4096: 32->2 MB decode) */
   const TOTAL_FLY = 12, PAC_FLY = 3;
-  for (let i = 0; i < TOTAL_FLY; i++) {
-    const sp = btcSprite(); world.scene().add(sp);
-    const arcIdx = i < PAC_FLY
-      ? pacArcIdx[(Math.random() * pacArcIdx.length) | 0]
-      : (Math.random() * arcs.length) | 0;
-    flyers.push({ sp, arc: arcs[arcIdx], pacBias: i < PAC_FLY, t: Math.random(), speed: 0.0016 + Math.random() * 0.0014 });
-  }
+
+  let world = null, glowTex = null, cloudsMesh = null, flyers = [];
+  let cloudRaf = null, cloudRunning = false;
+  let flyRaf = null, flyRunning = false;
+  let globeBuilt = false;
 
   function pickArc(pb) {
     return pb ? arcs[pacArcIdx[(Math.random() * pacArcIdx.length) | 0]] : arcs[(Math.random() * arcs.length) | 0];
@@ -598,9 +527,21 @@
     if (d < -180) d += 360;
     return a + d * t;
   }
-
-  let flyRaf = null, flyRunning = false;
+  function cloudStep() {
+    if (cloudsMesh) cloudsMesh.rotation.y -= 0.006 * Math.PI / 180;
+    if (cloudRunning) cloudRaf = requestAnimationFrame(cloudStep);
+  }
+  function startClouds() {
+    if (cloudRunning || !cloudsMesh) return;
+    cloudRunning = true;
+    cloudRaf = requestAnimationFrame(cloudStep);
+  }
+  function stopClouds() {
+    cloudRunning = false;
+    if (cloudRaf) { cancelAnimationFrame(cloudRaf); cloudRaf = null; }
+  }
   function flyStep() {
+    if (!world) return;
     for (const f of flyers) {
       if (!reduce) f.t += f.speed;
       if (f.t > 1) { f.t = 0; f.arc = pickArc(f.pacBias); }
@@ -614,7 +555,7 @@
     if (flyRunning) flyRaf = requestAnimationFrame(flyStep);
   }
   function startFly() {
-    if (flyRunning) return;
+    if (flyRunning || !world) return;
     flyRunning = true;
     flyRaf = requestAnimationFrame(flyStep);
   }
@@ -623,24 +564,136 @@
     if (flyRaf) { cancelAnimationFrame(flyRaf); flyRaf = null; }
   }
 
-  /* Pausa/reanuda todo el render del globo segun el viewport (evento del observer) y la visibilidad de la pestana.
-     Cuando el globo esta fuera de vista ya se muestra con opacity 0, asi que pausarlo aca es imperceptible. */
-  function globeActive() {
-    return window.__globeActive !== false && !document.hidden;
+  function updateGlobeView() {
+    if (world) world.pointOfView({ altitude: window.innerWidth <= 768 ? 2.8 : 1.8 });
   }
-  function syncGlobeAnim() {
-    if (globeActive()) {
-      world.resumeAnimation();
-      startFly();
-      startClouds();
-    } else {
-      world.pauseAnimation();
-      stopFly();
-      stopClouds();
+
+  function inViewport() { return window.__globeActive !== false; }
+  function tabVisible() { return !document.hidden; }
+
+  function buildGlobe() {
+    if (globeBuilt) return;
+    globeBuilt = true;
+    glowTex = makeGlowTex();
+    world = new Globe(stage, { animateIn: false })
+      .backgroundColor('rgba(0,0,0,0)')
+      .globeImageUrl('/textures/earth-2048.webp')  /* self-host 2048x1024 (era 4096: 32->8 MB decode) */
+      .bumpImageUrl('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-topology.png')
+      .showAtmosphere(true)
+      .atmosphereColor('#00E5FF')
+      .atmosphereAltitude(0.162)
+      .customLayerData(hubs)
+      .customThreeObject(() => {
+        const group = new THREE.Group();
+        const glow = new THREE.Sprite(new THREE.SpriteMaterial({
+          map: glowTex, transparent: true,
+          blending: THREE.AdditiveBlending, depthWrite: false, depthTest: true
+        }));
+        glow.scale.set(6, 6, 1); glow.renderOrder = 1;
+        group.add(glow);
+        const core = new THREE.Mesh(
+          new THREE.SphereGeometry(0.9, 12, 12),
+          new THREE.MeshBasicMaterial({ color: 0xF7931A, depthWrite: true, depthTest: true })
+        );
+        core.renderOrder = 2; group.add(core);
+        return group;
+      })
+      .customThreeObjectUpdate((obj, d) => {
+        Object.assign(obj.position, world.getCoords(d.lat, d.lng, 0.02));
+      })
+      .arcsData(arcs)
+      .arcColor(() => ['rgba(247,147,26,0)', 'rgba(247,175,80,0.92)'])
+      .arcStroke(0.42)
+      .arcAltitudeAutoScale(0.5)
+      .arcDashLength(0.4)
+      .arcDashGap(1.6)
+      .arcDashInitialGap(() => Math.random() * 5)
+      .arcDashAnimateTime(2600);
+
+    updateGlobeView();
+    world.renderer().setClearAlpha(0);
+    world.renderer().setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+    world.controls().autoRotate      = !reduce;
+    world.controls().autoRotateSpeed = 0.35;
+    world.controls().enableZoom      = false;
+    world.controls().noZoom          = true;
+
+    /* Nubes: se cargan por instancia (se re-cargan al recrear el globo en móvil) */
+    new THREE.TextureLoader().load(CLOUDS_URL, tex => {
+      if (!world) { tex.dispose(); return; }   // se destruyó mientras la textura cargaba
+      const clouds = new THREE.Mesh(
+        new THREE.SphereGeometry(world.getGlobeRadius() * 1.004, 75, 75),
+        new THREE.MeshPhongMaterial({ map: tex, transparent: true })
+      );
+      world.scene().add(clouds);
+      cloudsMesh = clouds;
+      if (inViewport() && tabVisible()) startClouds();
+    });
+
+    /* ₿ viajeros */
+    flyers = [];
+    for (let i = 0; i < TOTAL_FLY; i++) {
+      const sp = btcSprite(); world.scene().add(sp);
+      const arcIdx = i < PAC_FLY
+        ? pacArcIdx[(Math.random() * pacArcIdx.length) | 0]
+        : (Math.random() * arcs.length) | 0;
+      flyers.push({ sp, arc: arcs[arcIdx], pacBias: i < PAC_FLY, t: Math.random(), speed: 0.0016 + Math.random() * 0.0014 });
     }
   }
+
+  /* Libera TODO lo del globo: geometrías, materiales, texturas, buffers y contexto WebGL, y
+     quita el canvas del DOM. Solo se llama en móvil al salir del hero. */
+  function destroyGlobe() {
+    if (!globeBuilt) return;
+    globeBuilt = false;
+    stopFly(); stopClouds();
+    if (world) {
+      try { world.pauseAnimation(); } catch (e) {}
+      world.scene().traverse(obj => {
+        if (obj.geometry) obj.geometry.dispose();
+        const mats = Array.isArray(obj.material) ? obj.material : (obj.material ? [obj.material] : []);
+        mats.forEach(m => {
+          ['map', 'bumpMap', 'specularMap', 'normalMap', 'alphaMap', 'emissiveMap'].forEach(k => { if (m[k]) m[k].dispose(); });
+          m.dispose();
+        });
+      });
+      const r = world.renderer();
+      try { r.dispose(); } catch (e) {}
+      try { if (r.forceContextLoss) r.forceContextLoss(); } catch (e) {}
+    }
+    if (glowTex) { glowTex.dispose(); glowTex = null; }
+    cloudsMesh = null; flyers = []; world = null;
+    while (stage.firstChild) stage.removeChild(stage.firstChild);
+  }
+
+  /* Ciclo de vida: viewport (evento del observer del hero+problema) + visibilidad de pestaña.
+     - En viewport: construir (si hacía falta) y animar según la pestaña.
+     - Fuera de viewport: MÓVIL destruye (libera GPU); DESKTOP solo pausa. */
+  function syncGlobeAnim() {
+    if (inViewport()) {
+      buildGlobe();
+      if (world) {
+        if (tabVisible()) { world.resumeAnimation(); startFly(); startClouds(); }
+        else { world.pauseAnimation(); stopFly(); stopClouds(); }
+      }
+    } else if (isMobile()) {
+      destroyGlobe();
+    } else if (world) {
+      world.pauseAnimation(); stopFly(); stopClouds();
+    }
+  }
+
+  let lastGlobeW = window.innerWidth, globeRzT;
+  window.addEventListener('resize', () => {
+    if (window.innerWidth === lastGlobeW) return;   // C-08: ignorar cambios de solo-alto (barra iOS)
+    lastGlobeW = window.innerWidth;
+    clearTimeout(globeRzT);
+    globeRzT = setTimeout(() => { if (world) { world.width(window.innerWidth).height(window.innerHeight); updateGlobeView(); } }, 200);
+  });
   window.addEventListener('globe:visibility', syncGlobeAnim);
   document.addEventListener('visibilitychange', syncGlobeAnim);
+
+  buildGlobe();      // el hero está en viewport al cargar
   syncGlobeAnim();
 </script>
 

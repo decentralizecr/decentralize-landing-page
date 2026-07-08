@@ -805,8 +805,10 @@ const faqs: Faq[] = [
   }
 
   resize();
-  let resizeT;
+  let resizeT, lastW = window.innerWidth;
   window.addEventListener('resize', function () {
+    if (window.innerWidth === lastW) return;   // C-08: ignorar el resize de solo-alto (barra iOS)
+    lastW = window.innerWidth;
     clearTimeout(resizeT);
     resizeT = setTimeout(function () { if (running) resize(); }, 200);
   }, { passive: true });
