@@ -524,6 +524,11 @@ const socials = [
 
     const canvas = root.querySelector('.ftr-stars-canvas');
     if (!canvas) return;
+
+    // Movil (fix anti-OOM definitivo): NO iniciar el canvas decorativo (ni contexto ni rAF). Queda
+    // el starfield SVG estatico, igual que en reduced-motion. Footer es la cola de la zona del crash.
+    if (window.matchMedia('(max-width: 768px)').matches || window.matchMedia('(pointer: coarse)').matches) return;
+
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     root.classList.add('canvas-on');   // oculta el SVG: el canvas dibuja el campo con titileo

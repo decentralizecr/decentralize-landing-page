@@ -570,7 +570,12 @@ const cards = [
         update de la nebulosa.
      4. Un único IntersectionObserver pausa TODO (nebulosa + partículas) fuera de
         viewport. */
-  if (!reduce) {
+  // Movil (fix anti-OOM definitivo): NO iniciar la nebulosa ni las particulas (ni contexto ni rAF).
+  // Queda la imagen de galaxia (.recibis-galaxy) + overlay como fondo estatico: la seccion se ve
+  // igual de espacial sin canvas. Desktop intacto.
+  const noCanvasMobile = window.matchMedia('(max-width: 768px)').matches
+    || window.matchMedia('(pointer: coarse)').matches;
+  if (!reduce && !noCanvasMobile) {
     const nebCanvas = document.querySelector('#recibis .recibis-nebula');
     const pcanvas = document.querySelector('#recibis .recibis-particles');
     if (nebCanvas && pcanvas) {

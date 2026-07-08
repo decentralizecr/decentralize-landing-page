@@ -577,6 +577,12 @@ const faqs: Faq[] = [
 
   const canvas = root.querySelector('.faq-canvas');
   if (!canvas) return;
+
+  // Movil (fix anti-OOM definitivo): NO iniciar el canvas decorativo (ni contexto ni rAF). Queda
+  // el star map SVG estatico (.faq-stars), identico al fallback de reduced-motion. En la zona del
+  // crash (Garantia -> FAQ -> Footer) FAQ deja de retener/animar un canvas grande en iPhone.
+  if (window.matchMedia('(max-width: 768px)').matches || window.matchMedia('(pointer: coarse)').matches) return;
+
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 

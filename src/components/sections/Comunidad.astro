@@ -1202,7 +1202,12 @@ const avatares = [
     }
 
     // Galaxia con loop propio, encendido/apagado por el IO.
-    if (canvas && bg) {
+    // Movil (fix anti-OOM definitivo): NO iniciar el canvas de la galaxia (ni contexto ni rAF).
+    // El fondo .comunidad-bg es translucido (rgba 7,7,8,0.5) y deja ver el #space base: la seccion
+    // sigue viendose espacial, sin canvas propio. La orbita de avatares (DOM, barata) se mantiene.
+    const noCanvasMobile = window.matchMedia('(max-width: 768px)').matches
+      || window.matchMedia('(pointer: coarse)').matches;
+    if (canvas && bg && !noCanvasMobile) {
       const g = buildGalaxy();
       g.resize();
       galaxyState = { galRunning: false, raf: null, last: 0 };

@@ -333,6 +333,10 @@
   opacity: 1;
   transform: none;
 }
+/* Movil: canvas warp apagado por JS; ocultarlo tambien por CSS (fondo --bg-base solido). */
+@media (max-width: 768px) {
+  .trf-canvas { display: none; }
+}
 @media (prefers-reduced-motion: reduce) {
   .trf-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
   .trf-canvas { display: none; }
@@ -386,7 +390,12 @@
   }
 
   /* Canvas warp */
-  if (!reduce) {
+  // Movil (fix anti-OOM definitivo): NO iniciar el canvas warp (ni contexto ni rAF). La seccion
+  // queda con su fondo base --bg-base, igual que en reduced-motion (que ya hace display:none del
+  // canvas). El CSS movil de abajo tambien lo oculta para no dejar un backing store por defecto.
+  const noCanvasMobile = window.matchMedia('(max-width: 768px)').matches
+    || window.matchMedia('(pointer: coarse)').matches;
+  if (!reduce && !noCanvasMobile) {
     const canvas = document.querySelector('.trf-canvas');
     if (canvas) {
       const ctx = canvas.getContext('2d');

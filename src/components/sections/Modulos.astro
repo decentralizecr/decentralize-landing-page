@@ -863,8 +863,14 @@
     revEls.forEach(el => revObs.observe(el));
   }
 
+  // Movil (fix anti-OOM definitivo): NO iniciar el canvas de estrellas ni el laser (ni contexto,
+  // ni rAF, ni el setInterval del laser que fuerza layout). El fondo queda con la imagen de galaxia
+  // (.mods-bg-img) + overlay + blueprint grid + nebulosas CSS: se ve espacial sin canvas. Desktop igual.
+  const noCanvasMobile = window.matchMedia('(max-width: 768px)').matches
+    || window.matchMedia('(pointer: coarse)').matches;
+
   /* Estrellas de fondo */
-  if (!reduce) {
+  if (!reduce && !noCanvasMobile) {
     const canvas = document.querySelector('.mods-stars-canvas');
     if (canvas) {
       const ctx = canvas.getContext('2d');
@@ -984,7 +990,7 @@
   }
 
   /* Laser zigzag entre cards */
-  if (!reduce) {
+  if (!reduce && !noCanvasMobile) {
     const laserSvg = document.querySelector('.mods-laser');
     const laserCards = Array.from(document.querySelectorAll('.mod-card'));
 
