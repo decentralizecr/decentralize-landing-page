@@ -293,7 +293,13 @@
      2) El escudo deja de animar el RADIO de su drop-shadow (re-render del filtro por frame, lo
         mas caro): radio fijo, mismo halo aproximado. Por eso el escudo entra y late sin jank. */
   .shield-stage { animation: none; --breath: 0.5; }
-  .shield { filter: drop-shadow(0 0 12px rgba(247,147,26,0.5)); }
+  /* Remate del "pegue" al entrar (iPhone 13): el escudo dibuja su stroke en 1.2s
+     (stroke-dashoffset). Con un drop-shadow encima, el filtro se re-rasteriza en
+     CADA frame del dibujo (el path cambia => el filtro recomputa a 60fps): ese es
+     el jank de entrada. En movil quitamos el filter del escudo: el trazo naranja
+     se dibuja plano, sin re-render de filtro, y el halo lo siguen dando ff-glow y
+     ff-rim del domo. Efecto minimo (sin filter), entrada fluida. */
+  .shield { filter: none; }
   .ff-glow { animation: ffGlowBreathM 3.6s ease-in-out infinite; }
   .ff-rim  { animation: ffRimBreathM 3.6s ease-in-out infinite; }
   /* Respetar la pausa fuera de viewport (el IO togglea .paused en el stage). */

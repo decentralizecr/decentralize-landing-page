@@ -566,6 +566,29 @@
      CAMBIO 5a: más aire al pie para que el strip no quede pegado al borde. */
   .mods { padding-top: 36px; padding-bottom: 28px; }
 
+  /* ---- Anti-OOM movil (Modulos) ----
+     El JS ya no inicia el canvas de estrellas ni el laser en movil. Aca rematamos
+     el resto de consumo GPU/memoria del fondo, dejando un fondo estatico equivalente:
+     1) Canvas sin display:none podria reservar backing-store lazy: lo ocultamos.
+     2) blueprint (mask-image) y nebulas (filter: blur(80px) x2) crean capas/buffers
+        de compositor caros; el look espacial ya lo dan la galaxia + overlay. */
+  .mods-stars-canvas { display: none; }
+  .mods-blueprint { display: none; }
+  .mods-nebula { filter: none; }
+  /* Galaxia en variante movil 828x552 (~1.74 MB decode) en vez de 1920x1280
+     (~9.4 MB): el viewport movil no aprovecha la resolucion completa. */
+  .mods-bg-img {
+    background-image: url('/images/galaxy-bg-m.jpg');
+    background-image: image-set(
+      url('/images/galaxy-bg-m.webp') type('image/webp'),
+      url('/images/galaxy-bg-m.jpg') type('image/jpeg')
+    );
+    background-image: -webkit-image-set(
+      url('/images/galaxy-bg-m.webp') type('image/webp'),
+      url('/images/galaxy-bg-m.jpg') type('image/jpeg')
+    );
+  }
+
   /* Padding lateral en el subtítulo: que no toque los bordes. Medido para
      no sumar líneas de más y estirar el alto de la sección. El margin-bottom
      bajo acerca el subtítulo a la primera card. */
@@ -593,12 +616,14 @@
     justify-content: flex-start;
     position: relative;
     overflow: hidden;
-    /* Vidrio esmerilado: fondo oscuro translúcido + blur suave. El laser
-       (mandado detrás en mobile, ver z-index abajo) y el cuadriculado se
-       siguen viendo pero difuminados, sin competir con el texto. */
-    background: rgba(8,8,12,0.62);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    /* Anti-OOM movil: sin backdrop-filter. Cada blur(8px) de backdrop crea un
+       buffer offscreen en iOS Safari (x5 cards = pico de VRAM). Como en movil ya
+       no hay canvas ni laser detras (fondo estatico), el vidrio esmerilado no
+       aporta: lo cambiamos por un fondo casi opaco (mismo look oscuro) sin blur.
+       Composita como capa plana, barato. */
+    background: rgba(9,9,13,0.92);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     transition: max-height 0.5s ease, width 0.5s ease, border-color 0.3s ease, box-shadow 0.3s ease;
   }
   .mod-card:nth-child(odd) {
@@ -692,9 +717,13 @@
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    border: 1.5px solid rgba(247,147,26,0.6);
-    background: rgba(247,147,26,0.1);
-    animation: tapGlow 2s ease-in-out infinite;
+    /* Anti-OOM movil: sin animacion infinita. tapGlow/tapBounce repintaban
+       box-shadow y transform en x5 dots de forma continua. El dot queda visible
+       (mismo affordance de "tocar") pero estatico, con un glow fijo suave. */
+    border: 1.5px solid rgba(247,147,26,0.7);
+    background: rgba(247,147,26,0.12);
+    box-shadow: 0 0 8px rgba(247,147,26,0.3);
+    animation: none;
   }
   /* Mobile: el botón naranja se prende con el laser. Mientras .is-lit está
      activa, dotLit reemplaza al tapGlow y pulsa en sincronía con el laser;
@@ -721,9 +750,10 @@
   }
   .mod-tap-arrow {
     font-size: 7px;
-    color: rgba(247,147,26,0.7);
+    color: rgba(247,147,26,0.8);
     line-height: 1;
-    animation: tapBounce 2s ease-in-out infinite;
+    /* Anti-OOM movil: sin tapBounce infinito (repaint continuo). Flecha estatica. */
+    animation: none;
   }
 
   .mods-strip { gap: 10px; margin-top: 12px; }
