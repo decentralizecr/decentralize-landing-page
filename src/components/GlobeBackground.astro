@@ -173,6 +173,9 @@
     g.fillStyle = rg; g.fillRect(0, 0, 64, 64);
     return new THREE.CanvasTexture(c);
   }
+  /* A-05: construir el globo NO en el critical path. buildBg se difiere al idle (tras el first
+     paint) para que el FORM de /empezar pinte e interactúe primero; el globo entra con fade suave. */
+  function buildBg() {
   const glowTex = makeGlowTex();
 
   /* Globe.GL */
@@ -339,6 +342,21 @@
   }
   document.addEventListener('visibilitychange', syncGlobeAnim);
   syncGlobeAnim();
+
+  /* Fade-in del globo al terminar de construirse (evita el pop brusco). */
+  const cv = stage.querySelector('canvas');
+  if (cv) {
+    cv.style.opacity = '0';
+    cv.style.transition = 'opacity .5s ease';
+    requestAnimationFrame(() => requestAnimationFrame(() => { cv.style.opacity = '1'; }));
+  }
+  }
+
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(buildBg, { timeout: 2000 });
+  } else {
+    setTimeout(buildBg, 200);   // Safari: no soporta requestIdleCallback
+  }
 
   }
 </script>

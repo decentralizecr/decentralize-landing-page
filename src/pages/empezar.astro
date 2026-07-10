@@ -44,6 +44,13 @@ const paises = [
       </header>
 
       <form id="empezar-form" class="form" novalidate>
+        <!-- Honeypot anti-spam: invisible para humanos (off-screen, no display:none), los bots lo
+             llenan. Si viene con valor al enviar, se descarta el submit sin llamar al Worker. NO
+             forma parte del contrato de 7 keys: nunca se agrega al payload. -->
+        <div class="hp-field" aria-hidden="true">
+          <label for="hp-website">No completes este campo</label>
+          <input type="text" id="hp-website" name="website" tabindex="-1" autocomplete="off" />
+        </div>
         <!-- Nombre -->
         <div class="field">
           <label for="nombre">Nombre completo</label>
@@ -817,6 +824,19 @@ const paises = [
     to { opacity: 1; transform: translateY(0); }
   }
 
+  /* Honeypot: fuera de pantalla, invisible y no tabulable. No usa display:none (algunos bots
+     lo detectan y lo saltan); off-screen los engaña para que lo llenen. */
+  .hp-field {
+    position: absolute;
+    left: -9999px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+
   /* ---- Móvil ---- */
   @media (max-width: 520px) {
     .page { padding: 20px 12px 40px; }
@@ -858,13 +878,23 @@ const paises = [
       await new Promise((r) => setTimeout(r, 800)); // simula latencia
       return { ok: true, mock: true };
     }
-    const res = await fetch(WORKER_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) throw new Error('Worker respondió ' + res.status);
-    return { ok: true };
+    // Timeout de 15s: en red móvil mala el fetch puede colgarse y dejar el spinner infinito.
+    // AbortController + setTimeout (más compatible que AbortSignal.timeout en Safari iOS viejo).
+    // Al abortar, fetch rechaza -> lo agarra el catch del submit -> tarjeta de error + botón restaurado.
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    try {
+      const res = await fetch(WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+      });
+      if (!res.ok) throw new Error('Worker respondió ' + res.status);
+      return { ok: true };
+    } finally {
+      clearTimeout(timeoutId);
+    }
   }
 
   (window as any).__decentralizeForm = { buildFormPayload, submitForm, isLocal };
@@ -900,9 +930,12 @@ const paises = [
   const referidoField = $('referido-field');
   const referidoInput = $('referido-nombre');
 
+  const honeypot = $('hp-website');   // anti-spam (invisible; los bots lo llenan)
+
   let comoSeEntero = '';
   let opcion = 'pago';
   let attempted = false; // los warnings solo aparecen tras intentar enviar
+  let submitting = false; // guard anti doble-submit (evita leads duplicados y doble Purchase)
 
   /* ---- Parte C: restricción de tipo de input ---- */
   // Nombre y Referido: solo letras, espacios, tildes, ñ, apóstrofes y guiones.
@@ -949,9 +982,16 @@ const paises = [
       return !msg;
     },
     telefono() {
-      const ok = telefono.value.trim().length > 0;
-      setError('err-telefono', ok ? '' : 'Este campo es obligatorio', [telefono]);
-      return ok;
+      // El código de país va aparte (select #codigo): acá validamos solo el número local.
+      // Mínimo 8 dígitos (C-01: evita leads incontactables con tráfico pagado); tope 15 generoso
+      // para no rechazar longitudes válidas de distintos países de LATAM.
+      const v = telefono.value.trim();
+      const digitos = v.replace(/\D/g, '').length;
+      let msg = '';
+      if (!v) msg = 'Este campo es obligatorio';
+      else if (digitos < 8 || digitos > 15) msg = 'Ingresá un número válido';
+      setError('err-telefono', msg, [telefono]);
+      return !msg;
     },
     pais() {
       const ok = pais.value.trim().length > 0;
@@ -1182,6 +1222,20 @@ const paises = [
   /* Submit: valida todo. Si falta algo, muestra warnings y NO envía. */
   form.addEventListener('submit', async e => {
     e.preventDefault();
+
+    // Guard anti doble-submit: si ya hay un envío en curso, ignorar (Enter repetido / doble tap).
+    if (submitting) return;
+
+    // Honeypot: si el campo invisible viene lleno, es un bot. Mostramos la pantalla de éxito de
+    // pago de forma PURAMENTE visual (sin Worker, sin Pixel, sin Calendly): no ensucia el Sheet,
+    // no quema la cuota de Resend ni dispara un Purchase falso. Los humanos nunca ven este campo.
+    if (honeypot && honeypot.value.trim() !== '') {
+      $('success-nombre').textContent = primerNombre();
+      $('success-email').textContent = email.value.trim();
+      crossFade(formCard, $('success-pago'));
+      return;
+    }
+
     attempted = true;
 
     const results = [
@@ -1189,11 +1243,23 @@ const paises = [
       validators.pais(), validators.como(), validators.referido(), validators.opcion(),
     ];
     const allValid = results.every(Boolean);
-    banner.hidden = allValid;
-    if (!allValid) return; // hay errores: no se envía
+    if (!allValid) {
+      // Restaurar el mensaje por defecto (por si el guard del bridge lo cambió antes).
+      banner.querySelector('span').textContent = 'Por favor completá todos los campos antes de continuar.';
+      banner.hidden = false;
+      return; // hay errores: no se envía
+    }
+    banner.hidden = true;
 
     // buildFormPayload y submitForm vienen del <script> puente (módulo diferido).
+    // Guard del bridge: en red lenta el módulo puede no haber cargado aún; sin esto,
+    // bridge.buildFormPayload lanzaría un TypeError silencioso y el botón quedaría muerto.
     const bridge = window.__decentralizeForm;
+    if (!bridge) {
+      banner.querySelector('span').textContent = 'La página todavía está cargando. Probá de nuevo en unos segundos.';
+      banner.hidden = false;
+      return;
+    }
     const payload = bridge.buildFormPayload({
       nombre: nombre.value,
       email: email.value,
@@ -1211,6 +1277,7 @@ const paises = [
       dzTrack('InitiateCheckout', { value: 97, currency: 'USD' }, { standard: true });
     }
 
+    submitting = true;
     setLoading(true);
     try {
       await bridge.submitForm(payload);
@@ -1229,6 +1296,7 @@ const paises = [
       showSuccess(payload.opcion);
     } catch (err) {
       console.error('[submit] fallo el envío:', err);
+      submitting = false; // permite reintentar
       setLoading(false);
       dzTrack('FormError', {}); // en local no salta (el mock siempre resuelve OK)
       crossFade(formCard, $('error-card'));

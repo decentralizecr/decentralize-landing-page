@@ -697,10 +697,16 @@ if (document.readyState === 'loading') {
     while (stage.firstChild) stage.removeChild(stage.firstChild);
   }
 
+  /* A-05: el globo NO se construye en el critical path. globeReady queda en false hasta el
+     idle-init post first-paint; hasta entonces syncGlobeAnim no hace nada (no hay globo que
+     pausar/destruir todavía), así el hilo principal pinta el texto y el CTA del hero primero. */
+  let globeReady = false;
+
   /* Ciclo de vida: viewport (evento del observer del hero+problema) + visibilidad de pestaña.
      - En viewport: construir (si hacía falta) y animar según la pestaña.
      - Fuera de viewport: MÓVIL destruye (libera GPU); DESKTOP solo pausa. */
   function syncGlobeAnim() {
+    if (!globeReady) return;
     if (inViewport()) {
       buildGlobe();
       if (world) {
@@ -724,8 +730,26 @@ if (document.readyState === 'loading') {
   window.addEventListener('globe:visibility', syncGlobeAnim);
   document.addEventListener('visibilitychange', syncGlobeAnim);
 
-  buildGlobe();      // el hero está en viewport al cargar
-  syncGlobeAnim();
+  /* A-05: primer arranque del globo DIFERIDO al idle (tras el first paint del hero). El texto y el
+     CTA pintan primero; el globo se construye cuando el hilo principal está libre y entra con un
+     fade suave (nada de pop brusco). Fallback setTimeout para Safari (no soporta requestIdleCallback).
+     Las recreaciones móviles posteriores (dispose al salir/entrar del viewport) siguen igual. */
+  function firstGlobeInit() {
+    if (globeReady) return;
+    globeReady = true;
+    syncGlobeAnim();   // construye si el hero está en viewport (lo está al cargar)
+    const cv = stage.querySelector('canvas');
+    if (cv) {
+      cv.style.opacity = '0';
+      cv.style.transition = 'opacity .5s ease';
+      requestAnimationFrame(() => requestAnimationFrame(() => { cv.style.opacity = '1'; }));
+    }
+  }
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(firstGlobeInit, { timeout: 2000 });
+  } else {
+    setTimeout(firstGlobeInit, 200);
+  }
 </script>
 
 <!-- Hamburger móvil -->
