@@ -624,6 +624,12 @@
     background: rgba(9,9,13,0.92);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
+    /* Realce naranja ESTATICO que reemplaza al glow que antes daba el
+       backdrop-filter. border translucido + box-shadow exterior + un inset
+       tenue: los tres son baratos y NO crean buffers offscreen como el
+       backdrop-filter. Sin animacion (nada de glow pulsante). */
+    border: 1px solid rgba(247,147,26,0.22);
+    box-shadow: 0 0 18px rgba(247,147,26,0.10), inset 0 0 22px rgba(247,147,26,0.035);
     transition: max-height 0.5s ease, width 0.5s ease, border-color 0.3s ease, box-shadow 0.3s ease;
   }
   .mod-card:nth-child(odd) {
@@ -639,6 +645,9 @@
     max-height: 600px;
     width: 80vw;
     overflow: hidden;
+    /* La card activa levanta un poco mas el glow naranja (estatico). El
+       border-color fuerte ya lo da la regla global .mod-card.open. */
+    box-shadow: 0 0 28px rgba(247,147,26,0.20), inset 0 0 26px rgba(247,147,26,0.05);
   }
 
   /* Ocultar todo el contenido textual hasta que esté completamente abierto */
@@ -854,6 +863,32 @@
 }
 .mods-laser-crack.firing {
   animation: crackFlash 1s ease-out forwards;
+}
+
+/* ---- Conector zig-zag ESTATICO (solo movil) ----
+   Recrea el recorrido que dibujaba el laser conectando las cards, pero como un
+   SVG estatico: sin canvas, sin rAF, sin animacion. El "glow" barato es un
+   segundo trazo mas ancho y translucido POR DETRAS (mods-conn-glow), en vez de
+   un feGaussianBlur (que crearia un buffer de filtro). El trazo fino de encima
+   (mods-conn-line) lleva el gradiente naranja. Ambos viven en .mods-laser
+   (z-index 1), asi que en movil las cards opacas lo tapan por dentro y solo se
+   ve el zig-zag cruzando los huecos entre cards: justo el efecto de conector. */
+@media (max-width: 768px) {
+  .mods-conn-glow {
+    fill: none;
+    stroke: rgba(247,147,26,0.16);
+    stroke-width: 6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .mods-conn-line {
+    fill: none;
+    stroke: url(#modsConnGrad);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.9;
+  }
 }
 @keyframes crackFlash {
   0% {
@@ -1207,6 +1242,69 @@
           });
         });
       }
+    }
+  }
+
+  /* Conector zig-zag ESTATICO en movil.
+     El laser animado sigue apagado en movil (noCanvasMobile). Aca reponemos el
+     recorrido como un SVG estatico dentro del mismo <svg class="mods-laser">:
+     se dibuja UNA vez (dos polilineas: glow ancho + linea con gradiente) y solo
+     se re-mide en eventos de layout (abrir/cerrar una card, rotar el telefono),
+     nunca en un loop. Sin canvas, sin requestAnimationFrame, sin animacion. */
+  if (noCanvasMobile) {
+    const connSvg = document.querySelector('.mods-laser');
+    const connCards = Array.from(document.querySelectorAll('.mod-card'));
+
+    if (connSvg && connCards.length) {
+      function buildConnector() {
+        const svgRect = connSvg.getBoundingClientRect();
+        if (!svgRect.width || !svgRect.height) return;
+        connSvg.setAttribute('viewBox', `0 0 ${svgRect.width} ${svgRect.height}`);
+
+        /* Mismo vertice metido ~18% hacia el lado interno de cada card que
+           usaba el laser, para que el zig-zag calce con el recorrido original. */
+        const midX = svgRect.width / 2;
+        const pts = connCards.map(card => {
+          const r = card.getBoundingClientRect();
+          const cx = r.left + r.width / 2 - svgRect.left;
+          const cy = r.top + r.height / 2 - svgRect.top;
+          const vx = cx > midX ? cx - r.width * 0.18 : cx + r.width * 0.18;
+          return `${vx.toFixed(1)},${cy.toFixed(1)}`;
+        }).join(' ');
+
+        connSvg.innerHTML =
+          '<defs><linearGradient id="modsConnGrad" x1="0" y1="0" x2="0" y2="1">' +
+          '<stop offset="0" stop-color="#F7931A" stop-opacity="0.25"/>' +
+          '<stop offset="0.5" stop-color="#FFB347" stop-opacity="0.85"/>' +
+          '<stop offset="1" stop-color="#F7931A" stop-opacity="0.25"/>' +
+          '</linearGradient></defs>' +
+          `<polyline class="mods-conn-glow" points="${pts}"></polyline>` +
+          `<polyline class="mods-conn-line" points="${pts}"></polyline>`;
+      }
+
+      /* Medir con las cards ya en su posicion final (reveal + fuentes listas). */
+      const startConn = () => {
+        const fontsReady = document.fonts ? document.fonts.ready : Promise.resolve();
+        fontsReady.then(() => setTimeout(buildConnector, 600));
+      };
+      if (document.readyState === 'complete') startConn();
+      else window.addEventListener('load', startConn);
+
+      /* Re-medir solo en cambios de layout (no en un loop): fin del reveal,
+         abrir/cerrar una card (cambia su alto y desplaza las de abajo), rotar. */
+      let connT;
+      const scheduleConn = () => { clearTimeout(connT); connT = setTimeout(buildConnector, 80); };
+      connCards.forEach(card => {
+        card.addEventListener('transitionend', (ev) => {
+          if (ev.propertyName === 'max-height' || ev.propertyName === 'transform') scheduleConn();
+        });
+      });
+      let connLastW = window.innerWidth;
+      window.addEventListener('resize', () => {
+        if (window.innerWidth === connLastW) return;   // ignorar resize de solo-alto (barra iOS)
+        connLastW = window.innerWidth;
+        scheduleConn();
+      }, { passive: true });
     }
   }
 
