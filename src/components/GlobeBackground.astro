@@ -25,8 +25,8 @@
   .defs-bg       { position:absolute;width:0;height:0;overflow:hidden }
 </style>
 
-<!-- CDN: Globe.GL (is:inline = Astro no lo procesa, el browser lo ejecuta) -->
-<script is:inline src="//cdn.jsdelivr.net/npm/globe.gl"></script>
+<!-- CDN: Globe.GL. defer = no bloquea el parseo del form de /empezar (A-01). Versión pineada + SRI. -->
+<script is:inline defer src="https://cdn.jsdelivr.net/npm/globe.gl@2.46.1/dist/globe.gl.min.js" integrity="sha384-fS13P48RBFel+cPUp5960AhzvtEr64LerQ00neZuM+Hi/VDxxemdQnN7IcWPYvPb" crossorigin="anonymous"></script>
 
 <!-- Estrellas pulsantes + cometas (DPR <= 1.5) -->
 <script is:inline>
@@ -179,7 +179,7 @@
   const world = new Globe(stage, { animateIn: false })
     .backgroundColor('rgba(0,0,0,0)')
     .globeImageUrl('/textures/earth-2048.webp')  /* self-host 2048x1024 (era 4096: 32->8 MB decode) */
-    .bumpImageUrl('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-topology.png')
+    .bumpImageUrl('/textures/earth-topology-1024.webp')  /* self-host 1024x512 (era CDN 2048x1024: ~10.7->2.7 MB GPU) */
     .showAtmosphere(true)
     .atmosphereColor('#00E5FF')
     .atmosphereAltitude(0.162)

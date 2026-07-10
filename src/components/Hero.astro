@@ -8,7 +8,27 @@
 <style is:inline>
   .menu-wrap { display: none; }
   @media (max-width: 900px) { .menu-wrap { display: flex; } }
+  /* Anti-FOUC de la entrada: con GSAP diferido (A-01) la animacion corre en DOMContentLoaded,
+     despues del primer paint. Ocultamos los elementos que GSAP anima para que no aparezcan y
+     luego "salten". La clase gsap-pending la agrega un script sincrono; si GSAP no carga o hay
+     reduced-motion, initHero la quita y el contenido se muestra sin animacion. */
+  .gsap-pending .reveal > span,
+  .gsap-pending .sub,
+  .gsap-pending .vsl,
+  .gsap-pending .cta-row,
+  .gsap-pending .stat,
+  .gsap-pending .scroll-ind { opacity: 0; }
+  @media (prefers-reduced-motion: reduce) {
+    .gsap-pending .reveal > span,
+    .gsap-pending .sub,
+    .gsap-pending .vsl,
+    .gsap-pending .cta-row,
+    .gsap-pending .stat,
+    .gsap-pending .scroll-ind { opacity: 1; }
+  }
 </style>
+<!-- Marca sincrona: oculta la entrada hasta que GSAP la anime (ver anti-FOUC arriba). -->
+<script is:inline>document.documentElement.classList.add('gsap-pending');</script>
 
 <!-- Capas de fondo -->
 <canvas id="space"></canvas>
@@ -244,13 +264,15 @@
   }
 </style>
 
-<!-- CDN: Globe.GL + GSAP (is:inline = Astro no los procesa, el browser los ejecuta) -->
-<script is:inline src="//cdn.jsdelivr.net/npm/globe.gl"></script>
-<script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<!-- CDN: Globe.GL + GSAP (is:inline = Astro no los procesa, el browser los ejecuta).
+     defer = NO bloquean el parseo del HTML: las 11 secciones pintan antes de descargarlos (A-01/LCP).
+     Versión pineada (antes globe.gl iba a "latest" protocol-relative: rompía el hero sin avisar). -->
+<script is:inline defer src="https://cdn.jsdelivr.net/npm/globe.gl@2.46.1/dist/globe.gl.min.js" integrity="sha384-fS13P48RBFel+cPUp5960AhzvtEr64LerQ00neZuM+Hi/VDxxemdQnN7IcWPYvPb" crossorigin="anonymous"></script>
+<script is:inline defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha384-g4NTh/Iv5PPU4xPyhEWqPcwtNXOvdaDI8LLnyYfyNZOjKJeYQyjzQ9X5275eBjpt" crossorigin="anonymous"></script>
 
 <!-- Animaciones GSAP + contadores + liquid glass + estrellas/cometas -->
 <script is:inline>
-(function () {
+function initHero() {
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const hdr = document.getElementById('hdr');
   const scrollInd = document.getElementById('scrollInd');
@@ -284,11 +306,9 @@
       syncGlobe();
     }, { threshold: 0 });
     if (heroMain) globeObs.observe(heroMain);
-    // #problema se renderiza después de este script — esperar a que el DOM esté completo
-    document.addEventListener('DOMContentLoaded', () => {
-      const problemaEl = document.getElementById('problema');
-      if (problemaEl) globeObs.observe(problemaEl);
-    });
+    // initHero corre en DOMContentLoaded: el DOM ya está completo, #problema existe.
+    const problemaEl = document.getElementById('problema');
+    if (problemaEl) globeObs.observe(problemaEl);
   }
 
   /* Entrada con GSAP */
@@ -302,6 +322,10 @@
       .from('.stat',       { y: 18, opacity: 0, duration: .7, stagger: .1 }, 1.0)
       .from('.scroll-ind', { opacity: 0, duration: .8 }, 1.3);
   }
+  /* Anti-FOUC: GSAP ya fijó el estado inicial (opacity:0 inline) de forma síncrona, o no hay
+     animación. Quitar la marca en el mismo tick (sin paint intermedio) revela el contenido:
+     con animación mandan los estilos inline de GSAP; sin ella, el hero aparece estático. */
+  document.documentElement.classList.remove('gsap-pending');
 
   /* Contadores animados */
   const fmt = n => n.toLocaleString('es-CR');
@@ -423,7 +447,14 @@
       document.addEventListener('visibilitychange', syncSpace);
     }
   })();
-})();
+}
+// GSAP se carga con defer: existe al dispararse DOMContentLoaded. Arrancamos ahí para no
+// depender de un script síncrono que bloquee el parseo (A-01). Guard por si el DOM ya cargó.
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initHero);
+} else {
+  initHero();
+}
 </script>
 
 <!-- Globe.GL + Three.js: planeta, nodos Bitcoin, arcos, ₿ viajando -->
@@ -578,7 +609,7 @@
     world = new Globe(stage, { animateIn: false })
       .backgroundColor('rgba(0,0,0,0)')
       .globeImageUrl('/textures/earth-2048.webp')  /* self-host 2048x1024 (era 4096: 32->8 MB decode) */
-      .bumpImageUrl('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-topology.png')
+      .bumpImageUrl('/textures/earth-topology-1024.webp')  /* self-host 1024x512 (era CDN 2048x1024: ~10.7->2.7 MB GPU) */
       .showAtmosphere(true)
       .atmosphereColor('#00E5FF')
       .atmosphereAltitude(0.162)
