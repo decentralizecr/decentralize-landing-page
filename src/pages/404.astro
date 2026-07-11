@@ -1,0 +1,96 @@
+---
+// Pagina 404 propia (E-02). Cloudflare Pages sirve dist/404.html con status 404 para
+// rutas inexistentes. Reutiliza LegalLayout: fondo de estrellas + header (logo -> /) +
+// footer del sitio. Fondo oscuro, voseo, sin guion largo.
+import LegalLayout from '../layouts/LegalLayout.astro';
+---
+<LegalLayout
+  title="Página no encontrada | Decentralize"
+  description="La página que buscás no existe o se movió. Volvé al inicio y seguí aprendiendo sobre Bitcoin."
+>
+  <section class="nf">
+    <p class="nf-code" aria-hidden="true">404</p>
+    <h1 class="nf-title">Esta página se perdió en el espacio.</h1>
+    <p class="nf-sub">El enlace que seguiste no existe o se movió de lugar. Volvé al inicio y seguí tu camino con Bitcoin.</p>
+    <div class="nf-actions">
+      <a href="/" class="nf-btn nf-btn--primary">Volver al inicio</a>
+      <a href="/empezar" class="nf-btn nf-btn--ghost">Empezá el Masterclass</a>
+    </div>
+  </section>
+</LegalLayout>
+
+<style>
+  .nf {
+    text-align: center;
+    padding: clamp(24px, 6vw, 56px) 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+  .nf-code {
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
+    font-size: clamp(56px, 16vw, 120px);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 2px;
+    margin: 0;
+    background: linear-gradient(180deg, #F7931A, #C99A4B);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 40px rgba(247, 147, 26, 0.25);
+  }
+  .nf-title {
+    font-family: var(--font-display, 'Space Grotesk', sans-serif);
+    font-size: clamp(1.4rem, 5vw, 2.1rem);
+    font-weight: 600;
+    line-height: 1.15;
+    margin: 0;
+    color: var(--text-bright, #fff);
+  }
+  .nf-sub {
+    max-width: 44ch;
+    margin: 0 auto;
+    font-size: clamp(0.95rem, 2.6vw, 1.05rem);
+    line-height: 1.6;
+    color: var(--muted, #9aa3b2);
+  }
+  .nf-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .nf-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 13px 22px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 550;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+  }
+  .nf-btn--primary {
+    background: linear-gradient(135deg, #F7931A, #E6C079);
+    color: #0b0b0e;
+    box-shadow: 0 0 24px rgba(247, 147, 26, 0.35);
+  }
+  .nf-btn--primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 34px rgba(247, 147, 26, 0.5);
+  }
+  .nf-btn--ghost {
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-bright, #fff);
+    border: 1px solid rgba(247, 147, 26, 0.4);
+  }
+  .nf-btn--ghost:hover {
+    transform: translateY(-2px);
+    border-color: rgba(247, 147, 26, 0.85);
+    background: rgba(247, 147, 26, 0.08);
+  }
+</style>

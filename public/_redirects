@@ -1,0 +1,4 @@
+# Canonicalizacion de host: www -> apex con 301 (preserva path y query via :splat).
+# El canonical de todas las paginas apunta al apex, asi que unificamos ahi (E-03).
+# Cloudflare Pages aplica esta regla porque ambos dominios (apex + www) enrutan al proyecto.
+https://www.decentralizecr.com/* https://decentralizecr.com/:splat 301
