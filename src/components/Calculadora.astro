@@ -169,9 +169,10 @@
     position: fixed; inset: 0; z-index: 200; display: flex; align-items: flex-start; justify-content: center;
     padding: clamp(12px, 4vh, 48px) 16px; overflow-y: auto;
     background: rgba(3,4,7,0.72); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
-    opacity: 0; pointer-events: none; transition: opacity .3s ease;
+    opacity: 0; pointer-events: none; visibility: hidden;
+    transition: opacity .3s ease, visibility 0s linear .3s;
   }
-  .calc-backdrop.is-open { opacity: 1; pointer-events: auto; }
+  .calc-backdrop.is-open { opacity: 1; pointer-events: auto; visibility: visible; transition: opacity .3s ease; }
   .calc-modal {
     position: relative; width: min(760px, 100%); margin: 0 auto;
     background: linear-gradient(180deg, rgba(14,16,22,.94), rgba(7,8,12,.96));
@@ -444,7 +445,9 @@
     });
 
     /* ── Abrir / cerrar ── */
+    let calcLastFocused: HTMLElement | null = null;
     function open() {
+      calcLastFocused = document.activeElement as HTMLElement | null;
       backdrop!.setAttribute('aria-hidden', 'false');
       backdrop!.classList.add('is-open');
       document.body.style.overflow = 'hidden';
@@ -455,12 +458,14 @@
       // nunca queda vacío aunque el lead calcule al toque.
       refreshCagr();
       track('CalculadoraOpen');
+      closeBtn.focus();
     }
     function close() {
       backdrop!.setAttribute('aria-hidden', 'true');
       backdrop!.classList.remove('is-open');
       document.body.style.overflow = '';
       track('CalculadoraClose');
+      calcLastFocused?.focus();
     }
     fab!.addEventListener('click', open);
     closeBtn.addEventListener('click', close);

@@ -9,7 +9,7 @@ Frontend premium para Decentralize (educación en Bitcoin, Costa Rica / LatAm). 
 - Astro v6, output `static`
 - Tailwind CSS v4 (plugin de Vite) + design tokens en CSS variables
 - TypeScript. Islands con TS vanilla (sin SPA framework)
-- Animación: GSAP + ScrollTrigger, Lenis (smooth scroll), tilt 3D por pointer
+- Animación: GSAP, tilt 3D por pointer
 - Tests: Vitest (unit) + Playwright (E2E)
 - Deploy: Cloudflare Pages, auto-deploy on push (`astro build` → `dist/`)
 

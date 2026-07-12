@@ -158,6 +158,11 @@
     }
 
     vsl.addEventListener('click', playVsl);
+    vsl.addEventListener('keydown', (ev: KeyboardEvent) => {
+      if (ev.key !== 'Enter' && ev.key !== ' ') return;
+      ev.preventDefault();
+      playVsl();
+    });
   }
 
   /* ── Delegación de clicks: CTAClick + ClickEmpezar + Contact ── */

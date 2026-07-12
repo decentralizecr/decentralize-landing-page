@@ -1150,6 +1150,20 @@
         });
       }
 
+      /* A-09: el interval del laser solo corre con la seccion en viewport.
+         Se pausa (clearInterval) al salir y se relanza al reentrar, via el
+         IntersectionObserver de mas abajo, para no forzar layout en segundo plano. */
+      let laserIntervalId = null;
+      const startLaserInterval = () => {
+        if (laserIntervalId !== null) return;
+        laserIntervalId = setInterval(fireLasers, 1500);
+      };
+      const stopLaserInterval = () => {
+        if (laserIntervalId === null) return;
+        clearInterval(laserIntervalId);
+        laserIntervalId = null;
+      };
+
       const laserInit = () => {
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
@@ -1158,7 +1172,7 @@
               setTimeout(() => {
                 buildLaser(); /* segunda medición tras estabilizar layout */
                 fireLasers();
-                setInterval(fireLasers, 1500);
+                startLaserInterval();
               }, 800);
             });
           });
@@ -1224,6 +1238,18 @@
           });
         }, { threshold: 0.1 });
         vpObs.observe(track);
+      }
+
+      /* A-09: pausar/relanzar el interval del laser segun visibilidad de la seccion. */
+      const laserSection = document.getElementById('masterclass');
+      if (laserSection && 'IntersectionObserver' in window) {
+        const laserVisObs = new IntersectionObserver(entries => {
+          entries.forEach(e => {
+            if (e.isIntersecting) startLaserInterval();
+            else stopLaserInterval();
+          });
+        }, { threshold: 0 });
+        laserVisObs.observe(laserSection);
       }
 
       /* Solo mobile: al abrir o cerrar un acordeón, la card crece o se

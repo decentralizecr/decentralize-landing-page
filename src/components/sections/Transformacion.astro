@@ -333,9 +333,21 @@
   opacity: 1;
   transform: none;
 }
-/* Movil: canvas warp apagado por JS; ocultarlo tambien por CSS (fondo --bg-base solido). */
+/* Movil: canvas warp apagado por JS; ocultarlo tambien por CSS. En vez de dejar
+   el --bg-base plano, reponemos vida con un fondo estatico barato: SOLO gradientes
+   CSS (sin canvas, sin rAF, sin animacion). Evoca la energia del warp apagado:
+   nucleo calido al centro + resplandor rojo a la izquierda (ANTES) y naranja a la
+   derecha (DESPUES), en sintonia con las cards. Alphas bajos: no compite con los
+   glows de las cards ni afecta el contraste del texto. */
 @media (max-width: 768px) {
   .trf-canvas { display: none; }
+  .trf {
+    background:
+      radial-gradient(ellipse 85% 65% at 50% 38%, rgba(247,147,26,0.06), transparent 60%),
+      radial-gradient(circle at 12% 42%, rgba(180,60,60,0.05), transparent 55%),
+      radial-gradient(circle at 88% 42%, rgba(247,147,26,0.05), transparent 55%),
+      var(--bg-base);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .trf-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
