@@ -28,9 +28,16 @@ import LegalLayout from '../layouts/LegalLayout.astro';
   Nuestro sitio web utiliza las siguientes tecnologías:</p>
 
   <ul>
-    <li><strong>Cloudflare:</strong> proveedor de hosting y seguridad. Puede recopilar datos técnicos como dirección IP y tipo de navegador para proteger el sitio.</li>
+    <li><strong>Cloudflare:</strong> proveedor de hosting, seguridad y analítica. Puede recopilar datos técnicos como dirección IP y tipo de navegador para proteger el sitio y medir el tráfico de forma agregada.</li>
     <li><strong>Meta Pixel (Facebook/Instagram):</strong> utilizamos este píxel de seguimiento para medir el rendimiento de nuestros anuncios en redes sociales y mostrar publicidad relevante a personas que visitaron nuestro sitio. Podés optar por no participar desde tu configuración en Facebook/Instagram.</li>
+    <li><strong>YouTube:</strong> el video de presentación del curso se muestra embebido en modo de privacidad extendida (youtube-nocookie). Al reproducirlo, YouTube puede recopilar datos técnicos de tu dispositivo.</li>
+    <li><strong>Calendly:</strong> si elegís agendar una llamada, usamos Calendly para gestionar la cita. Los datos que ingresés en el calendario (nombre, correo) los procesa Calendly para confirmar y recordarte la reunión.</li>
+    <li><strong>TradingView:</strong> la gráfica de precio de Bitcoin dentro de la calculadora se carga desde TradingView, que puede recopilar datos técnicos al mostrarse.</li>
+    <li><strong>CoinGecko:</strong> consultamos su API pública para mostrar el precio de Bitcoin en vivo en la calculadora. No le enviamos ningún dato personal tuyo.</li>
   </ul>
+
+  <p><strong>Meta Pixel y advanced matching:</strong><br />
+  Para medir mejor las conversiones de nuestra publicidad, el Meta Pixel puede usar la función de advanced matching. Esto significa que algunos datos de contacto que nos proporcionás (como correo electrónico, teléfono o nombre) se envían a Meta de forma cifrada mediante un hash SHA-256, nunca en texto plano. El hasheo convierte el dato en un código irreversible antes de salir de tu navegador, de modo que Meta puede cotejar la conversión sin recibir tus datos legibles. Podés desactivar la publicidad personalizada desde tu configuración en Facebook e Instagram.</p>
 
   <p><strong>Datos de redes sociales:</strong><br />
   Si nos escribís por Instagram, Facebook, X u otra red social, la información que compartís voluntariamente puede ser utilizada para responder tu consulta o brindarte soporte.</p>
@@ -56,8 +63,9 @@ import LegalLayout from '../layouts/LegalLayout.astro';
     <li><strong>Google (Google Sheets):</strong> almacena los datos de tu formulario de compra o contacto</li>
     <li><strong>Resend:</strong> servicio que envía los correos automáticos con las instrucciones de pago</li>
     <li><strong>Discord:</strong> plataforma donde opera la comunidad privada Decentralize</li>
-    <li><strong>Cloudflare:</strong> proveedor de hosting y protección del sitio web</li>
-    <li><strong>Meta (Facebook/Instagram):</strong> para el funcionamiento del píxel publicitario</li>
+    <li><strong>Cloudflare:</strong> proveedor de hosting, protección y analítica del sitio web</li>
+    <li><strong>Calendly:</strong> si agendás una llamada, recibe tu nombre y correo para gestionar la cita</li>
+    <li><strong>Meta (Facebook/Instagram):</strong> para el funcionamiento del píxel publicitario. Con advanced matching, algunos datos de contacto se le envían cifrados con hash SHA-256, nunca en texto plano</li>
     <li><strong>Procesadores de pago:</strong> reciben únicamente la información mínima para completar tu transacción</li>
     <li><strong>Autoridades:</strong> cuando la ley costarricense lo exija</li>
   </ul>

@@ -1,3 +1,8 @@
+# variables de entorno / secretos (nunca se commitean)
+.env
+.env.*
+!.env.example
+
 # dependencias
 node_modules/
 

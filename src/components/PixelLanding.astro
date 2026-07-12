@@ -161,12 +161,30 @@
   }
 
   /* ── Delegación de clicks: CTAClick + ClickEmpezar + Contact ── */
-  const SOCIAL: Array<[RegExp, string]> = [
-    [/instagram\.com/i, 'instagram'],
-    [/facebook\.com/i, 'facebook'],
-    [/tiktok\.com/i, 'tiktok'],
-    [/(?:^|\.)x\.com|twitter\.com/i, 'x'],
-  ];
+  // Dominio de red -> canal. Se resuelve por hostname del link (no por regex
+  // sobre el href): la regex vieja nunca matcheaba x.com (le exigía un punto o
+  // inicio antes de "x.com", y en https://x.com/... lo precede "//").
+  const SOCIAL_CHANNELS: Record<string, string> = {
+    'instagram.com': 'instagram',
+    'facebook.com': 'facebook',
+    'tiktok.com': 'tiktok',
+    'x.com': 'x',
+    'twitter.com': 'twitter',
+  };
+
+  // Devuelve el canal si el hostname es (o es subdominio de) una red conocida.
+  function socialChannel(href: string): string | null {
+    let host = '';
+    try {
+      host = new URL(href).hostname.toLowerCase();
+    } catch {
+      return null; // href relativo o inválido: no es red social
+    }
+    for (const domain in SOCIAL_CHANNELS) {
+      if (host === domain || host.endsWith('.' + domain)) return SOCIAL_CHANNELS[domain];
+    }
+    return null;
+  }
 
   function ctaLabel(el: HTMLElement): string {
     const explicit = el.dataset.ctaLabel;
@@ -207,13 +225,10 @@
       if (a.pathname === '/empezar') {
         track('ClickEmpezar', { source: location });
       }
-      // Contact para redes sociales.
-      const href = a.href || '';
-      for (const [re, channel] of SOCIAL) {
-        if (re.test(href)) {
-          track('Contact', { channel }, { standard: true });
-          break;
-        }
+      // Contact para redes sociales (canal por hostname).
+      const channel = socialChannel(a.href || '');
+      if (channel) {
+        track('Contact', { channel }, { standard: true });
       }
     }
   }, true);

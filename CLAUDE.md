@@ -65,8 +65,8 @@ POST `https://decentralize-form.decentralizecr.workers.dev` · `Content-Type: ap
 
 ## Meta Pixel — ID 871601738724161
 Encapsular en `src/lib/pixel.ts` (`track(evento, params)`), verificar `window.fbq` antes de disparar.
-- Landing: PageView, ViewContent, Lead, InitiateCheckout, Contact + custom: ScrollDepth, VideoVisible, TestimonioVisto, FAQAbierto, DiscordToggleAbierto, CalculadoraOpen, CalculadoraCalculo, CalculadoraResult.
-- Form: PageView, Lead, ViewContent, Purchase (value:97, USD), Schedule + custom: FormStart, FormComplete, OpcionPago, OpcionLlamada, FormAbandono, CalendlyVisto.
+- Landing: PageView, ViewContent, Contact (estándar) + custom: SectionView, ScrollDepth, VideoVisible, VideoPlay, VideoProgress, VideoComplete, CTAClick, ClickEmpezar, FAQOpen, TestimonioVisto, TestimonioAbierto, DiscordToggleAbierto, CalculadoraOpen, CalculadoraClose, CalculadoraCalculo, CalculadoraResult, ChartTimeframe.
+- Form: PageView, ViewContent, InitiateCheckout, Lead, Purchase (value:97, USD), Schedule (estándar) + custom: FormStart, FormFieldComplete, OpcionSeleccionada, CalendlyVisto, FormError, FormAbandono.
 
 ## Calculadora
 - Precio BTC en vivo: CoinGecko `/simple/price?ids=bitcoin&vs_currencies=usd`, sin llave, punto verde pulsante.

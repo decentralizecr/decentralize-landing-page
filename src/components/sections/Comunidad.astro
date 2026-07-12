@@ -879,6 +879,8 @@ const avatares = [
       const open = panel.classList.toggle('is-open');
       btn.setAttribute('aria-expanded', open ? 'true' : 'false');
       label.textContent = open ? 'Ocultar canales' : 'Ver canales';
+      // Helper central (expuesto por PixelLanding). Solo al abrir el acordeón.
+      if (open && window.dzPixel) window.dzPixel.track('DiscordToggleAbierto', {});
     });
   }
 

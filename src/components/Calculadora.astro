@@ -385,9 +385,18 @@
       '1A': { interval: '12M' },
     };
     let tfActual: TF = '1A';
+    let chartTimer: ReturnType<typeof setTimeout> | null = null;
+
+    // Fallback breve si la gráfica no carga (timeout o error de red). No rompe el resto
+    // de la calculadora: el precio vivo y el cálculo DCA siguen funcionando igual.
+    function chartFallback() {
+      if (chartTimer) { clearTimeout(chartTimer); chartTimer = null; }
+      chartWrap.innerHTML = '<div class="calc-chart__loading">No se pudo cargar la gráfica en este momento.</div>';
+    }
 
     function loadChart(tf: TF = '1A') {
       tfActual = tf;
+      if (chartTimer) { clearTimeout(chartTimer); chartTimer = null; }
       chartWrap.innerHTML = '<div class="calc-chart__loading">Cargando gráfica…</div>';
       setTimeout(() => {
         const cfg = TF_CFG[tf];
@@ -402,6 +411,8 @@
         script.type = 'text/javascript';
         script.async = true;
         script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+        // Si el script de TradingView falla en cargar: fallback inmediato.
+        script.onerror = chartFallback;
         script.text = JSON.stringify({
           autosize: true, symbol: 'BITSTAMP:BTCUSD', interval: cfg.interval,
           timezone: 'America/Costa_Rica', theme: 'dark', style: '1', locale: 'es',
@@ -413,6 +424,10 @@
         container.appendChild(script);
         chartWrap.innerHTML = '';
         chartWrap.appendChild(container);
+        // Timeout de seguridad: si en 10s no apareció el iframe del chart, mostramos fallback.
+        chartTimer = setTimeout(() => {
+          if (!chartWrap.querySelector('iframe')) chartFallback();
+        }, 10000);
       }, 250);
     }
 

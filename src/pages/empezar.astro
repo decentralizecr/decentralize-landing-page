@@ -202,8 +202,34 @@ const paises = [
         </div>
         <h2 class="result-h">¡Listo, <span id="success-nombre">crack</span>!</h2>
         <p class="result-body">Te enviamos los métodos de pago del Masterclass a <span class="result-strong" id="success-email">tu correo</span>. Si no lo ves en 5 minutos, revisá la carpeta de spam.</p>
+
+        <!-- Refuerzo inline de los métodos de pago (los mismos que manda el correo del Worker) -->
+        <div class="pay-methods" role="group" aria-label="Métodos de pago">
+          <p class="pay-title">Métodos de pago</p>
+          <ul class="pay-list">
+            <li class="pay-item">
+              <span class="pay-label">Davivienda USD</span>
+              <span class="pay-num">CR04010400640515765123</span>
+            </li>
+            <li class="pay-item">
+              <span class="pay-label">BAC USD</span>
+              <span class="pay-num">CR74010200009305172718</span>
+            </li>
+            <li class="pay-item">
+              <span class="pay-label">USDT · red TRC20</span>
+              <span class="pay-num">TR6d4xe9jLs8dtbxxnHzcixm2kA5838JS4</span>
+            </li>
+          </ul>
+          <p class="pay-price">Precio: <strong>$97 USD</strong>, pago único.</p>
+        </div>
+
+        <a class="pay-cta" href="https://ig.me/m/decentralizecr" target="_blank" rel="noopener noreferrer">
+          <svg class="pay-cta-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          Enviar comprobante por Instagram
+        </a>
+
         <p class="result-muted">Ya podés cerrar esta página.</p>
-        <a class="result-link" href="https://ig.me/m/decentralizecr" target="_blank" rel="noopener">¿Tenés dudas? Escribime por Instagram →</a>
+        <a class="result-link" href="https://ig.me/m/decentralizecr" target="_blank" rel="noopener noreferrer">¿Tenés dudas? Escribime por Instagram →</a>
       </div>
     </section>
 
@@ -232,11 +258,22 @@ const paises = [
           <h2 class="result-h">¡Cita agendada, <span id="confirmada-nombre">crack</span>!</h2>
           <p class="result-body">Te llegó la confirmación a tu correo con el enlace de la llamada. Nos vemos pronto.</p>
           <p class="result-muted">Ya podés cerrar esta página.</p>
-          <a class="result-link" href="https://ig.me/m/decentralizecr" target="_blank" rel="noopener">¿Tenés dudas? Escribime por Instagram →</a>
+          <a class="result-link" href="https://ig.me/m/decentralizecr" target="_blank" rel="noopener noreferrer">¿Tenés dudas? Escribime por Instagram →</a>
         </div>
       </div>
 
-      <div class="calendly-shell">
+      <div class="calendly-shell" id="calendly-shell">
+        <!-- Estado de carga: se muestra hasta que el widget de Calendly inserta su iframe -->
+        <div class="calendly-loading" id="calendly-loading">
+          <span class="calendly-spinner" aria-hidden="true"></span>
+          <span class="calendly-loading-text">Cargando calendario...</span>
+        </div>
+        <!-- Fallback: si el script no carga (red mala / Calendly caído) o pasa el timeout -->
+        <div class="calendly-fallback" id="calendly-fallback" hidden>
+          <p class="calendly-fallback-text">No pudimos cargar el calendario en este momento.</p>
+          <p class="calendly-fallback-text">Escribinos por Instagram y agendamos tu llamada por ahí.</p>
+          <a class="result-link" href="https://ig.me/m/decentralizecr" target="_blank" rel="noopener noreferrer">Escribime por Instagram →</a>
+        </div>
         <div
           class="calendly-inline-widget"
           id="calendly-widget"
@@ -255,7 +292,7 @@ const paises = [
         <h2 class="result-h">Algo salió mal.</h2>
         <p class="result-body">No pudimos enviar tu inscripción. Probá de nuevo o escribinos por Instagram y te ayudamos al toque.</p>
         <button type="button" class="result-retry" id="retry-btn">Reintentar</button>
-        <a class="result-link" href="https://ig.me/m/decentralizecr" target="_blank" rel="noopener">Escribime por Instagram →</a>
+        <a class="result-link" href="https://ig.me/m/decentralizecr" target="_blank" rel="noopener noreferrer">Escribime por Instagram →</a>
       </div>
     </section>
   </main>
@@ -723,6 +760,84 @@ const paises = [
     transition: color 0.2s ease, transform 0.2s ease;
   }
   .result-link:hover { color: var(--btc-light); transform: translateX(2px); }
+
+  /* ---- Refuerzo inline de métodos de pago (solo éxito camino pago) ---- */
+  .pay-methods {
+    width: 100%;
+    margin: 6px 0 2px;
+    padding: 16px 18px;
+    text-align: left;
+    background: rgba(9, 11, 16, 0.55);
+    border: 1px solid rgba(247, 147, 26, 0.22);
+    border-radius: var(--r-card);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+  .pay-title {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--btc-light);
+    margin: 0 0 12px;
+  }
+  .pay-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .pay-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .pay-label {
+    font-family: var(--font-sans);
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--txt-hi);
+  }
+  .pay-num {
+    font-family: var(--font-mono);
+    font-size: 0.86rem;
+    line-height: 1.4;
+    color: var(--muted);
+    word-break: break-all;
+    -webkit-user-select: all;
+    user-select: all;
+  }
+  .pay-price {
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin: 14px 0 0;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+  }
+  .pay-price strong { color: var(--txt-hi); font-weight: 700; }
+  .pay-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    margin-top: 4px;
+    padding: 12px 24px;
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #FFFFFF;
+    text-decoration: none;
+    background: rgba(247, 147, 26, 0.15);
+    border: 1.5px solid #F7931A;
+    border-radius: var(--r-pill);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 0 20px -6px rgba(247, 147, 26, 0.5);
+    transition: transform 0.2s ease, background 0.25s ease;
+  }
+  .pay-cta:hover { background: rgba(247, 147, 26, 0.28); transform: translateY(-1px); }
+  .pay-cta-ico { width: 18px; height: 18px; flex-shrink: 0; }
   .result-retry {
     margin-top: 4px;
     font-family: var(--font-sans);
@@ -809,6 +924,7 @@ const paises = [
   .agendar-head { margin-bottom: 4px; }
   .agendar-h1 { font-size: clamp(1.5rem, 5vw, 1.9rem); }
   .calendly-shell {
+    position: relative;
     margin-top: 22px;
     border-radius: 14px;
     overflow: hidden;
@@ -816,6 +932,53 @@ const paises = [
     background: #0d0d0d;
   }
   .calendly-inline-widget { width: 100%; }
+
+  /* Estado de carga del widget: overlay centrado sobre el shell */
+  .calendly-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .calendly-spinner {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.15);
+    border-top-color: #f7931a;
+    animation: calendly-spin 0.8s linear infinite;
+  }
+  .calendly-loading-text {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.65);
+  }
+  @keyframes calendly-spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) {
+    .calendly-spinner { animation: none; }
+  }
+
+  /* Fallback cuando el widget no puede cargar */
+  .calendly-fallback {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 260px;
+    padding: 32px 20px;
+    text-align: center;
+  }
+  .calendly-fallback-text {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+  }
+  .calendly-fallback .result-link { margin-top: 8px; }
 
   /* ---- Confirmación branded (tras agendar), arriba del widget ---- */
   .agendar-confirm { animation: confirm-in 0.4s ease both; }
@@ -1162,13 +1325,61 @@ const paises = [
   /* ---- Calendly: carga diferida del script, una sola vez ---- */
   const CALENDLY_SRC = 'https://assets.calendly.com/assets/external/widget.js';
   let calendlyRequested = false;
+  let calendlySettled = false;
+
+  // Muestra el fallback (Instagram) y oculta spinner + widget. Idempotente.
+  function calendlyFallback() {
+    if (calendlySettled) return;
+    calendlySettled = true;
+    const loading = $('calendly-loading');
+    const fallback = $('calendly-fallback');
+    const widget = $('calendly-widget');
+    if (loading) loading.hidden = true;
+    if (widget) widget.hidden = true;
+    if (fallback) fallback.hidden = false;
+  }
+
+  // El widget cargó bien: solo ocultamos el spinner. Idempotente.
+  function calendlyLoaded() {
+    if (calendlySettled) return;
+    calendlySettled = true;
+    const loading = $('calendly-loading');
+    if (loading) loading.hidden = true;
+  }
+
   function ensureCalendly() {
     if (calendlyRequested) return;           // guard: no reinyectar
     calendlyRequested = true;
     if (document.querySelector('script[src="' + CALENDLY_SRC + '"]')) return; // ya existe
+
+    const shell = $('calendly-shell');
+    // Cuando Calendly monta su iframe dentro del shell, consideramos el widget cargado.
+    let observer = null;
+    if (shell && 'MutationObserver' in window) {
+      observer = new MutationObserver(() => {
+        if (shell.querySelector('iframe')) {
+          calendlyLoaded();
+          if (observer) observer.disconnect();
+        }
+      });
+      observer.observe(shell, { childList: true, subtree: true });
+    }
+
+    // Timeout de seguridad: si a los 10s no cargó el iframe, mostramos el fallback.
+    setTimeout(() => {
+      if (calendlySettled) return;
+      if (observer) observer.disconnect();
+      calendlyFallback();
+    }, 10000);
+
     const s = document.createElement('script');
     s.src = CALENDLY_SRC;
     s.async = true;
+    // Si el script falla en cargar (red mala / Calendly caído): fallback inmediato.
+    s.onerror = () => {
+      if (observer) observer.disconnect();
+      calendlyFallback();
+    };
     document.head.appendChild(s);
     dzOnce('calendly-visto', 'CalendlyVisto', {}); // widget inyectado (camino llamada)
   }
@@ -1196,9 +1407,13 @@ const paises = [
     dzOnce('schedule', 'Schedule', { content_name: 'llamada_gratis' }, { standard: true });
   }
 
-  /* Detección de cita agendada vía postMessage de Calendly. */
+  /* Detección de cita agendada vía postMessage de Calendly.
+     Se valida el origin: solo mensajes que vienen de https://calendly.com se procesan.
+     Así un sitio malicioso embebido no puede falsificar el evento de cita agendada. */
+  const CALENDLY_ORIGIN = 'https://calendly.com';
   function isCalendlyEvent(e) {
-    return e.data && typeof e.data.event === 'string' && e.data.event.indexOf('calendly') === 0;
+    return e.origin === CALENDLY_ORIGIN
+      && e.data && typeof e.data.event === 'string' && e.data.event.indexOf('calendly') === 0;
   }
   window.addEventListener('message', (e) => {
     if (isCalendlyEvent(e) && e.data.event === 'calendly.event_scheduled') {
