@@ -100,6 +100,13 @@ const cards = [
         <span class="recibis-total-glow" aria-hidden="true"></span>
         <span class="recibis-total" data-total="1000" data-prefix="+$">+$0</span>
       </span>
+      <p class="recibis-total-clarify">
+        Ese es el valor real. Vos no pagás eso: seguí bajando para ver tu precio.
+      </p>
+      <a href="#precio" class="recibis-total-cta">
+        Ver el precio real
+        <span aria-hidden="true">↓</span>
+      </a>
       <span class="recibis-arrow" aria-hidden="true">▼</span>
     </div>
   </div>
@@ -441,6 +448,42 @@ const cards = [
   0%, 100% { text-shadow: 0 0 6px rgba(247,147,26,0.20);  filter: brightness(1); }
   50%      { text-shadow: 0 0 18px rgba(247,147,26,0.60); filter: brightness(1.18); }
 }
+/* CAMBIO: el "valor total" NO es el precio de venta. Tachado diagonal para que
+   quede claro que ese monto no es lo que se paga. */
+.recibis-total::before {
+  content: '';
+  position: absolute;
+  left: -6%;
+  right: -6%;
+  top: 50%;
+  height: 2px;
+  background: rgba(255,80,80,0.85);
+  transform: translateY(-50%) rotate(-8deg);
+  z-index: 2;
+  pointer-events: none;
+}
+.recibis-total-clarify {
+  font: 500 0.86rem/1.4 var(--font-body);
+  color: var(--txt-low);
+  max-width: 380px;
+  margin: 2px 0 0;
+}
+.recibis-total-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 600 0.78rem/1 var(--font-mono);
+  letter-spacing: 0.02em;
+  color: var(--btc-light);
+  text-decoration: underline;
+  text-decoration-color: rgba(247,147,26,0.45);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.3s ease, color 0.3s ease;
+}
+.recibis-total-cta:hover {
+  color: var(--btc);
+  text-decoration-color: var(--btc);
+}
 .recibis-arrow {
   font-size: 14px;
   color: var(--btc);
@@ -482,7 +525,9 @@ const cards = [
   .recibis-desc { font-size: 11px; }
   .recibis-value { font-size: 12px; }
   /* CAMBIO 3: menos espacio entre la última card y el bloque "Valor total". */
-  .recibis-total-wrap { margin-top: 20px; }
+  .recibis-total-wrap { margin-top: 20px; padding: 0 20px; box-sizing: border-box; }
+  .recibis-total-clarify { font-size: 0.78rem; max-width: 300px; }
+  .recibis-total-cta { font-size: 0.72rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
